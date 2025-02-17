@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIDA", "src\AIDA.csproj", "{C44D3F5F-793F-EFDC-92AE-B7EE2860BC24}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C44D3F5F-793F-EFDC-92AE-B7EE2860BC24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C44D3F5F-793F-EFDC-92AE-B7EE2860BC24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C44D3F5F-793F-EFDC-92AE-B7EE2860BC24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C44D3F5F-793F-EFDC-92AE-B7EE2860BC24}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {84E378F7-2B45-482A-AE11-0E8788C64A74}
+	EndGlobalSection
+EndGlobal
