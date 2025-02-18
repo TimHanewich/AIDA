@@ -13,16 +13,6 @@ namespace AIDA
 
         public static async Task Chat()
         {
-            //Confirm ollama is running
-            Console.Write("Confirming Ollama is running locally... ");
-            bool OllamaRunning = await LLMClient.ConfirmOllamaRunning();
-            if (!OllamaRunning)
-            {
-                Console.WriteLine("Ollama was not confirmed to be running! Make sure it is installed and running.");
-                return;
-            }
-            Console.WriteLine("Ollama is running!");
-
 
             //Construct lists that are needed
             JArray messages = new JArray();
@@ -49,17 +39,17 @@ namespace AIDA
                 NewMsg.Add("content", input);
                 messages.Add(NewMsg);
 
+                //Show messages
+                Console.WriteLine("MESSAGES I am going to send: ");
+                Console.WriteLine(messages.ToString());
+                Console.Write("Enter to continue...");
+                Console.ReadLine();
+
                 //Send to model
                 PromptModel:
                 Console.Write("Thinking...");
                 JObject ModelResponse = await LLMClient.CallAsync(messages, tools);
                 Console.WriteLine();
-
-                //Show messages
-                Console.WriteLine("MESSAGES: ");
-                Console.WriteLine(messages.ToString());
-                Console.Write("Enter to continue...");
-                Console.ReadLine();
 
                 //SHOW RESPONSE
                 Console.WriteLine("Model Response: ");
@@ -71,6 +61,8 @@ namespace AIDA
                 JToken? tool_calls = ModelResponse.SelectToken("tool_calls");
                 if (tool_calls != null) //there was a tool call!
                 {
+                    Console.WriteLine("There was a tool call! Enter to continue...");Console.ReadLine();
+
                     //Add the tool call message to the list of messages
                     messages.Add(ModelResponse);
 
@@ -111,6 +103,8 @@ namespace AIDA
                 }
                 else //it is noraml content
                 {
+
+                    Console.WriteLine("It is normal content! Enter to continue...");Console.ReadLine();
                     
                     //Parse out and print the response
                     JProperty? content = ModelResponse.Property("content");
@@ -122,7 +116,7 @@ namespace AIDA
                     }
 
                     //Add the model's response to the messages
-                    messages.Append(ModelResponse);
+                    messages.Add(ModelResponse);
                     
                 }
   
