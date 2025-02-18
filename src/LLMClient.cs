@@ -20,12 +20,11 @@ namespace AIDA
         {
             HttpRequestMessage req = new HttpRequestMessage();
             req.Method = HttpMethod.Post;
-            req.RequestUri = new Uri("http://localhost:11434/api/chat");
+            req.RequestUri = new Uri(CredentialsProvider.TargetUri);
+            req.Headers.Add("api-key", CredentialsProvider.ApiKey);
 
             //Construct body
             JObject body = new JObject();
-            body.Add("model", "llama3.2:3b");
-            body.Add("stream", false);
             body.Add("messages", messages);
             if (tools.Count > 0)
             {
@@ -46,12 +45,12 @@ namespace AIDA
             
             //Strip out message portion
             JObject contentjo = JObject.Parse(content);
-            JProperty? prop_message = contentjo.Property("message");
-            if (prop_message == null)
+            JToken? message = contentjo.SelectToken("choices[0].message");
+            if (message == null)
             {
-                throw new Exception("Property 'message' not in model's response.");
+                throw new Exception("Property 'message' not in model's response. Full content of response: " + contentjo.ToString());
             }
-            JObject ToReturn = (JObject)prop_message.Value;
+            JObject ToReturn = (JObject)message;
             return ToReturn;
         }
     }
