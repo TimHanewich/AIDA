@@ -19,7 +19,7 @@ namespace AIDA
             JArray tools = new JArray();
             
             //Add tools
-            JObject GetTemperature = JObject.Parse("{\"type\":\"function\",\"function\": {\"name\": \"get_temperature\",\"description\": \"Gets the temperature for the user's current location.\",\"parameters\": {}}}");
+            JObject GetTemperature = JObject.Parse("{\"type\":\"function\",\"function\": {\"name\": \"get_temperature\",\"description\": \"Gets the outside temperature.\",\"parameters\": {}}}");
             tools.Add(GetTemperature);
 
             //Infinite chat loop
@@ -40,10 +40,10 @@ namespace AIDA
                 messages.Add(NewMsg);
 
                 //Show messages
-                Console.WriteLine("MESSAGES I am going to send: ");
-                Console.WriteLine(messages.ToString());
-                Console.Write("Enter to continue...");
-                Console.ReadLine();
+                //Console.WriteLine("MESSAGES I am going to send: ");
+                //Console.WriteLine(messages.ToString());
+                //Console.Write("Enter to continue...");
+                //Console.ReadLine();
 
                 //Send to model
                 PromptModel:
@@ -52,17 +52,16 @@ namespace AIDA
                 Console.WriteLine();
 
                 //SHOW RESPONSE
-                Console.WriteLine("Model Response: ");
-                Console.WriteLine(ModelResponse.ToString());
-                Console.Write("Enter to continue.");
-                Console.ReadLine();
+                //Console.WriteLine("Model Response: ");
+                //Console.WriteLine(ModelResponse.ToString());
+                //Console.Write("Enter to continue.");
+                //Console.ReadLine();
 
                 //Is the response a tool call?
                 JToken? tool_calls = ModelResponse.SelectToken("tool_calls");
                 if (tool_calls != null) //there was a tool call!
                 {
-                    Console.WriteLine("There was a tool call! Enter to continue...");Console.ReadLine();
-
+                    
                     //Add the tool call message to the list of messages
                     messages.Add(ModelResponse);
 
@@ -70,16 +69,21 @@ namespace AIDA
                     JArray tcs = (JArray)tool_calls;
                     foreach (JObject tool_call in tcs) //loop through each tool call
                     {
-                        //Select name
+                        //Select name of the tool being called
                         string name = "";
                         JToken? tool_name = tool_call.SelectToken("function.name");
                         if (tool_name != null){name = tool_name.ToString();}
 
+                        //Select ID of the tool call
+                        string tool_call_id = "";
+                        JProperty? prop_id = tool_call.Property("id");
+                        if (prop_id != null){tool_call_id = prop_id.Value.ToString();}
+
+                        //Handle get temperature function
                         if (name == "get_temperature")
                         {
 
                             //Call to API  
-                            Console.WriteLine("Querying temperature...");
                             HttpClient hc = new HttpClient();
                             HttpResponseMessage resp = await hc.GetAsync("https://api.open-meteo.com/v1/forecast?latitude=27.190&longitude=-82.454&current=temperature_2m&temperature_unit=fahrenheit");
                             string ResponseContent = await resp.Content.ReadAsStringAsync();
@@ -87,11 +91,11 @@ namespace AIDA
                             {
                                 Console.WriteLine("Unable to get weather data from API! Content: " + ResponseContent);
                             }
-                            Console.WriteLine("API call for temperature complete.");
 
                             //Add response to message array
                             JObject TemperatureDataForModel = new JObject();
                             TemperatureDataForModel.Add("role", "tool");
+                            TemperatureDataForModel.Add("tool_call_id", tool_call_id); //Add the ID of the tool call that this content is fulfilling.
                             TemperatureDataForModel.Add("content", ResponseContent.ToString());
                             messages.Add(TemperatureDataForModel);
                         }
@@ -103,8 +107,6 @@ namespace AIDA
                 }
                 else //it is noraml content
                 {
-
-                    Console.WriteLine("It is normal content! Enter to continue...");Console.ReadLine();
                     
                     //Parse out and print the response
                     JProperty? content = ModelResponse.Property("content");
