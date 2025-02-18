@@ -14,6 +14,10 @@ namespace AIDA
         public static async Task Chat()
         {
 
+            //SETTINGS
+            float latitude = 27.19f; //latitude of where the user is located (home)
+            float longitude = -82.454f; //longitude of where the user is located (home)
+
             //Construct lists that are needed
             JArray messages = new JArray();
             JArray tools = new JArray();
@@ -21,6 +25,8 @@ namespace AIDA
             //Add tools
             JObject GetTemperature = JObject.Parse("{\"type\":\"function\",\"function\": {\"name\": \"get_temperature\",\"description\": \"Gets the outside temperature.\",\"parameters\": {}}}");
             tools.Add(GetTemperature);
+            JObject GetWindSpeed = JObject.Parse("{\"type\":\"function\",\"function\": {\"name\": \"get_wind_speed\",\"description\": \"Gets the outside wind speed.\",\"parameters\": {}}}");
+            tools.Add(GetWindSpeed);
 
             //Infinite chat loop
             while (true)
@@ -85,7 +91,7 @@ namespace AIDA
 
                             //Call to API  
                             HttpClient hc = new HttpClient();
-                            HttpResponseMessage resp = await hc.GetAsync("https://api.open-meteo.com/v1/forecast?latitude=27.190&longitude=-82.454&current=temperature_2m&temperature_unit=fahrenheit");
+                            HttpResponseMessage resp = await hc.GetAsync("https://api.open-meteo.com/v1/forecast?latitude=" + latitude.ToString() + "&longitude=" + longitude.ToString() + "&current=temperature_2m&temperature_unit=fahrenheit");
                             string ResponseContent = await resp.Content.ReadAsStringAsync();
                             if (resp.StatusCode != System.Net.HttpStatusCode.OK)
                             {
@@ -98,6 +104,27 @@ namespace AIDA
                             TemperatureDataForModel.Add("tool_call_id", tool_call_id); //Add the ID of the tool call that this content is fulfilling.
                             TemperatureDataForModel.Add("content", ResponseContent.ToString());
                             messages.Add(TemperatureDataForModel);
+                        }
+
+                        //Handle get wind speed
+                        if (name == "get_wind_speed")
+                        {
+
+                            //Call to API  
+                            HttpClient hc = new HttpClient();
+                            HttpResponseMessage resp = await hc.GetAsync("https://api.open-meteo.com/v1/forecast?latitude=" + latitude.ToString() + "&longitude=" + longitude.ToString() + "&current=wind_speed_10m&wind_speed_unit=mph");
+                            string ResponseContent = await resp.Content.ReadAsStringAsync();
+                            if (resp.StatusCode != System.Net.HttpStatusCode.OK)
+                            {
+                                Console.WriteLine("Unable to get wind speed data from API! Content: " + ResponseContent);
+                            }
+
+                            //Add response to message array
+                            JObject WindSpeedDataForModel = new JObject();
+                            WindSpeedDataForModel.Add("role", "tool");
+                            WindSpeedDataForModel.Add("tool_call_id", tool_call_id); //Add the ID of the tool call that this content is fulfilling.
+                            WindSpeedDataForModel.Add("content", ResponseContent.ToString());
+                            messages.Add(WindSpeedDataForModel);
                         }
 
                     }
