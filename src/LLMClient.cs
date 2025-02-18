@@ -8,6 +8,14 @@ namespace AIDA
 {
     public class LLMClient
     {
+        //Confirms ollama is running by checking the version
+        public static async Task<bool> ConfirmOllamaRunning()
+        {
+            HttpClient hc = new HttpClient();
+            HttpResponseMessage resp = await hc.GetAsync("http://localhost:11434/api/version");
+            return resp.StatusCode == HttpStatusCode.OK;
+        }
+
         public static async Task<JObject> CallAsync(JArray messages, JArray tools)
         {
             HttpRequestMessage req = new HttpRequestMessage();
@@ -16,7 +24,7 @@ namespace AIDA
 
             //Construct body
             JObject body = new JObject();
-            body.Add("model", "qwen2.5:0.5b");
+            body.Add("model", "llama3.2:3b");
             body.Add("stream", false);
             body.Add("messages", messages);
             if (tools.Count > 0)
