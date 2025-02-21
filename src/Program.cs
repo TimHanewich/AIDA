@@ -61,6 +61,9 @@ namespace AIDA
                 Console.WriteLine(messages.ToString());
                 ModelResponse = await LLMClient.CallAsync(messages, tools);
 
+                //Add the model's response to the messages
+                messages.Add(ModelResponse);
+
                 //Is there content?
                 JProperty? content = ModelResponse.Property("content");
                 if (content != null) //it is noraml content
@@ -139,10 +142,6 @@ namespace AIDA
                     //Now that each tool call was handled and the result (or data) of each call is now in the message array, prompt the model again so it can respond in natural language!
                     goto PromptModel;
                 }
-
-                //Add the model's response to the messages
-                messages.Add(ModelResponse);
-  
             }
         }
     }
