@@ -21,6 +21,12 @@ namespace AIDA
             //Construct lists that are needed
             JArray messages = new JArray();
             JArray tools = new JArray();
+
+            //Add system prompt
+            JObject SystemPrompt = new JObject();
+            SystemPrompt.Add("role", "system");
+            SystemPrompt.Add("content", "You are AIDA, Artificial Intelligence Desktop Assistant. Your role is to be a friendly and helpful assistant. Speak in a playful, lighthearted, and fun manner.");
+            messages.Add(SystemPrompt);
             
             //Add tools
             JObject GetTemperature = JObject.Parse("{\"type\":\"function\",\"function\": {\"name\": \"get_temperature\",\"description\": \"Gets the outside temperature.\",\"parameters\": {}}}");
@@ -45,25 +51,30 @@ namespace AIDA
                 NewMsg.Add("content", input);
                 messages.Add(NewMsg);
 
-                //Show messages
-                //Console.WriteLine("MESSAGES I am going to send: ");
-                //Console.WriteLine(messages.ToString());
-                //Console.Write("Enter to continue...");
-                //Console.ReadLine();
-
-                //Send to model
+                //Say thinking...
                 PromptModel:
                 Console.Write("Thinking...");
-                JObject ModelResponse = await LLMClient.CallAsync(messages, tools);
-                Console.WriteLine();
 
-                //SHOW RESPONSE
-                //Console.WriteLine("Model Response: ");
-                //Console.WriteLine(ModelResponse.ToString());
-                //Console.Write("Enter to continue.");
-                //Console.ReadLine();
+                //Call to LLM
+                JObject ModelResponse;
+                ModelResponse = await LLMClient.CallAsync(messages, tools);
 
-                //Is the response a tool call?
+                //Is there content?
+                JProperty? content = ModelResponse.Property("content");
+                if (content != null) //it is noraml content
+                {
+                    if (content.Value.ToString() != "")
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine(content.Value.ToString());
+                        Console.WriteLine();
+
+                        //Add the model's response to the messages
+                        messages.Add(ModelResponse);
+                    }
+                }
+
+                //Are there tool calls?
                 JToken? tool_calls = ModelResponse.SelectToken("tool_calls");
                 if (tool_calls != null) //there was a tool call!
                 {
@@ -131,22 +142,6 @@ namespace AIDA
 
                     //Now that each tool call was handled and the result (or data) of each call is now in the message array, prompt the model again so it can respond in natural language!
                     goto PromptModel;
-                }
-                else //it is noraml content
-                {
-                    
-                    //Parse out and print the response
-                    JProperty? content = ModelResponse.Property("content");
-                    if (content != null)
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine(content.Value.ToString());
-                        Console.WriteLine();
-                    }
-
-                    //Add the model's response to the messages
-                    messages.Add(ModelResponse);
-                    
                 }
   
                 
