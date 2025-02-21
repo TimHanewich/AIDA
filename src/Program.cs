@@ -57,6 +57,8 @@ namespace AIDA
 
                 //Call to LLM
                 JObject ModelResponse;
+                Console.WriteLine("Sending these messages to the model:");
+                Console.WriteLine(messages.ToString());
                 ModelResponse = await LLMClient.CallAsync(messages, tools);
 
                 //Is there content?
@@ -68,9 +70,6 @@ namespace AIDA
                         Console.WriteLine();
                         Console.WriteLine(content.Value.ToString());
                         Console.WriteLine();
-
-                        //Add the model's response to the messages
-                        messages.Add(ModelResponse);
                     }
                 }
 
@@ -78,9 +77,6 @@ namespace AIDA
                 JToken? tool_calls = ModelResponse.SelectToken("tool_calls");
                 if (tool_calls != null) //there was a tool call!
                 {
-                    
-                    //Add the tool call message to the list of messages
-                    messages.Add(ModelResponse);
 
                     //Loop through all tool calls, gather data, or handle accordingly.
                     JArray tcs = (JArray)tool_calls;
@@ -143,8 +139,10 @@ namespace AIDA
                     //Now that each tool call was handled and the result (or data) of each call is now in the message array, prompt the model again so it can respond in natural language!
                     goto PromptModel;
                 }
+
+                //Add the model's response to the messages
+                messages.Add(ModelResponse);
   
-                
             }
         }
     }
