@@ -1,6 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 
 namespace AIDA
 {
@@ -41,7 +42,7 @@ namespace AIDA
                 string? input = null;
                 while (input == null)
                 {
-                    Console.Write("> ");
+                    Console.Write(">>> ");
                     input = Console.ReadLine();
                 }
                 
@@ -53,12 +54,10 @@ namespace AIDA
 
                 //Say thinking...
                 PromptModel:
-                Console.Write("Thinking...");
+                AnsiConsole.MarkupLine("[italic][gray]thinking...[/][/]");
 
                 //Call to LLM
                 JObject ModelResponse;
-                Console.WriteLine("Sending these messages to the model:");
-                Console.WriteLine(messages.ToString());
                 ModelResponse = await LLMClient.CallAsync(messages, tools);
 
                 //Add the model's response to the messages
@@ -100,6 +99,7 @@ namespace AIDA
                         {
 
                             //Call to API  
+                            AnsiConsole.MarkupLine("[italic][gray]checking temperature...[/][/]");
                             HttpClient hc = new HttpClient();
                             HttpResponseMessage resp = await hc.GetAsync("https://api.open-meteo.com/v1/forecast?latitude=" + latitude.ToString() + "&longitude=" + longitude.ToString() + "&current=temperature_2m&temperature_unit=fahrenheit");
                             string ResponseContent = await resp.Content.ReadAsStringAsync();
@@ -121,6 +121,7 @@ namespace AIDA
                         {
 
                             //Call to API  
+                            AnsiConsole.MarkupLine("[italic][gray]checking wind speed...[/][/]");
                             HttpClient hc = new HttpClient();
                             HttpResponseMessage resp = await hc.GetAsync("https://api.open-meteo.com/v1/forecast?latitude=" + latitude.ToString() + "&longitude=" + longitude.ToString() + "&current=wind_speed_10m&wind_speed_unit=mph");
                             string ResponseContent = await resp.Content.ReadAsStringAsync();
