@@ -181,7 +181,7 @@ namespace AIDA
             
             //Create the agent
             Agent a = new Agent();
-            a.Credentials = azoai;
+            a.Model = azoai;
 
             //Add system message
             List<string> SystemMessage = new List<string>();
