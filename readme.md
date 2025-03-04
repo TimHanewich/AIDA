@@ -1,5 +1,5 @@
 # AIDA: AI Desktop Assistant
-**AIDA** is a .NET console application that uses the [TimHanewich.AgentFramework](../AgentFramework/) library. It has several capabilities.
+**AIDA** is a .NET console application that uses the [TimHanewich.AgentFramework](https://github.com/TimHanewich/TimHanewich.AgentFramework) library. It has several capabilities.
 
 To run AIDA, you must first:
 1. Install the .NET 9.0 SDK.
