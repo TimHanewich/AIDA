@@ -6,6 +6,7 @@
     <PackageReference Include="TimHanewich.AgentFramework" Version="0.1.1" />
     <PackageReference Include="TimHanewich.Bing" Version="0.2.0" />
     <PackageReference Include="TimHanewich.MicrosoftGraphHelper" Version="1.1.0" />
+    <PackageReference Include="Yahoo.Finance" Version="4.3.5" />
   </ItemGroup>
 
   <PropertyGroup>

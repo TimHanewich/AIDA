@@ -14,6 +14,7 @@ using TimHanewich.Bing.Search;
 using HtmlAgilityPack;
 using System.Reflection;
 using TimHanewich.AgentFramework;
+using Yahoo.Finance;
 
 namespace AIDA
 {
@@ -23,6 +24,9 @@ namespace AIDA
         {
             RunAsync().Wait();
         }
+
+        //GLOBAL VARIABLES
+        public static Agent FinanceGuru {get; set;} = new Agent();
 
         public static async Task RunAsync()
         {
@@ -238,6 +242,18 @@ namespace AIDA
             Tool tool_readwebpage = new Tool("read_webpage", "Read the contents of a particular web page.");
             tool_readwebpage.Parameters.Add(new ToolInputParameter("url", "The specific URL of the webpage to read."));
             a.Tools.Add(tool_readwebpage);
+
+            //Set up agent: FinanceGuru
+            FinanceGuru.Model = azoai; //add the model it should use
+            FinanceGuru.Messages.Add(new Message(Role.system, "You are FinanceGuru. Your role is to find and provide various financial data to the user."));
+            Tool tool_checkstockprice = new Tool("check_stock_price", "Check the price for any stock.");
+            tool_checkstockprice.Parameters.Add(new ToolInputParameter("stock_symbol", "The stock symbol, i.e. 'MSFT'."));
+            FinanceGuru.Tools.Add(tool_checkstockprice);
+
+            //Add tool: FinanceGuru
+            Tool tool_financeguru = new Tool("ask_finance_guru", "Ask finance guru, an expert in finding financial data such as stock prices.");
+            tool_financeguru.Parameters.Add(new ToolInputParameter("request", "The request to finance guru (ask in plain english), for example 'what is the stock price of $MSFT?'"));
+            a.Tools.Add(tool_financeguru);
 
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
@@ -511,6 +527,26 @@ namespace AIDA
                                 tool_call_response_payload = "Unable to read webpage because the 'url' parameter was not successfully provided by the AI.";
                             }
                         }
+                        else if (tc.ToolName == "ask_finance_guru")
+                        {
+                            //Get request
+                            string? request = null;
+                            JProperty? prop_request = tc.Arguments.Property("request");
+                            if (prop_request != null)
+                            {
+                                request = prop_request.Value.ToString();
+                            }
+
+                            //Call to the agent
+                            if (request != null)
+                            {
+                                tool_call_response_payload = await AskFinanceGuru(request);
+                            }
+                            else
+                            {
+                                tool_call_response_payload = "Unable to ask Finance Guru because the 'request' parameter to FinanceGuru was not successfully provided by the AI.";
+                            }
+                        }
 
                         //Append tool response to messages
                         Message ToolResponseMessage = new Message();
@@ -682,6 +718,69 @@ namespace AIDA
             string PlainText = doc.DocumentNode.InnerText;
 
             return PlainText;
+        }
+
+        public static async Task<string> AskFinanceGuru(string request)
+        {
+            //Add the msg
+            FinanceGuru.Messages.Add(new Message(Role.user, request));
+
+            //Call
+            CallFinanceGuru:
+            Message AiResponse = await FinanceGuru.PromptAsync();
+            FinanceGuru.Messages.Add(AiResponse); //Add the message/tool call (whatever the AI responded with!) to message history
+
+            //Did it call tools?
+            if (AiResponse.ToolCalls.Length > 0)
+            {
+                foreach (ToolCall tc in AiResponse.ToolCalls)
+                {
+                    string ToolResponseToProvide = "";
+
+                    //Retrieve the necessary data
+                    if (tc.ToolName == "check_stock_price")
+                    {
+                        JProperty? prop_stock_symbol = tc.Arguments.Property("stock_symbol");
+                        if (prop_stock_symbol != null)
+                        {
+                            string stock_symbol = prop_stock_symbol.Value.ToString();
+                            try
+                            {
+                                Equity e = Equity.Create(stock_symbol);
+                                await e.DownloadSummaryAsync();
+                                ToolResponseToProvide = JsonConvert.SerializeObject(e);
+                            }
+                            catch (Exception ex)
+                            {
+                                ToolResponseToProvide = "There was an error while retrieving stock data from Yahoo Finance! Error message: " + ex.Message;
+                            }
+
+                        }
+                        else
+                        {
+                            ToolResponseToProvide = "There was an error within FinanceGuru: AIDA did not specify the stock price to check properly!";
+                        }
+                    }
+
+                    //Give the agent back that tool call response
+                    Message ToolResponse = new Message();
+                    ToolResponse.Role = Role.tool;
+                    ToolResponse.ToolCallID = tc.ID;
+                    ToolResponse.Content = ToolResponseToProvide;
+                    FinanceGuru.Messages.Add(ToolResponse);
+                }
+                goto CallFinanceGuru; //re-prompt now that we gave it what it needs.
+            }
+
+            //Return the response back
+            if (AiResponse.Content != null)
+            {
+                return AiResponse.Content;
+            }
+            else
+            {
+                return "There was an error while doing what you wanted... I am speechless.";
+            }
         }
 
 
