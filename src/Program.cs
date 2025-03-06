@@ -15,6 +15,8 @@ using HtmlAgilityPack;
 using System.Reflection;
 using TimHanewich.AgentFramework;
 using Yahoo.Finance;
+using UglyToad.PdfPig;
+using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 
 namespace AIDA
 {
@@ -22,9 +24,7 @@ namespace AIDA
     {
         public static void Main(string[] args)
         {
-            string content = ReadFile(@"C:\Users\timh\OneDrive - Microsoft\Territory Alignment\Territories\Georgia\Georgia Technology Authority\GTA-EPMO - Power Platform POC USE CASES.pdf");
-            Console.WriteLine(content);
-            //RunAsync().Wait();
+            RunAsync().Wait();
         }
 
         //GLOBAL VARIABLES
@@ -779,8 +779,6 @@ namespace AIDA
 
         public static string ReadFile(string path)
         {
-            Console.WriteLine("Got here!");
-
             //Does file exist?
             if (System.IO.File.Exists(path) == false)
             {
@@ -790,8 +788,18 @@ namespace AIDA
             //Handle based on what type of file it is
             if (path.ToLower().EndsWith(".pdf"))
             {
-                //READ PDF CONTENT!
-                return "Cannot read a PDF right now, sorry.";
+                string FullTxt = "";
+                PdfDocument doc = PdfDocument.Open(path);
+                foreach (UglyToad.PdfPig.Content.Page p in doc.GetPages())
+                {
+                    string txt = ContentOrderTextExtractor.GetText(p);
+                    FullTxt = FullTxt + txt + "\n\n";
+                }
+                if (FullTxt.Length > 0)
+                {
+                    FullTxt = FullTxt.Substring(0, FullTxt.Length - 2); //Strip out trailing two new lines
+                }
+                return FullTxt;
             }
             else //every other file
             {
