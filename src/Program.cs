@@ -22,7 +22,9 @@ namespace AIDA
     {
         public static void Main(string[] args)
         {
-            RunAsync().Wait();
+            string content = ReadFile(@"C:\Users\timh\OneDrive - Microsoft\Territory Alignment\Territories\Georgia\Georgia Technology Authority\GTA-EPMO - Power Platform POC USE CASES.pdf");
+            Console.WriteLine(content);
+            //RunAsync().Wait();
         }
 
         //GLOBAL VARIABLES
@@ -34,7 +36,7 @@ namespace AIDA
             #region "credentials"
 
             //Check Config directory for config files
-            string ConfigDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIDA");
+            string ConfigDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIDA");
             if (System.IO.Directory.Exists(ConfigDirectory) == false)
             {
                 System.IO.Directory.CreateDirectory(ConfigDirectory);
@@ -42,7 +44,7 @@ namespace AIDA
 
             //Get AzureOpenAICredentials.json
             AzureOpenAICredentials azoai;
-            string AzureOpenAICredentialsPath = Path.Combine(ConfigDirectory, "AzureOpenAICredentials.json");
+            string AzureOpenAICredentialsPath = System.IO.Path.Combine(ConfigDirectory, "AzureOpenAICredentials.json");
             if (System.IO.File.Exists(AzureOpenAICredentialsPath) == false)
             {
                 //Write the file
@@ -76,7 +78,7 @@ namespace AIDA
 
             //Try to retrieve bing search api key (an azure service)
             BingSearchService? bss = null;
-            string BingSearchApiKeyPath = Path.Combine(ConfigDirectory, "BingSearchApiKey.txt");
+            string BingSearchApiKeyPath = System.IO.Path.Combine(ConfigDirectory, "BingSearchApiKey.txt");
             if (System.IO.File.Exists(BingSearchApiKeyPath))
             {
                 string bingkey = System.IO.File.ReadAllText(BingSearchApiKeyPath);
@@ -97,7 +99,7 @@ namespace AIDA
 
             //Try to revive stored MicrosoftGraphHelper
             MicrosoftGraphHelper? mgh = null;
-            string MicrosoftGraphHelperPath = Path.Combine(ConfigDirectory, "MicrosoftGraphHelper.json");
+            string MicrosoftGraphHelperPath = System.IO.Path.Combine(ConfigDirectory, "MicrosoftGraphHelper.json");
             if (System.IO.File.Exists(MicrosoftGraphHelperPath))
             {
                 mgh = JsonConvert.DeserializeObject<MicrosoftGraphHelper>(System.IO.File.ReadAllText(MicrosoftGraphHelperPath));
@@ -212,7 +214,7 @@ namespace AIDA
             a.Tools.Add(tool_savetxtfile);
 
             //Add tool: read text file
-            Tool tool_readtxtfile = new Tool("read_txt_file", "Read the contents of a .txt file from the user's computer");
+            Tool tool_readtxtfile = new Tool("read_file", "Read the contents of a .txt or .pdf file from the user's computer");
             tool_readtxtfile.Parameters.Add(new ToolInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
             a.Tools.Add(tool_readtxtfile);
 
@@ -361,7 +363,7 @@ namespace AIDA
                             //Save file
                             tool_call_response_payload = SaveFile(file_name, file_content);
                         }
-                        else if (tc.ToolName == "read_txt_file")
+                        else if (tc.ToolName == "read_file")
                         {
                             //Get file path
                             string file_path = "?";
@@ -371,19 +373,7 @@ namespace AIDA
                                 file_path = prop_file_path.Value.ToString();
                             }
 
-                            //Does file exist?
-                            if (System.IO.File.Exists(file_path))
-                            {
-                                //Read the file content
-                                string content = System.IO.File.ReadAllText(file_path);
-
-                                //Return it
-                                tool_call_response_payload = content;
-                            }
-                            else
-                            {
-                                tool_call_response_payload = "File with path '" + file_path + "' does not exist!";
-                            } 
+                            tool_call_response_payload = ReadFile(file_path);
                         }
                         else if (tc.ToolName == "schedule_reminder")
                         {
@@ -589,7 +579,7 @@ namespace AIDA
 
         public static string SaveFile(string file_name, string file_content)
         {
-            string DestinationDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+            string DestinationDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
             string DestinationPath = System.IO.Path.Combine(DestinationDirectory, file_name);
             System.IO.File.WriteAllText(DestinationPath, file_content);
             return "File successfully saved to '" + DestinationPath + "'. Explicitly tell the user where the file was saved in confirming it was saved (tell the full file path).";
@@ -784,6 +774,28 @@ namespace AIDA
             else
             {
                 return "There was an error while doing what you wanted... I am speechless.";
+            }
+        }
+
+        public static string ReadFile(string path)
+        {
+            Console.WriteLine("Got here!");
+
+            //Does file exist?
+            if (System.IO.File.Exists(path) == false)
+            {
+                return "File with path '" + path + "' does not exist!";
+            } 
+
+            //Handle based on what type of file it is
+            if (path.ToLower().EndsWith(".pdf"))
+            {
+                //READ PDF CONTENT!
+                return "Cannot read a PDF right now, sorry.";
+            }
+            else //every other file
+            {
+                return System.IO.File.ReadAllText(path);
             }
         }
 
