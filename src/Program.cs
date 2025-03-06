@@ -705,7 +705,11 @@ namespace AIDA
         public static async Task<string> ReadWebpage(string url)
         {
             HttpClient hc = new HttpClient();
-            HttpResponseMessage resp = await hc.GetAsync(url);
+            HttpRequestMessage req = new HttpRequestMessage();
+            req.Method = HttpMethod.Get;
+            req.RequestUri = new Uri(url);
+            req.Headers.Add("User-Agent", "AIDA/1.0.0");
+            HttpResponseMessage resp = await hc.SendAsync(req);
             if (resp.StatusCode != HttpStatusCode.OK)
             {
                 return "Attempt to read the web page came back with status code '" + resp.StatusCode.ToString() + "', so unfortunately it cannot be read (wasn't 200 OK)";
