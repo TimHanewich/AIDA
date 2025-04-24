@@ -286,6 +286,13 @@ namespace AIDA
                 a.Messages.Add(new Message(Role.user, input));
 
                 //Handle special inputs
+                if (input.ToLower() == "help")
+                {
+                    AnsiConsole.MarkupLine("Here are the commands you can use:");
+                    Console.WriteLine();
+                    AnsiConsole.MarkupLine("[bold]tokens[/] - check token consumption for this session.");
+                    AnsiConsole.MarkupLine("[bold]config[/] - print the path of the configuration directory, where settings files are stored.");
+                }
                 if (input.ToLower() == "tokens")
                 {
                     AnsiConsole.MarkupLine("[blue][underline]Cumulative Tokens so Far[/][/]");
