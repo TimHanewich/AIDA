@@ -310,7 +310,7 @@ namespace AIDA
                     float output_costs = (output_cost_per_1M / 1000000f) * a.CumulativeCompletionTokens;
 
                     Console.WriteLine();
-                    AnsiConsole.MarkupLine("[blue][underline]Token Cost Estimates[/][/]");
+                    AnsiConsole.MarkupLine("[blue][underline]Token Cost Estimates (GPT-4o-mini)[/][/]");
                     AnsiConsole.MarkupLine("[blue]Input token costs: [bold]$" + input_costs.ToString("#,##0.00") + "[/][/]");
                     AnsiConsole.MarkupLine("[blue]Output token costs: [bold]$" + output_costs.ToString("#,##0.00") + "[/][/]");
 
@@ -318,7 +318,11 @@ namespace AIDA
                 }
                 else if (input.ToLower() == "config") //Where the config files are
                 {
-                    Console.WriteLine(ConfigDirectory);
+                    AnsiConsole.MarkupLine("[underline]Config File Directory[/]");
+                    AnsiConsole.MarkupLine(ConfigDirectory);
+                    Console.WriteLine();
+                    AnsiConsole.MarkupLine("[underline]Azure OpenAI Endpoint[/]");
+                    AnsiConsole.MarkupLine(azoai.URL);
                     goto Input;
                 }
                 else if (input.ToLower() == "tools")
