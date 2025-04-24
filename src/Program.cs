@@ -292,6 +292,7 @@ namespace AIDA
                     Console.WriteLine();
                     AnsiConsole.MarkupLine("[bold]tokens[/] - check token consumption for this session.");
                     AnsiConsole.MarkupLine("[bold]config[/] - print the path of the configuration directory, where settings files are stored.");
+                    goto Input;
                 }
                 if (input.ToLower() == "tokens")
                 {
