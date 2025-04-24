@@ -292,6 +292,7 @@ namespace AIDA
                     Console.WriteLine();
                     AnsiConsole.MarkupLine("[bold]tokens[/] - check token consumption for this session.");
                     AnsiConsole.MarkupLine("[bold]config[/] - print the path of the configuration directory, where settings files are stored.");
+                    AnsiConsole.MarkupLine("[bold]tools[/] - list all tools AIDA has available to it.");
                     goto Input;
                 }
                 if (input.ToLower() == "tokens")
@@ -318,6 +319,15 @@ namespace AIDA
                 else if (input.ToLower() == "config") //Where the config files are
                 {
                     Console.WriteLine(ConfigDirectory);
+                    goto Input;
+                }
+                else if (input.ToLower() == "tools")
+                {
+                    AnsiConsole.MarkupLine("[underline]AIDA's Available Tools[/]");
+                    foreach (Tool t in a.Tools)
+                    {
+                        AnsiConsole.MarkupLine("[bold][blue]" + t.Name + "[/][/] - [gray]" + t.Description + "[/]");
+                    }
                     goto Input;
                 }
 
