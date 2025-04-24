@@ -334,7 +334,7 @@ namespace AIDA
                 //Prompt
                 Prompt:
                 AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
-                Message response = await a.PromptAsync();
+                Message response = await a.PromptAsync(9999);
                 a.Messages.Add(response); //Add response to message array
                 Console.WriteLine();
 
