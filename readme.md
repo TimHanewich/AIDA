@@ -9,3 +9,5 @@ To run AIDA, you must first:
 ```
 dotnet publish -c Release --self-contained true
 ```
+
+On April 23, 2025, I ran into an issue with .NET 9.0 in building (and `dotnet restore`) with self-contained being True. Changing to False fixed the issue.
