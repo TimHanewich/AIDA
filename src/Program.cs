@@ -49,7 +49,7 @@ namespace AIDA
             {
                 //Write the file
                 System.IO.File.WriteAllText(AzureOpenAICredentialsPath, JsonConvert.SerializeObject(new AzureOpenAICredentials(), Formatting.Indented));
-                
+
                 Console.WriteLine("Your Azure OpenAI secrets were not provided! Please enter your Azure OpenAI details here: " + AzureOpenAICredentialsPath);
                 return;
             }
@@ -129,7 +129,7 @@ namespace AIDA
                     AnsiConsole.MarkupLine("[gray][italic]" + url + "[/][/]");
                     Console.WriteLine();
                     AnsiConsole.MarkupLine("After you do, it will redirect you to a URL. Copy + Paste that URL back to me.");
-                    
+
                     //Collect code by stripping it out of the redirect URL
                     string? GraphAuthCode = null;
                     while (GraphAuthCode == null)
@@ -184,7 +184,7 @@ namespace AIDA
 
 
             #endregion
-            
+
             //Create the agent
             Agent a = new Agent();
             a.Model = azoai;
@@ -234,7 +234,7 @@ namespace AIDA
             tool_sendemail.Parameters.Add(new ToolInputParameter("subject", "The subject line of the email."));
             tool_sendemail.Parameters.Add(new ToolInputParameter("body", "The body (content) of the email."));
             a.Tools.Add(tool_sendemail);
-            
+
             //Add tool: search web
             Tool tool_searchweb = new Tool("search_web", "Perform a web search and get back information about a particular topic.");
             tool_searchweb.Parameters.Add(new ToolInputParameter("search_phrase", "The phrase to search for."));
@@ -267,14 +267,14 @@ namespace AIDA
             Version? v = ass.GetName().Version;
             if (v != null)
             {
-                AnsiConsole.MarkupLine("[gray][italic]AIDA version " + v.ToString().Substring(0, v.ToString().Length-2) + "[/][/]");
+                AnsiConsole.MarkupLine("[gray][italic]AIDA version " + v.ToString().Substring(0, v.ToString().Length - 2) + "[/][/]");
             }
-            
+
             //Infinite chat
             while (true)
             {
-                //Collect input
-                Input:
+            //Collect input
+            Input:
                 Console.WriteLine();
                 string? input = null;
                 while (input == null)
@@ -335,8 +335,8 @@ namespace AIDA
                     goto Input;
                 }
 
-                //Prompt
-                Prompt:
+            //Prompt
+            Prompt:
                 AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
                 Message response = await a.PromptAsync(9999);
                 a.Messages.Add(response); //Add response to message array
@@ -443,7 +443,7 @@ namespace AIDA
                             else
                             {
                                 tool_call_response_payload = "Unable to schedule reminder because we are not logged in to Microsoft Outlook!";
-                            }                            
+                            }
                         }
                         else if (tc.ToolName == "check_current_time")
                         {
@@ -574,18 +574,17 @@ namespace AIDA
                     //Prompt right away (do not ask for user for input yet)
                     goto Prompt;
                 }
-                
 
-                
+
+
             } //END INFINITE CHAT
-            
+
 
 
         }
 
 
         //////// TOOLS /////////
-        
         public static async Task<string> CheckTemperature(float latitude, float longitude)
         {
             string url = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude.ToString() + "&longitude=" + longitude.ToString() + "&current=temperature_2m&temperature_unit=fahrenheit";
@@ -642,7 +641,7 @@ namespace AIDA
             //Set subject
             OutlookEvent ev = new OutlookEvent();
             ev.Subject = reminder_name;
-            
+
             //Set start and end time time
             TimeZoneInfo estZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
             DateTime utcTime = TimeZoneInfo.ConvertTimeToUtc(time, estZone);
@@ -659,8 +658,8 @@ namespace AIDA
                 AnsiConsole.MarkupLine("[red]Scheduling of reminder failed: " + ex.Message + "[/]");
                 return "Attempt to schedule reminder failed. There was an issue when creating it. Error message: " + ex.Message;
             }
-            
-            return "Reminder '" + reminder_name + "' successfully scheduled for '" + time.ToString() + "' EST ('" + time.ToString() + "' UTC). When confirming this with the user, explicitly confirm the reminder name and date/time it was scheduled for."; 
+
+            return "Reminder '" + reminder_name + "' successfully scheduled for '" + time.ToString() + "' EST ('" + time.ToString() + "' UTC). When confirming this with the user, explicitly confirm the reminder name and date/time it was scheduled for.";
         }
 
 
@@ -709,7 +708,7 @@ namespace AIDA
                 return "Bing search failed! Error message: " + ex.Message;
             }
 
-            
+
             //provide response
             return JsonConvert.SerializeObject(results);
         }
@@ -727,7 +726,7 @@ namespace AIDA
                 return "Attempt to read the web page came back with status code '" + resp.StatusCode.ToString() + "', so unfortunately it cannot be read (wasn't 200 OK)";
             }
             string content = await resp.Content.ReadAsStringAsync();
-            
+
             //Convert raw HTML to text
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(content);
@@ -741,8 +740,8 @@ namespace AIDA
             //Add the msg
             FinanceGuru.Messages.Add(new Message(Role.user, request));
 
-            //Call
-            CallFinanceGuru:
+        //Call
+        CallFinanceGuru:
             Message AiResponse = await FinanceGuru.PromptAsync();
             FinanceGuru.Messages.Add(AiResponse); //Add the message/tool call (whatever the AI responded with!) to message history
 
@@ -805,7 +804,7 @@ namespace AIDA
             if (System.IO.File.Exists(path) == false)
             {
                 return "File with path '" + path + "' does not exist!";
-            } 
+            }
 
             //Handle based on what type of file it is
             if (path.ToLower().EndsWith(".pdf"))
@@ -828,7 +827,5 @@ namespace AIDA
                 return System.IO.File.ReadAllText(path);
             }
         }
-
-
     }
 }
