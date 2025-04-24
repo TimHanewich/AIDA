@@ -84,6 +84,7 @@ namespace AIDA
                 string bingkey = System.IO.File.ReadAllText(BingSearchApiKeyPath);
                 if (bingkey != "")
                 {
+                    bingkey = bingkey.Trim(); //trim new lines or trailing spaces
                     bss = new BingSearchService(bingkey);
                 }
                 else
