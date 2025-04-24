@@ -19,10 +19,6 @@
     <!--Version info-->
     <Version>0.5.1</Version>
 
-    <!--To build as single, self-contained .exe-->
-    <PublishSingleFile>true</PublishSingleFile>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-
     <!--exe icon-->
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
