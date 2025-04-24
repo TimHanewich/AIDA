@@ -22,7 +22,6 @@
     <!--To build as single, self-contained .exe-->
     <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <SelfContained>true</SelfContained>
 
     <!--exe icon-->
     <ApplicationIcon>icon.ico</ApplicationIcon>
