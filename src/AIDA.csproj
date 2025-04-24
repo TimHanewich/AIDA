@@ -4,7 +4,7 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.11.74" />
     <PackageReference Include="PdfPig" Version="0.1.9" />
     <PackageReference Include="Spectre.Console" Version="0.49.1" />
-    <PackageReference Include="TimHanewich.AgentFramework" Version="0.2.1" />
+    <PackageReference Include="TimHanewich.AgentFramework" Version="0.3.0" />
     <PackageReference Include="TimHanewich.Bing" Version="0.2.0" />
     <PackageReference Include="TimHanewich.MicrosoftGraphHelper" Version="1.1.0" />
     <PackageReference Include="Yahoo.Finance" Version="4.3.5" />
