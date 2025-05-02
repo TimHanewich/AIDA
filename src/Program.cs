@@ -727,6 +727,7 @@ namespace AIDA
             {
                 return "Attempt to read the web page came back with status code '" + resp.StatusCode.ToString() + "', so unfortunately it cannot be read (wasn't 200 OK)";
             }
+            AnsiConsole.Markup("[gray][italic]reading '" + url + "'... [/][/]");
             string content = await resp.Content.ReadAsStringAsync();
 
             //Convert raw HTML to text
