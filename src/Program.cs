@@ -699,6 +699,7 @@ namespace AIDA
         public static async Task<string> SearchWeb(BingSearchService bss, string search_phrase)
         {
             //Search
+            AnsiConsole.Markup("[gray][italic]searching '" + search_phrase + "'... [/][/]");
             BingSearchResult[] results;
             try
             {
@@ -708,7 +709,7 @@ namespace AIDA
             {
                 return "Bing search failed! Error message: " + ex.Message;
             }
-
+            AnsiConsole.Markup("[gray][italic]" + results.Length.ToString("#,##0") + " search results returned. [/][/]");
 
             //provide response
             return JsonConvert.SerializeObject(results);
