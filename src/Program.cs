@@ -291,6 +291,7 @@ namespace AIDA
                 {
                     AnsiConsole.MarkupLine("Here are the commands you can use:");
                     Console.WriteLine();
+                    AnsiConsole.MarkupLine("[bold]clear[/] - clear the chat history.");
                     AnsiConsole.MarkupLine("[bold]tokens[/] - check token consumption for this session.");
                     AnsiConsole.MarkupLine("[bold]config[/] - print the path of the configuration directory, where settings files are stored.");
                     AnsiConsole.MarkupLine("[bold]tools[/] - list all tools AIDA has available to it.");
@@ -335,9 +336,16 @@ namespace AIDA
                     }
                     goto Input;
                 }
+                else if (input.ToLower() == "clear")
+                {
+                    a.Messages.Clear(); //clear the message history
+                    a.Messages.Add(new Message(Role.system, sysmsg)); //but add the system message back (need that!)
+                    AnsiConsole.MarkupLine("[blue][bold]Chat history cleared.[/][/]");
+                    goto Input;
+                }
 
             //Prompt
-            Prompt:
+                Prompt:
                 AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
                 Message response = await a.PromptAsync(9999);
                 a.Messages.Add(response); //Add response to message array
