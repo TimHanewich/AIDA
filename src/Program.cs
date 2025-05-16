@@ -22,11 +22,16 @@ namespace AIDA
     {
         public static void Main(string[] args)
         {
-            RunAsync().Wait();
+            //RunAsync().Wait();
+
+            string sample = "Hello **world**! Nice to meet you.";
+            Console.WriteLine(sample);
+            Console.WriteLine(MarkdownToSpectre(sample));
+            AnsiConsole.MarkupLine(MarkdownToSpectre(sample));
         }
 
         //GLOBAL VARIABLES
-        public static Agent FinanceGuru {get; set;} = new Agent();
+        public static Agent FinanceGuru { get; set; } = new Agent();
 
         public static async Task RunAsync()
         {
@@ -315,7 +320,7 @@ namespace AIDA
                 }
 
             //Prompt
-                Prompt:
+            Prompt:
                 AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
                 Message response = await a.PromptAsync(9999);
                 a.Messages.Add(response); //Add response to message array
@@ -764,5 +769,52 @@ namespace AIDA
                 return System.IO.File.ReadAllText(path);
             }
         }
+
+
+        //Utilities below
+
+
+
+        public static string MarkdownToSpectre(string markdown)
+        {
+
+            string ToReturn = markdown;
+
+            //First, look for bolds (**)
+            int OnIndex = 0;
+            while (true)
+            {
+                int DoubleStarLocation1 = ToReturn.IndexOf("**", OnIndex);
+                if (DoubleStarLocation1 != -1)
+                {
+                    int DoubleStarLocation2 = ToReturn.IndexOf("**", DoubleStarLocation1 + 2);
+                    if (DoubleStarLocation2 != -1)
+                    {
+                        //Replace first "**" with "[bold]"
+                        string PartBefore = ToReturn.Substring(0, DoubleStarLocation1);
+                        string PartAfter = ToReturn.Substring(DoubleStarLocation1 + 2);
+                        ToReturn = PartBefore + "[bold]" + PartAfter;
+
+                        //Find second "**" again
+                        DoubleStarLocation2 = ToReturn.IndexOf("**", DoubleStarLocation1);
+                        PartBefore = ToReturn.Substring(0, DoubleStarLocation2);
+                        PartAfter = ToReturn.Substring(DoubleStarLocation2 + 2);
+                        ToReturn = PartBefore + "[/]" + PartAfter;
+
+                        //Update OnIndex
+                        OnIndex = DoubleStarLocation2;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+
+            return ToReturn;
+        }
+
+
     }
 }
