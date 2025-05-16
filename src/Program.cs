@@ -211,11 +211,6 @@ namespace AIDA
             tool_sendemail.Parameters.Add(new ToolInputParameter("body", "The body (content) of the email."));
             a.Tools.Add(tool_sendemail);
 
-            //Add tool: search web
-            Tool tool_searchweb = new Tool("search_web", "Perform a web search and get back information about a particular topic.");
-            tool_searchweb.Parameters.Add(new ToolInputParameter("search_phrase", "The phrase to search for."));
-            a.Tools.Add(tool_searchweb);
-
             //Add tool: open web page
             Tool tool_readwebpage = new Tool("read_webpage", "Read the contents of a particular web page.");
             tool_readwebpage.Parameters.Add(new ToolInputParameter("url", "The specific URL of the webpage to read."));
