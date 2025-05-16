@@ -9,8 +9,6 @@ using TimHanewich.MicrosoftGraphHelper;
 using TimHanewich.MicrosoftGraphHelper.Outlook;
 using System.Web;
 using System.Collections.Specialized;
-using TimHanewich.Bing;
-using TimHanewich.Bing.Search;
 using HtmlAgilityPack;
 using System.Reflection;
 using TimHanewich.AgentFramework;
@@ -74,28 +72,6 @@ namespace AIDA
                         azoai = azoaicreds;
                     }
                 }
-            }
-
-            //Try to retrieve bing search api key (an azure service)
-            BingSearchService? bss = null;
-            string BingSearchApiKeyPath = System.IO.Path.Combine(ConfigDirectory, "BingSearchApiKey.txt");
-            if (System.IO.File.Exists(BingSearchApiKeyPath))
-            {
-                string bingkey = System.IO.File.ReadAllText(BingSearchApiKeyPath);
-                if (bingkey != "")
-                {
-                    bingkey = bingkey.Trim(); //trim new lines or trailing spaces
-                    bss = new BingSearchService(bingkey);
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("[yellow]A Bing Search API key was not found in file '" + BingSearchApiKeyPath + "'. Please put an API key in there and re-start AIDA if you wish to enable web search.[/]");
-                }
-            }
-            else
-            {
-                System.IO.File.WriteAllText(BingSearchApiKeyPath, ""); //Create the file
-                AnsiConsole.MarkupLine("[yellow]Unable to find your Bing Search API key! If you wish to enable web search, please place it in here: " + BingSearchApiKeyPath + "[/]");
             }
 
             //Try to revive stored MicrosoftGraphHelper
@@ -194,7 +170,6 @@ namespace AIDA
             List<string> SystemMessage = new List<string>();
             SystemMessage.Add("You are AIDA, Artificial Intelligence Desktop Assistant. Your role is to be a friendly and helpful assistant. Speak in a playful, lighthearted, and fun manner.");
             SystemMessage.Add("Do not use emojis.");
-            SystemMessage.Add("Only use the 'search_web' tool if you need to do online research to complete the task that has been asked of you.");
             SystemMessage.Add("If the user asks you to set a reminder for today or a certain amount of time from now, make sure you first check what time that reminder should be by checking the current date and time via the 'check_current_time' tool.");
             string sysmsg = "";
             foreach (string s in SystemMessage)
@@ -502,32 +477,6 @@ namespace AIDA
                                 tool_call_response_payload = "Unable to send email because we are not logged in to Microsoft Outlook!";
                             }
                         }
-                        else if (tc.ToolName == "search_web")
-                        {
-                            if (bss != null)
-                            {
-                                string? search_phrase = null;
-                                JProperty? prop_search_phrase = tc.Arguments.Property("search_phrase");
-                                if (prop_search_phrase != null)
-                                {
-                                    search_phrase = prop_search_phrase.Value.ToString();
-                                }
-
-                                //Search
-                                if (search_phrase != null)
-                                {
-                                    tool_call_response_payload = await SearchWeb(bss, search_phrase);
-                                }
-                                else
-                                {
-                                    tool_call_response_payload = "Unable to trigger web search because the search phase parameter was not successfully provided by the AI model.";
-                                }
-                            }
-                            else
-                            {
-                                tool_call_response_payload = "Unable to search the web because a Bing Search API key was never provided. Please add one to " + BingSearchApiKeyPath + " and restart AIDA to enable search.";
-                            }
-                        }
                         else if (tc.ToolName == "read_webpage")
                         {
                             //Get URL
@@ -702,25 +651,6 @@ namespace AIDA
 
 
             return "Email sent successfully.";
-        }
-
-        public static async Task<string> SearchWeb(BingSearchService bss, string search_phrase)
-        {
-            //Search
-            AnsiConsole.Markup("[gray][italic]searching '" + search_phrase + "'... [/][/]");
-            BingSearchResult[] results;
-            try
-            {
-                results = await bss.SearchAsync(search_phrase);
-            }
-            catch (Exception ex)
-            {
-                return "Bing search failed! Error message: " + ex.Message;
-            }
-            AnsiConsole.Markup("[gray][italic]" + results.Length.ToString("#,##0") + " search results returned. [/][/]");
-
-            //provide response
-            return JsonConvert.SerializeObject(results);
         }
 
         public static async Task<string> ReadWebpage(string url)
