@@ -22,9 +22,9 @@ namespace AIDA
     {
         public static void Main(string[] args)
         {
-            RunAsync().Wait();
+            //RunAsync().Wait();
 
-            string sample = "Hello *world*! Nice to meet you.";
+            string sample = "Hello *world*! Nice to meet you.\n\nAnd here is another line\n\n# here is a title\n\nhi!";
             Console.WriteLine(sample);
             Console.WriteLine(MarkdownToSpectre(sample));
             AnsiConsole.MarkupLine(MarkdownToSpectre(sample));
@@ -857,6 +857,34 @@ namespace AIDA
                     break;
                 }
             }
+
+            //Headings
+            string[] lines = ToReturn.Split("\n", StringSplitOptions.None);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i];
+                if (line.StartsWith("# ") || line.StartsWith("## ") || line.StartsWith("### ") || line.StartsWith("#### "))
+                {
+                    int SpaceLocation = line.IndexOf(" ");
+                    if (SpaceLocation != -1)
+                    {
+                        string ReplacementLine = "[underline]" + line.Substring(SpaceLocation + 1) + "[/]";
+                        Console.WriteLine("Replacing: " + ReplacementLine);
+                        lines[i] = ReplacementLine;
+                    }
+                }
+            }
+            //Now re-stitch together
+            ToReturn = "";
+            foreach (string line in lines)
+            {
+                ToReturn = ToReturn + line + "\n";
+            }
+            if (ToReturn.Length > 0)
+            {
+                ToReturn = ToReturn.Substring(0, ToReturn.Length - 1); //remove last one we added
+            }
+            
 
             return ToReturn;
         }
