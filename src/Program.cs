@@ -274,22 +274,27 @@ namespace AIDA
                 }
                 if (input.ToLower() == "tokens")
                 {
+
+                    //Print tokens
                     AnsiConsole.MarkupLine("[blue][underline]Cumulative Tokens so Far[/][/]");
                     AnsiConsole.MarkupLine("[blue]Prompt tokens: [bold]" + a.CumulativePromptTokens.ToString("#,##0") + "[/][/]");
                     AnsiConsole.MarkupLine("[blue]Completion tokens: [bold]" + a.CumulativeCompletionTokens.ToString("#,##0") + "[/][/]");
+                    Console.WriteLine();
 
-                    //Model costs (this is for GPT-4o-mini)
-                    float input_cost_per_1M = 0.15f;
-                    float output_cost_per_1M = 0.60f;
-
-                    //Calculate costs
+                    //Print costs
+                    float input_cost_per_1M = 2.00f; //in US dollars
+                    float output_cost_per_1M = 8.00f; //in US dollars
                     float input_costs = (input_cost_per_1M / 1000000f) * a.CumulativePromptTokens;
                     float output_costs = (output_cost_per_1M / 1000000f) * a.CumulativeCompletionTokens;
-
-                    Console.WriteLine();
                     AnsiConsole.MarkupLine("[blue][underline]Token Cost Estimates (GPT-4o-mini)[/][/]");
                     AnsiConsole.MarkupLine("[blue]Input token costs: [bold]$" + input_costs.ToString("#,##0.00") + "[/][/]");
                     AnsiConsole.MarkupLine("[blue]Output token costs: [bold]$" + output_costs.ToString("#,##0.00") + "[/][/]");
+                    Console.WriteLine();
+
+                    //print the Cost Assumptions
+                    AnsiConsole.MarkupLine("[gray][underline]Cost Assumptions[/][/]");
+                    AnsiConsole.MarkupLine("[gray]Input = $" + input_cost_per_1M.ToString("#,##0") + " per 1M tokens[/]");
+                    AnsiConsole.MarkupLine("[gray]Output = $" + output_cost_per_1M.ToString("#,##0") + " per 1M tokens[/]");
 
                     goto Input;
                 }
