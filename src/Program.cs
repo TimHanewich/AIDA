@@ -22,12 +22,12 @@ namespace AIDA
     {
         public static void Main(string[] args)
         {
-            //RunAsync().Wait();
+            RunAsync().Wait();
 
-            string sample = "Hello **world**! Nice to meet you.";
-            Console.WriteLine(sample);
-            Console.WriteLine(MarkdownToSpectre(sample));
-            AnsiConsole.MarkupLine(MarkdownToSpectre(sample));
+            //string sample = "Hello **world**! Nice to meet you.";
+            //Console.WriteLine(sample);
+            //Console.WriteLine(MarkdownToSpectre(sample));
+            //AnsiConsole.MarkupLine(MarkdownToSpectre(sample));
         }
 
         //GLOBAL VARIABLES
@@ -331,7 +331,12 @@ namespace AIDA
                 {
                     if (response.Content != "")
                     {
-                        Console.WriteLine(response.Content);
+                        //Write the content normally
+                        //Console.WriteLine(response.Content);
+
+                        //Convert the markdown it gave to spectre and AnsiConsole it out
+                        string SpectreFormat = MarkdownToSpectre(response.Content);
+                        AnsiConsole.MarkupLine(SpectreFormat);
                     }
                 }
 
