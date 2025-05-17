@@ -338,6 +338,7 @@ namespace AIDA
                         string ToDisplay = response.Content;
                         ToDisplay = ToDisplay.Replace("[[", "").Replace("]]", "]"); //add escape characters to the brackets
                         string SpectreFormat = MarkdownToSpectre(response.Content);
+                        Console.WriteLine();
                         AnsiConsole.MarkupLine(SpectreFormat);
                     }
                 }
