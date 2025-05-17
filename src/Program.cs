@@ -24,10 +24,10 @@ namespace AIDA
         {
             RunAsync().Wait();
 
-            //string sample = "Hello **world**! Nice to meet you.";
-            //Console.WriteLine(sample);
-            //Console.WriteLine(MarkdownToSpectre(sample));
-            //AnsiConsole.MarkupLine(MarkdownToSpectre(sample));
+            string sample = "Hello *world*! Nice to meet you.";
+            Console.WriteLine(sample);
+            Console.WriteLine(MarkdownToSpectre(sample));
+            AnsiConsole.MarkupLine(MarkdownToSpectre(sample));
         }
 
         //GLOBAL VARIABLES
@@ -335,6 +335,8 @@ namespace AIDA
                         //Console.WriteLine(response.Content);
 
                         //Convert the markdown it gave to spectre and AnsiConsole it out
+                        string ToDisplay = response.Content;
+                        ToDisplay = ToDisplay.Replace("[[", "").Replace("]]", "]"); //add escape characters to the brackets
                         string SpectreFormat = MarkdownToSpectre(response.Content);
                         AnsiConsole.MarkupLine(SpectreFormat);
                     }
@@ -809,6 +811,10 @@ namespace AIDA
                         //Update OnIndex
                         OnIndex = DoubleStarLocation2;
                     }
+                    else
+                    {
+                        break;
+                    }
                 }
                 else
                 {
@@ -816,6 +822,41 @@ namespace AIDA
                 }
             }
 
+            //Look for italics "*"
+            OnIndex = 0;
+            while (true)
+            {
+                int StarLocation1 = ToReturn.IndexOf("*", OnIndex);
+                if (StarLocation1 != -1)
+                {
+                    int StarLocation2 = ToReturn.IndexOf("*", StarLocation1 + 1);
+                    if (StarLocation2 != -1)
+                    {
+                        //Replace first star with "[italic]"
+                        string PartBefore = ToReturn.Substring(0, StarLocation1);
+                        string PartAfter = ToReturn.Substring(StarLocation1 + 1);
+                        ToReturn = PartBefore + "[italic]" + PartAfter;
+
+                        //Find second "*" again and replace with "[/]"
+                        StarLocation2 = ToReturn.IndexOf("*", StarLocation1);
+                        PartBefore = ToReturn.Substring(0, StarLocation2);
+                        PartAfter = ToReturn.Substring(StarLocation2 + 1);
+                        ToReturn = PartBefore + "[/]" + PartAfter;
+
+
+                        //Update OnIndex
+                        OnIndex = StarLocation2;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
 
             return ToReturn;
         }
