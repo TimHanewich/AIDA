@@ -22,7 +22,7 @@ namespace AIDA
     {
         public static void Main(string[] args)
         {
-            //RunAsync().Wait();
+            RunAsync().Wait();
 
             string sample = "Hello *world*! Nice to meet you.\n\nAnd here is another line\n\n# here is a title\n\nhi!";
             Console.WriteLine(sample);
@@ -884,8 +884,32 @@ namespace AIDA
             {
                 ToReturn = ToReturn.Substring(0, ToReturn.Length - 1); //remove last one we added
             }
-            
 
+            //bullet points
+            lines = ToReturn.Split("\n", StringSplitOptions.None);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].StartsWith("- "))
+                {
+                    lines[i] = "• " + lines[i].Substring(2);
+                }
+                else if (lines[i].StartsWith("  - ")) //sub bullet
+                {
+                    lines[i] = "  ‣ " + lines[i].Substring(4);
+                }
+            }
+            //Now re-stitch together
+            ToReturn = "";
+            foreach (string line in lines)
+            {
+                ToReturn = ToReturn + line + "\n";
+            }
+            if (ToReturn.Length > 0)
+            {
+                ToReturn = ToReturn.Substring(0, ToReturn.Length - 1); //remove last one we added
+            }
+
+            
             return ToReturn;
         }
 
