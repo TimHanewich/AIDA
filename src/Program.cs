@@ -233,10 +233,16 @@ namespace AIDA
             tool_financeguru.Parameters.Add(new ToolInputParameter("request", "The request to finance guru (ask in plain english), for example 'what is the stock price of $MSFT?'"));
             a.Tools.Add(tool_financeguru);
 
+            //Setting: AI message color
+            string AI_MSG_COLOR = "blue"; //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
+
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
             a.Messages.Add(new Message(Role.assistant, opening_msg));
-            Console.WriteLine(opening_msg);
+            AnsiConsole.MarkupLine("[bold][" + AI_MSG_COLOR + "]" + opening_msg + "[/][/]");
+
+            //Add link to project
+            AnsiConsole.MarkupLine("[gray][italic]github.com/TimHanewich/AIDA[/][/]");
 
             //Version just below
             Assembly ass = Assembly.GetExecutingAssembly();
@@ -345,7 +351,7 @@ namespace AIDA
                         {
                             string SpectreFormat = MarkdownToSpectre(response.Content);
                             Console.WriteLine();
-                            AnsiConsole.MarkupLine(SpectreFormat);
+                            AnsiConsole.MarkupLine("[" + AI_MSG_COLOR + "]" + SpectreFormat + "[/]");
                         }
                         catch
                         {
