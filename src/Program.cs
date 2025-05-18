@@ -336,15 +336,22 @@ namespace AIDA
                 {
                     if (response.Content != "")
                     {
-                        //Write the content normally
-                        //Console.WriteLine(response.Content);
-
                         //Convert the markdown it gave to spectre and AnsiConsole it out
                         string ToDisplay = response.Content;
                         ToDisplay = ToDisplay.Replace("[[", "").Replace("]]", "]"); //add escape characters to the brackets
-                        string SpectreFormat = MarkdownToSpectre(response.Content);
-                        Console.WriteLine();
-                        AnsiConsole.MarkupLine(SpectreFormat);
+
+                        //Print
+                        try
+                        {
+                            string SpectreFormat = MarkdownToSpectre(response.Content);
+                            Console.WriteLine();
+                            AnsiConsole.MarkupLine(SpectreFormat);
+                        }
+                        catch
+                        {
+                            AnsiConsole.MarkupLine("[yellow]There was an error while displaying the response with formatting. Displaying it below normally instead.[/]");
+                            Console.WriteLine(response.Content);
+                        }
                     }
                 }
 
