@@ -888,7 +888,6 @@ namespace AIDA
                     if (SpaceLocation != -1)
                     {
                         string ReplacementLine = "[underline]" + line.Substring(SpaceLocation + 1) + "[/]";
-                        Console.WriteLine("Replacing: " + ReplacementLine);
                         lines[i] = ReplacementLine;
                     }
                 }
