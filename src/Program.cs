@@ -234,7 +234,7 @@ namespace AIDA
             a.Tools.Add(tool_financeguru);
 
             //Setting: AI message color
-            string AI_MSG_COLOR = "blue"; //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
+            string AI_MSG_COLOR = "navyblue"; //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
 
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
