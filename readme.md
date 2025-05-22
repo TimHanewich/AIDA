@@ -15,6 +15,7 @@ You can download AIDA below. Check out [the changelog](./changelog.md) to learn 
 |0.6.0|[download](https://github.com/TimHanewich/AIDA/releases/download/3/AIDA_0.6.0_windows.zip)|[download](https://github.com/TimHanewich/AIDA/releases/download/3/AIDA_0.6.0_linux.zip)|
 |0.7.0|[download](https://github.com/TimHanewich/AIDA/releases/download/4/AIDA_0.7.0_windows.zip)|[download](https://github.com/TimHanewich/AIDA/releases/download/4/AIDA_0.7.0_linux.zip)|
 |0.8.0|[download](https://github.com/TimHanewich/AIDA/releases/download/5/AIDA_0.8.0_Windows.zip)|[download](https://github.com/TimHanewich/AIDA/releases/download/5/AIDA_0.8.0_Linux.zip)|
+|0.9.0|[download](https://github.com/TimHanewich/AIDA/releases/download/6/AIDA_0.9.0_Windows.zip)|[download](https://github.com/TimHanewich/AIDA/releases/download/6/AIDA_0.9.0_Linux.zip)|
 
 ## Building the Project
 For windows:
