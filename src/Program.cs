@@ -23,11 +23,6 @@ namespace AIDA
         public static void Main(string[] args)
         {
             RunAsync().Wait();
-
-            string sample = "Hello *world*! Nice to meet you.\n\nAnd here is another line\n\n# here is a title\n\nhi!";
-            Console.WriteLine(sample);
-            Console.WriteLine(MarkdownToSpectre(sample));
-            AnsiConsole.MarkupLine(MarkdownToSpectre(sample));
         }
 
         //GLOBAL VARIABLES
