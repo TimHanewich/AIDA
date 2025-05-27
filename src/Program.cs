@@ -31,6 +31,11 @@ namespace AIDA
         public static async Task RunAsync()
         {
 
+            //Ensure ConsoleOutput is in UTF-8 so it can show bullet points
+            //I noticed when you publish and run the exe, it defaults to System.Text.OSEncoding as the ConsoleEncoding
+            //When it goes to OSEncoding, the bullet points do not print
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             #region "credentials"
 
             //Check Config directory for config files
