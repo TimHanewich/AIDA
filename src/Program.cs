@@ -353,9 +353,12 @@ namespace AIDA
                             Console.WriteLine();
                             AnsiConsole.MarkupLine("[" + AI_MSG_COLOR + "]" + SpectreFormat + "[/]");
                         }
-                        catch
+                        catch (Exception ex)
                         {
                             AnsiConsole.MarkupLine("[yellow]There was an error while displaying the response with formatting. Displaying it below normally instead.[/]");
+                            Console.WriteLine();
+                            AnsiConsole.MarkupLine("[yellow]Error message: " + Markup.Escape(ex.Message) + "[/]");
+                            Console.WriteLine();
                             Console.WriteLine(response.Content);
                         }
                     }
