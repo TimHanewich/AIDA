@@ -15,6 +15,7 @@ using TimHanewich.AgentFramework;
 using Yahoo.Finance;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
+using System.Security.Cryptography;
 
 namespace AIDA
 {
@@ -427,8 +428,25 @@ namespace AIDA
 
             //Prompt
             Prompt:
+
+                //Prompt the model
                 AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
-                Message response = await a.PromptAsync(9999);
+                Message response;
+                try
+                {
+                    response = await a.PromptAsync(9999);
+                }
+                catch (Exception ex)
+                {
+                    AnsiConsole.MarkupLine("[red]Uh oh! There was an issue when prompting the underlying model. Message: " + Markup.Escape(ex.Message) + "[/]");
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    AnsiConsole.Markup("[italic][gray]Press enter to try again... [/][/]");
+                    Console.ReadLine();
+                    goto Prompt;
+                }
+
+                //Add it
                 a.Messages.Add(response); //Add response to message array
                 Console.WriteLine();
 
@@ -934,7 +952,7 @@ namespace AIDA
             string[] files = System.IO.Directory.GetFiles(path);
 
             //Put them in a variable
-            string ToReturn = "The directory '" + System.IO.Path.GetDirectoryName(path) + "' contains the following:" + "\n";
+            string ToReturn = "The directory '" + path + "' contains the following:" + "\n";
 
             //Files
             ToReturn = ToReturn + "\n" + "Files:" + "\n";
@@ -943,7 +961,7 @@ namespace AIDA
                 string? name = System.IO.Path.GetFileName(file);
                 if (name != null)
                 {
-                    ToReturn = ToReturn + name + "\n";
+                    ToReturn = ToReturn + "\"" + name + "\"" + "\n";
                 }
             }
 
@@ -954,7 +972,7 @@ namespace AIDA
                 string? name = System.IO.Path.GetFileName(folder);
                 if (name != null)
                 {
-                    ToReturn = ToReturn + name + "\n";
+                    ToReturn = ToReturn + "\"" + name + "\"" + "\n";
                 }
             }
 
