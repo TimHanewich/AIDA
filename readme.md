@@ -3,7 +3,7 @@
 
 To run AIDA, you must first:
 1. Install the .NET 9.0 SDK.
-2. Download AIDA.exe [here](https://github.com/TimHanewich/TimHanewich.AgentFramework/releases/download/1/AIDA.exe). Place it anywhere you want on your computer. Add it to your **path** variable so you can call AIDA easily!
+2. Download AIDA (see below). Place it anywhere you want on your computer. Add it to your **path** variable so you can call AIDA easily!
 
 ## Download AIDA
 You can download and use AIDA yourself, for free! Visit [the changelog page](./changelog.md) for download links!
