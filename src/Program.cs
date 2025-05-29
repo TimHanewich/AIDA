@@ -409,25 +409,7 @@ namespace AIDA
                 {
                     if (response.Content != "")
                     {
-                        //Convert the markdown it gave to spectre and AnsiConsole it out
-                        string ToDisplay = response.Content;
-                        ToDisplay = Markup.Escape(ToDisplay); //Make it save to have []
-
-                        //Print
-                        try
-                        {
-                            string SpectreFormat = MarkdownToSpectre(ToDisplay);
-                            Console.WriteLine();
-                            AnsiConsole.MarkupLine("[" + AI_MSG_COLOR + "]" + SpectreFormat + "[/]");
-                        }
-                        catch (Exception ex)
-                        {
-                            AnsiConsole.MarkupLine("[yellow]There was an error while displaying the response with formatting. Displaying it below normally instead.[/]");
-                            Console.WriteLine();
-                            AnsiConsole.MarkupLine("[yellow]Error message: " + Markup.Escape(ex.Message) + "[/]");
-                            Console.WriteLine();
-                            Console.WriteLine(response.Content);
-                        }
+                        PrintAIMessage(response.Content, AI_MSG_COLOR);
                     }
                 }
 
@@ -635,6 +617,29 @@ namespace AIDA
 
 
 
+        }
+
+        public static void PrintAIMessage(string message, string color = "navyblue")
+        {
+            //Convert the markdown it gave to spectre and AnsiConsole it out
+            string ToDisplay = message;
+            ToDisplay = Markup.Escape(ToDisplay); //Make it save to have []
+
+            //Print
+            try
+            {
+                string SpectreFormat = MarkdownToSpectre(ToDisplay);
+                Console.WriteLine();
+                AnsiConsole.MarkupLine("[" + color + "]" + SpectreFormat + "[/]");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine("[yellow]There was an error while displaying the response with formatting. Displaying it below normally instead.[/]");
+                Console.WriteLine();
+                AnsiConsole.MarkupLine("[yellow]Error message: " + Markup.Escape(ex.Message) + "[/]");
+                Console.WriteLine();
+                Console.WriteLine(message);
+            }
         }
 
 
