@@ -233,6 +233,11 @@ namespace AIDA
             tool_financeguru.Parameters.Add(new ToolInputParameter("request", "The request to finance guru (ask in plain english), for example 'what is the stock price of $MSFT?'"));
             a.Tools.Add(tool_financeguru);
 
+            //Add tool: Open Folder
+            Tool tool_OpenFolder = new Tool("open_folder", "Open a folder (directory) to see its contents (files and child folders).");
+            tool_OpenFolder.Parameters.Add(new ToolInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
+            a.Tools.Add(tool_OpenFolder);
+
             //Setting: AI message color
             string AI_MSG_COLOR = "navyblue"; //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
 
@@ -618,6 +623,20 @@ namespace AIDA
                                 tool_call_response_payload = "Unable to ask Finance Guru because the 'request' parameter to FinanceGuru was not successfully provided by the AI.";
                             }
                         }
+                        else if (tc.ToolName == "open_folder")
+                        {
+                            //Get the folder_path variable
+                            JProperty? prop_folder_path = tc.Arguments.Property("folder_path");
+                            if (prop_folder_path == null)
+                            {
+                                tool_call_response_payload = "You did not provide the folder path correctly! Provide it as the 'folder_path' property."; //message back to the AI.
+                            }
+                            else
+                            {
+                                string folder_path = prop_folder_path.Value.ToString();
+                                tool_call_response_payload = OpenFolder(folder_path);
+                            }
+                        }
 
                         //Append tool response to messages
                         Message ToolResponseMessage = new Message();
@@ -898,6 +917,49 @@ namespace AIDA
             }
         }
 
+        public static string OpenFolder(string path)
+        {
+            //Is it a real directory?
+            if (System.IO.Directory.Exists(path) == false)
+            {
+                return "'" + path + "' is not a directory!";
+            }
+
+            //Print message
+            string FolderName = System.IO.Path.GetFileName(path);
+            AnsiConsole.Markup("[gray][italic]opening folder '" + Markup.Escape(FolderName) + "'... [/][/]");
+
+            //Get the stuff in it
+            string[] folders = System.IO.Directory.GetDirectories(path);
+            string[] files = System.IO.Directory.GetFiles(path);
+
+            //Put them in a variable
+            string ToReturn = "The directory '" + System.IO.Path.GetDirectoryName(path) + "' contains the following:" + "\n";
+
+            //Files
+            ToReturn = ToReturn + "\n" + "Files:" + "\n";
+            foreach (string file in files)
+            {
+                string? name = System.IO.Path.GetFileName(file);
+                if (name != null)
+                {
+                    ToReturn = ToReturn + name + "\n";
+                }
+            }
+
+            //Folders
+            ToReturn = ToReturn + "\n" + "Child directories (folders):" + "\n";
+            foreach (string folder in folders)
+            {
+                string? name = System.IO.Path.GetFileName(folder);
+                if (name != null)
+                {
+                    ToReturn = ToReturn + name + "\n";
+                }
+            }
+
+            return ToReturn;
+        }
 
         //Utilities below
 
@@ -1029,7 +1091,7 @@ namespace AIDA
                 ToReturn = ToReturn.Substring(0, ToReturn.Length - 1); //remove last one we added
             }
 
-            
+
             return ToReturn;
         }
 
