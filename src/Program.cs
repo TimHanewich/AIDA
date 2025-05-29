@@ -872,6 +872,10 @@ namespace AIDA
                 return "File with path '" + path + "' does not exist!";
             }
 
+            //Print what file we are reading
+            string FileName = System.IO.Path.GetFileName(path);
+            AnsiConsole.Markup("[gray][italic]reading file '" + Markup.Escape(FileName) + "'... [/][/]");
+
             //Handle based on what type of file it is
             if (path.ToLower().EndsWith(".pdf"))
             {
