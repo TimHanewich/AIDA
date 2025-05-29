@@ -929,6 +929,10 @@ namespace AIDA
                 }
                 return FullTxt;
             }
+            else if (path.ToLower().EndsWith(".zip"))
+            {
+                return "Cannot read the raw content of a .zip folder!";
+            }
             else //every other file
             {
                 return System.IO.File.ReadAllText(path);
