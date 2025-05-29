@@ -904,15 +904,16 @@ namespace AIDA
 
         public static string ReadFile(string path)
         {
+            //Print what file we are reading
+            string FileName = System.IO.Path.GetFileName(path);
+            string FullPath = System.IO.Path.GetFullPath(path);
+            AnsiConsole.Markup("[gray][italic]reading file '" + Markup.Escape(FullPath) + "'... [/][/]");
+
             //Does file exist?
             if (System.IO.File.Exists(path) == false)
             {
                 return "File with path '" + path + "' does not exist!";
             }
-
-            //Print what file we are reading
-            string FileName = System.IO.Path.GetFileName(path);
-            AnsiConsole.Markup("[gray][italic]reading file '" + Markup.Escape(FileName) + "'... [/][/]");
 
             //Handle based on what type of file it is
             if (path.ToLower().EndsWith(".pdf"))
@@ -954,15 +955,16 @@ namespace AIDA
 
         public static string OpenFolder(string path)
         {
+            //Print message
+            string FolderName = System.IO.Path.GetFileName(path);
+            string FullPath = System.IO.Path.GetFullPath(path);
+            AnsiConsole.Markup("[gray][italic]opening folder '" + Markup.Escape(FullPath) + "'... [/][/]");
+
             //Is it a real directory?
             if (System.IO.Directory.Exists(path) == false)
             {
                 return "'" + path + "' is not a directory!";
             }
-
-            //Print message
-            string FolderName = System.IO.Path.GetFileName(path);
-            AnsiConsole.Markup("[gray][italic]opening folder '" + Markup.Escape(FolderName) + "'... [/][/]");
 
             //Get the stuff in it
             string[] folders = System.IO.Directory.GetDirectories(path);
