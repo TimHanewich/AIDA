@@ -933,6 +933,14 @@ namespace AIDA
             {
                 return "Cannot read the raw content of a .zip folder!";
             }
+            else if (path.ToLower().EndsWith(".docx"))
+            {
+                return "Cannot read a word document.";
+            }
+            else if (path.ToLower().EndsWith(".xlsx") || path.ToLower().EndsWith(".xls"))
+            {
+                return "Cannot read an excel document";
+            }
             else //every other file
             {
                 return System.IO.File.ReadAllText(path);
