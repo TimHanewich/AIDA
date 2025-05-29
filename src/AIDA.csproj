@@ -16,7 +16,7 @@
     <Nullable>enable</Nullable>
 
     <!--Version info-->
-    <Version>0.9.1</Version>
+    <Version>0.10.0</Version>
 
     <!--exe icon-->
     <ApplicationIcon>icon.ico</ApplicationIcon>
