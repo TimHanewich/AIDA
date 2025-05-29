@@ -2,7 +2,7 @@
 **AIDA** is a .NET console application that uses the [TimHanewich.AgentFramework](https://github.com/TimHanewich/TimHanewich.AgentFramework) library. It has several capabilities.
 
 To run AIDA, you must first:
-1. Install the .NET 9.0 SDK.
+1. Install the .NET 9.0 runtime.
 2. Download AIDA (see below). Place it anywhere you want on your computer. Add it to your **path** variable so you can call AIDA easily!
 
 ## Download AIDA
