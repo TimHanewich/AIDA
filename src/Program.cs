@@ -266,7 +266,6 @@ namespace AIDA
             Input:
 
                 //Collect the raw input
-                Console.WriteLine();
                 string? input = null;
                 while (input == null)
                 {
@@ -457,6 +456,7 @@ namespace AIDA
                     if (response.Content != "")
                     {
                         PrintAIMessage(response.Content, AI_MSG_COLOR);
+                        Console.WriteLine();
                     }
                 }
 
