@@ -1000,23 +1000,28 @@ namespace AIDA
 
         public static string ReadWordDocument(string path)
         {
-
-
             //Get the RAW content (the document.xml file)
             string RawXmlContent = "";
-            FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-            MemoryStream ms = new MemoryStream();
-            fs.CopyTo(ms);
-            ZipArchive za = new ZipArchive(ms, ZipArchiveMode.Read);
-            foreach (ZipArchiveEntry zae in za.Entries)
+            try
             {
-                if (zae.FullName == "word/document.xml") //the file that contains the document content itsef
+                FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+                MemoryStream ms = new MemoryStream();
+                fs.CopyTo(ms);
+                ZipArchive za = new ZipArchive(ms, ZipArchiveMode.Read);
+                foreach (ZipArchiveEntry zae in za.Entries)
                 {
-                    Stream EntryStream = zae.Open();
-                    StreamReader sr = new StreamReader(EntryStream);
-                    string RawText = sr.ReadToEnd();
-                    RawXmlContent = RawText;
+                    if (zae.FullName == "word/document.xml") //the file that contains the document content itsef
+                    {
+                        Stream EntryStream = zae.Open();
+                        StreamReader sr = new StreamReader(EntryStream);
+                        string RawText = sr.ReadToEnd();
+                        RawXmlContent = RawText;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                return "There was an error while trying to open word document '" + path + "'. Exception message: " + ex.Message;
             }
 
             //Now that we found something, pick it apart (if we did find something that is)
