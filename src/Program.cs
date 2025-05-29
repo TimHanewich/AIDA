@@ -276,6 +276,8 @@ namespace AIDA
                     AnsiConsole.MarkupLine("[bold]tokens[/] - check token consumption for this session.");
                     AnsiConsole.MarkupLine("[bold]config[/] - print the path of the configuration directory, where settings files are stored.");
                     AnsiConsole.MarkupLine("[bold]tools[/] - list all tools AIDA has available to it.");
+                    AnsiConsole.MarkupLine("[bold]save[/] - Save chat history to a local file.");
+                    AnsiConsole.MarkupLine("[bold]load[/] - Save chat history to a local file.");
                     goto Input;
                 }
                 if (input.ToLower() == "tokens")
@@ -329,9 +331,74 @@ namespace AIDA
                     AnsiConsole.MarkupLine("[blue][bold]Chat history cleared.[/][/]");
                     goto Input;
                 }
+                else if (input.ToLower().Trim() == "save")
+                {
+                    string FileName = "chat-" + Guid.NewGuid().ToString().Replace("-", "") + ".json";
+                    string DownloadsPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+                    string SavePath = Path.Combine(DownloadsPath, FileName);
+
+                    //Save
+                    AnsiConsole.Markup("[gray]saving...[/] ");
+                    System.IO.File.WriteAllText(SavePath, JsonConvert.SerializeObject(a.Messages, Formatting.Indented));
+                    AnsiConsole.MarkupLine("[green]success![/]");
+
+                    //Say it was successful
+                    Console.WriteLine();
+                    AnsiConsole.MarkupLine("[green]Chat history saved to:[/]");
+                    AnsiConsole.MarkupLine("[green]" + SavePath + "[/]");
+
+                    goto Input;
+                }
+                else if (input.ToLower().Trim() == "load")
+                {
+                    string FilePath = AnsiConsole.Ask<string>("What is the path to the chat file?");
+
+                    //Clean the file path
+                    FilePath = FilePath.Replace("\"", "");
+
+                    //Is it legit?
+                    if (System.IO.File.Exists(FilePath) == false)
+                    {
+                        AnsiConsole.MarkupLine("[red]That is not a valid file![/]");
+                        goto Input;
+                    }
+
+                    //Is it a JSON file?
+                    if (System.IO.Path.GetExtension(FilePath).ToLower() != ".json")
+                    {
+                        AnsiConsole.MarkupLine("[red]That is not a JSON file![/]");
+                        goto Input;
+                    }
+
+                    //Open it
+                    string FileContent = System.IO.File.ReadAllText(FilePath);
+                    Message[]? messages;
+                    try
+                    {
+                        messages = JsonConvert.DeserializeObject<Message[]>(FileContent);
+                    }
+                    catch (Exception ex)
+                    {
+                        AnsiConsole.MarkupLine("[red]Error while deserializing file content! Message: " + Markup.Escape(ex.Message) + "[/]");
+                        goto Input;
+                    }
+
+                    //If messages are empty
+                    if (messages == null)
+                    {
+                        AnsiConsole.MarkupLine("[red]Messages did not deserialize properly for an unknown reason.[/]");
+                        goto Input;
+                    }
+
+                    //Load it up!
+                    a.Messages = messages.ToList();
+                    AnsiConsole.MarkupLine("[green]" + messages.Length.ToString("#,##0") + " messages loaded from " + Markup.Escape(System.IO.Path.GetFileName(FilePath)) + "![/]");
+
+                    goto Input;
+                }
 
             //Prompt
-            Prompt:
+                Prompt:
                 AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
                 Message response = await a.PromptAsync(9999);
                 a.Messages.Add(response); //Add response to message array
