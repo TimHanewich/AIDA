@@ -24,9 +24,7 @@ namespace AIDA
     {
         public static void Main(string[] args)
         {
-            string content = ReadWordDocument(@"C:\Users\timh\Downloads\Andy Pitman.docx");
-            Console.WriteLine(content);
-            //RunAsync().Wait();
+            RunAsync().Wait();
         }
 
         //GLOBAL VARIABLES
