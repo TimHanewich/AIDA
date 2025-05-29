@@ -260,6 +260,7 @@ namespace AIDA
             }
 
             //Infinite chat
+            Console.WriteLine();
             while (true)
             {
             //Collect input
