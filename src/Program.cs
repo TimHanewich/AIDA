@@ -196,10 +196,10 @@ namespace AIDA
             tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_content", "The content of the .txt file (raw text)."));
             a.Tools.Add(tool_savetxtfile);
 
-            //Add tool: read text file
-            Tool tool_readtxtfile = new Tool("read_file", "Read the contents of a file of any type (txt, pdf, word document, etc.) from the user's computer");
-            tool_readtxtfile.Parameters.Add(new ToolInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
-            a.Tools.Add(tool_readtxtfile);
+            //Add tool: read file
+            Tool tool_readfile = new Tool("read_file", "Read the contents of a file of any type (txt, pdf, word document, etc.) from the user's computer");
+            tool_readfile.Parameters.Add(new ToolInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
+            a.Tools.Add(tool_readfile);
 
             //Add tool: schedule reminder (via outlook)
             Tool tool_schedulereminder = new Tool("schedule_reminder", "Schedule a reminder on the user's Outlook Calendar.");
