@@ -16,6 +16,7 @@ using Yahoo.Finance;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 using System.Security.Cryptography;
+using System.IO.Compression;
 
 namespace AIDA
 {
@@ -23,7 +24,9 @@ namespace AIDA
     {
         public static void Main(string[] args)
         {
-            RunAsync().Wait();
+            string content = ReadWordDocument(@"C:\Users\timh\Downloads\Andy Pitman.docx");
+            Console.WriteLine(content);
+            //RunAsync().Wait();
         }
 
         //GLOBAL VARIABLES
@@ -196,7 +199,7 @@ namespace AIDA
             a.Tools.Add(tool_savetxtfile);
 
             //Add tool: read text file
-            Tool tool_readtxtfile = new Tool("read_file", "Read the contents of a .txt or .pdf file from the user's computer");
+            Tool tool_readtxtfile = new Tool("read_file", "Read the contents of a file from the user's computer");
             tool_readtxtfile.Parameters.Add(new ToolInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
             a.Tools.Add(tool_readtxtfile);
 
@@ -935,7 +938,7 @@ namespace AIDA
             }
             else if (path.ToLower().EndsWith(".docx") || path.ToLower().EndsWith(".doc"))
             {
-                return "Cannot read a word document.";
+                return ReadWordDocument(path);
             }
             else if (path.ToLower().EndsWith(".xlsx") || path.ToLower().EndsWith(".xls"))
             {
@@ -997,7 +1000,54 @@ namespace AIDA
 
         //Utilities below
 
+        public static string ReadWordDocument(string path)
+        {
 
+
+            //Get the RAW content (the document.xml file)
+            string RawXmlContent = "";
+            FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+            MemoryStream ms = new MemoryStream();
+            fs.CopyTo(ms);
+            ZipArchive za = new ZipArchive(ms, ZipArchiveMode.Read);
+            foreach (ZipArchiveEntry zae in za.Entries)
+            {
+                if (zae.FullName == "word/document.xml") //the file that contains the document content itsef
+                {
+                    Stream EntryStream = zae.Open();
+                    StreamReader sr = new StreamReader(EntryStream);
+                    string RawText = sr.ReadToEnd();
+                    RawXmlContent = RawText;
+                }
+            }
+
+            //Now that we found something, pick it apart (if we did find something that is)
+            string ToReturn = "";
+            if (RawXmlContent == "")
+            {
+                ToReturn = "Unable to read Word document content.";
+            }
+            else
+            {
+                //Extract content, line by line
+                string[] parts = RawXmlContent.Split("<w:t>", StringSplitOptions.None);
+                for (int t = 1; t < parts.Length; t++)
+                {
+                    string ThisPart = parts[t];
+                    int ClosingTagLocation = ThisPart.IndexOf("</w:t>");
+                    if (ClosingTagLocation > -1)
+                    {
+                        string TextContent = ThisPart.Substring(0, ClosingTagLocation);
+                        ToReturn = ToReturn + TextContent + "\n";
+                    }
+                }
+
+                //Trim ending newline
+                ToReturn = ToReturn.TrimEnd('\n');
+            }
+
+            return ToReturn;
+        }
 
         public static string MarkdownToSpectre(string markdown)
         {
