@@ -396,6 +396,24 @@ namespace AIDA
                     a.Messages = messages.ToList();
                     AnsiConsole.MarkupLine("[green]" + messages.Length.ToString("#,##0") + " messages loaded from " + Markup.Escape(System.IO.Path.GetFileName(FilePath)) + "![/]");
 
+                    //Print everything
+                    foreach (Message msg in a.Messages)
+                    {
+                        if (msg.Role == Role.user)
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine("> " + msg.Content);
+                            Console.WriteLine();
+                        }
+                        else if (msg.Role == Role.assistant)
+                        {
+                            if (msg.Content != null)
+                            {
+                                PrintAIMessage(msg.Content, AI_MSG_COLOR);
+                            }
+                        }
+                    }
+
                     goto Input;
                 }
                 
