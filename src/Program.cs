@@ -257,6 +257,8 @@ namespace AIDA
             {
             //Collect input
             Input:
+
+                //Collect the raw input
                 Console.WriteLine();
                 string? input = null;
                 while (input == null)
@@ -265,7 +267,7 @@ namespace AIDA
                     input = Console.ReadLine();
                     Console.WriteLine();
                 }
-                a.Messages.Add(new Message(Role.user, input));
+                
 
                 //Handle special inputs
                 if (input.ToLower() == "help")
@@ -396,9 +398,12 @@ namespace AIDA
 
                     goto Input;
                 }
+                
+                //It did not trigger a special command, so add it to the history, it will be passed to the AI!
+                a.Messages.Add(new Message(Role.user, input));
 
             //Prompt
-                Prompt:
+            Prompt:
                 AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
                 Message response = await a.PromptAsync(9999);
                 a.Messages.Add(response); //Add response to message array
