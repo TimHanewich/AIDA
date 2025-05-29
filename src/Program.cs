@@ -313,6 +313,7 @@ namespace AIDA
                     AnsiConsole.MarkupLine("[gray]Input = $" + input_cost_per_1M.ToString("#,##0.00") + " per 1M tokens[/]");
                     AnsiConsole.MarkupLine("[gray]Output = $" + output_cost_per_1M.ToString("#,##0.00") + " per 1M tokens[/]");
 
+                    Console.WriteLine();
                     goto Input;
                 }
                 else if (input.ToLower() == "config") //Where the config files are
@@ -322,6 +323,7 @@ namespace AIDA
                     Console.WriteLine();
                     AnsiConsole.MarkupLine("[underline]Azure OpenAI Endpoint[/]");
                     AnsiConsole.MarkupLine(azoai.URL);
+                    Console.WriteLine();
                     goto Input;
                 }
                 else if (input.ToLower() == "tools")
@@ -331,6 +333,7 @@ namespace AIDA
                     {
                         AnsiConsole.MarkupLine("[bold][blue]" + t.Name + "[/][/] - [gray]" + t.Description + "[/]");
                     }
+                    Console.WriteLine();
                     goto Input;
                 }
                 else if (input.ToLower() == "clear")
@@ -338,6 +341,7 @@ namespace AIDA
                     a.Messages.Clear(); //clear the message history
                     a.Messages.Add(new Message(Role.system, sysmsg)); //but add the system message back (need that!)
                     AnsiConsole.MarkupLine("[blue][bold]Chat history cleared.[/][/]");
+                    Console.WriteLine();
                     goto Input;
                 }
                 else if (input.ToLower().Trim() == "save")
@@ -356,6 +360,7 @@ namespace AIDA
                     AnsiConsole.MarkupLine("[green]Chat history saved to:[/]");
                     AnsiConsole.MarkupLine("[green]" + SavePath + "[/]");
 
+                    Console.WriteLine();
                     goto Input;
                 }
                 else if (input.ToLower().Trim() == "load")
@@ -421,6 +426,7 @@ namespace AIDA
                         }
                     }
 
+                    Console.WriteLine();
                     goto Input;
                 }
                 
