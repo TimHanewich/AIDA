@@ -344,12 +344,12 @@ namespace AIDA
                     {
                         //Convert the markdown it gave to spectre and AnsiConsole it out
                         string ToDisplay = response.Content;
-                        ToDisplay = ToDisplay.Replace("[[", "").Replace("]]", "]"); //add escape characters to the brackets
 
                         //Print
                         try
                         {
                             string SpectreFormat = MarkdownToSpectre(response.Content);
+                            SpectreFormat = Markup.Escape(SpectreFormat); //use built in method for safe printing, breaking out of tags like "[]"
                             Console.WriteLine();
                             AnsiConsole.MarkupLine("[" + AI_MSG_COLOR + "]" + SpectreFormat + "[/]");
                         }
