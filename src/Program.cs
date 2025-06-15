@@ -69,8 +69,8 @@ namespace AIDA
             a.Messages.Add(new Message(Role.system, sysmsg));
 
             //Add tool: check weather
-            Tool tool = new Tool("check_temperature", "Check the temperature for a given location.");
-            a.Tools.Add(tool);
+            Tool tool_weather = new Tool("check_weather", "Check the weather for the current location.");
+            a.Tools.Add(tool_weather);
 
             //Add tool: save text file
             Tool tool_savetxtfile = new Tool("save_txt_file", "Save a text file to the user's computer.");
@@ -333,9 +333,9 @@ namespace AIDA
                         string tool_call_response_payload = "";
 
                         //Call to the tool and save the response from that tool
-                        if (tc.ToolName == "check_temperature")
+                        if (tc.ToolName == "check_weather")
                         {
-                            tool_call_response_payload = await CheckTemperature(27.17f, -82.46f);
+                            tool_call_response_payload = await CheckWeather(27.17f, -82.46f);
                         }
                         else if (tc.ToolName == "save_txt_file")
                         {
@@ -531,15 +531,15 @@ namespace AIDA
 
 
         //////// TOOLS /////////
-        public static async Task<string> CheckTemperature(float latitude, float longitude)
+        public static async Task<string> CheckWeather(float latitude, float longitude)
         {
-            string url = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude.ToString() + "&longitude=" + longitude.ToString() + "&current=temperature_2m&temperature_unit=fahrenheit";
+            string url = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude.ToString() + "&longitude=" + longitude.ToString() + "&current=temperature_2m,relative_humidity_2m,precipitation,rain,apparent_temperature,is_day,showers,snowfall,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&temperature_unit=fahrenheit";
             HttpClient hc = new HttpClient();
             HttpResponseMessage resp = await hc.GetAsync(url);
             string content = await resp.Content.ReadAsStringAsync();
             if (resp.StatusCode != HttpStatusCode.OK)
             {
-                throw new Exception("Request to open-meteo.com to get temperature return code '" + resp.StatusCode.ToString() + "'. Msg: " + content);
+                throw new Exception("Request to open-meteo.com returned code '" + resp.StatusCode.ToString() + "'. Msg: " + content);
             }
             return content; //Just return the entire body
         }
