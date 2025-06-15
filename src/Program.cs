@@ -10,7 +10,6 @@ using System.Collections.Specialized;
 using HtmlAgilityPack;
 using System.Reflection;
 using TimHanewich.AgentFramework;
-using Yahoo.Finance;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 using System.IO.Compression;
