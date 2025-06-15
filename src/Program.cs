@@ -141,6 +141,7 @@ namespace AIDA
                     AnsiConsole.MarkupLine("[bold]tools[/] - list all tools AIDA has available to it.");
                     AnsiConsole.MarkupLine("[bold]save[/] - Save chat history to a local file.");
                     AnsiConsole.MarkupLine("[bold]load[/] - Save chat history to a local file.");
+                    Console.WriteLine();
                     goto Input;
                 }
                 if (input.ToLower() == "tokens")
@@ -179,6 +180,7 @@ namespace AIDA
                     //Now that it has changed, refresh settings
                     SETTINGS = AIDASettings.Open();
 
+                    Console.WriteLine();
                     goto Input;
                 }
                 else if (input.ToLower() == "tools")
