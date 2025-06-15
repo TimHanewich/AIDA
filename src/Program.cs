@@ -70,6 +70,8 @@ namespace AIDA
 
             //Add tool: check weather
             Tool tool_weather = new Tool("check_weather", "Check the weather for the current location.");
+            tool_weather.Parameters.Add(new ToolInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
+            tool_weather.Parameters.Add(new ToolInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
             a.Tools.Add(tool_weather);
 
             //Add tool: save text file
@@ -335,7 +337,33 @@ namespace AIDA
                         //Call to the tool and save the response from that tool
                         if (tc.ToolName == "check_weather")
                         {
-                            tool_call_response_payload = await CheckWeather(27.17f, -82.46f);
+
+                            //Get latitude
+                            float? latitude = null;
+                            JProperty? prop_latitude = tc.Arguments.Property("latitude");
+                            if (prop_latitude != null)
+                            {
+                                latitude = Convert.ToSingle(prop_latitude.Value.ToString());
+                            }
+
+                            //Get longitude
+                            float? longitude = null;
+                            JProperty? prop_longitude = tc.Arguments.Property("longitude");
+                            if (prop_longitude != null)
+                            {
+                                longitude = Convert.ToSingle(prop_longitude.Value.ToString());
+                            }
+
+                            //Are either not there?
+                            if (latitude == null || longitude == null)
+                            {
+                                tool_call_response_payload = "You did not provide the latitude and longtiude correctly! You must provide the lat & long of the location you want to check the weather for."; //mesasge for the AI (I hope the AI will know what the lat and long is)
+                            }
+                            else
+                            {
+                                AnsiConsole.Markup("[gray][italic]Checking weather for " + latitude.Value.ToString() + ", " + longitude.Value.ToString() + "... [/][/]");
+                                tool_call_response_payload = await CheckWeather(latitude.Value, longitude.Value);
+                            }
                         }
                         else if (tc.ToolName == "save_txt_file")
                         {
