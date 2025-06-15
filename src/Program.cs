@@ -204,13 +204,6 @@ namespace AIDA
             Tool tool_checkcurrenttime = new Tool("check_current_time", "Check the current date and time right now.");
             a.Tools.Add(tool_checkcurrenttime);
 
-            //Add tool: send email
-            Tool tool_sendemail = new Tool("send_email", "Send an email.");
-            tool_sendemail.Parameters.Add(new ToolInputParameter("to", "The email the email is to be sent to. i.e. 'kris.henson@gmail.com'"));
-            tool_sendemail.Parameters.Add(new ToolInputParameter("subject", "The subject line of the email."));
-            tool_sendemail.Parameters.Add(new ToolInputParameter("body", "The body (content) of the email."));
-            a.Tools.Add(tool_sendemail);
-
             //Add tool: open web page
             Tool tool_readwebpage = new Tool("read_webpage", "Read the contents of a particular web page.");
             tool_readwebpage.Parameters.Add(new ToolInputParameter("url", "The specific URL of the webpage to read."));
@@ -510,50 +503,6 @@ namespace AIDA
                         {
                             tool_call_response_payload = "The current date and time is " + DateTime.Now.ToString();
                         }
-                        else if (tc.ToolName == "send_email")
-                        {
-
-                            if (mgh != null)
-                            {
-                                //Get to line
-                                string? to = null;
-                                JProperty? prop_to = tc.Arguments.Property("to");
-                                if (prop_to != null)
-                                {
-                                    to = prop_to.Value.ToString();
-                                }
-
-                                //Get subject
-                                string? subject = null;
-                                JProperty? prop_subject = tc.Arguments.Property("subject");
-                                if (prop_subject != null)
-                                {
-                                    subject = prop_subject.Value.ToString();
-                                }
-
-                                //Get body
-                                string? body = null;
-                                JProperty? prop_body = tc.Arguments.Property("body");
-                                if (prop_body != null)
-                                {
-                                    body = prop_body.Value.ToString();
-                                }
-
-                                //If we have all the properties, call!
-                                if (to != null && subject != null && body != null)
-                                {
-                                    await SendEmail(mgh, to, subject, body, MicrosoftGraphHelperPath);
-                                }
-                                else
-                                {
-                                    tool_call_response_payload = "Due to being unable to collect all three necessary input parameters (to, subject, body), unable to initiate the sending of the email.";
-                                }
-                            }
-                            else
-                            {
-                                tool_call_response_payload = "Unable to send email because we are not logged in to Microsoft Outlook!";
-                            }
-                        }
                         else if (tc.ToolName == "read_webpage")
                         {
                             //Get URL
@@ -697,38 +646,6 @@ namespace AIDA
                 //Save updated credentials to file
                 System.IO.File.WriteAllText(MicrosoftGraphHelperLocalFilePath, JsonConvert.SerializeObject(mgh, Formatting.Indented));
             }
-        }
-
-        public static async Task<string> SendEmail(MicrosoftGraphHelper mgh, string to, string subject, string body, string MicrosoftGraphHelperLocalFilePath)
-        {
-            try
-            {
-                await RefreshMicrosoftGraphAccessTokensIfExpiredAsync(mgh, MicrosoftGraphHelperLocalFilePath);
-            }
-            catch (Exception ex)
-            {
-                return "Unable to set send email due to refreshing of Microsoft Graph Access tokens failing. Error message: " + ex.Message;
-            }
-
-            //Create email
-            OutlookEmailMessage email = new OutlookEmailMessage();
-            email.ToRecipients.Add(to);
-            email.Subject = subject;
-            email.Content = body;
-            email.ContentType = OutlookEmailMessageContentType.Text;
-
-            //Send the email
-            try
-            {
-                await mgh.SendOutlookEmailMessageAsync(email);
-            }
-            catch (Exception ex)
-            {
-                return "Sending outlook email failed! Error message: " + ex.Message;
-            }
-
-
-            return "Email sent successfully.";
         }
 
         public static async Task<string> ReadWebpage(string url)
