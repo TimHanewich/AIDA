@@ -8,7 +8,7 @@ namespace AIDA
     public class AIDASettings
     {
         public AzureOpenAICredentials Credentials { get; set; }
-        public string AssistantMessageColor { get; set; }
+        public string AssistantMessageColor { get; set; } //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
 
         public AIDASettings()
         {

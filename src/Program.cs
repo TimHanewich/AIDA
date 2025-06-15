@@ -48,13 +48,13 @@ namespace AIDA
             }
 
             //Load settings
-            AIDASettings settings = AIDASettings.Open(); //will find and open from local file
+            AIDASettings SETTINGS = AIDASettings.Open(); //will find and open from local file
 
             #endregion
 
             //Create the agent
             Agent a = new Agent();
-            a.Model = settings.Credentials;
+            a.Model = SETTINGS.Credentials;
 
             //Add system message
             List<string> SystemMessage = new List<string>();
@@ -97,13 +97,10 @@ namespace AIDA
             tool_OpenFolder.Parameters.Add(new ToolInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
             a.Tools.Add(tool_OpenFolder);
 
-            //Setting: AI message color
-            string AI_MSG_COLOR = "navyblue"; //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
-
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
             a.Messages.Add(new Message(Role.assistant, opening_msg));
-            AnsiConsole.MarkupLine("[bold][" + AI_MSG_COLOR + "]" + opening_msg + "[/][/]");
+            AnsiConsole.MarkupLine("[bold][" + SETTINGS.AssistantMessageColor + "]" + opening_msg + "[/][/]");
 
             //Add link to project
             AnsiConsole.MarkupLine("[gray][italic]github.com/TimHanewich/AIDA[/][/]");
@@ -179,7 +176,7 @@ namespace AIDA
                     AnsiConsole.MarkupLine(ConfigDirectory);
                     Console.WriteLine();
                     AnsiConsole.MarkupLine("[underline]Azure OpenAI Endpoint[/]");
-                    AnsiConsole.MarkupLine(settings.Credentials.URL);
+                    AnsiConsole.MarkupLine(SETTINGS.Credentials.URL);
                     Console.WriteLine();
                     goto Input;
                 }
@@ -278,7 +275,7 @@ namespace AIDA
                         {
                             if (msg.Content != null)
                             {
-                                PrintAIMessage(msg.Content, AI_MSG_COLOR);
+                                PrintAIMessage(msg.Content, SETTINGS.AssistantMessageColor);
                             }
                         }
                     }
@@ -319,7 +316,7 @@ namespace AIDA
                 {
                     if (response.Content != "")
                     {
-                        PrintAIMessage(response.Content, AI_MSG_COLOR);
+                        PrintAIMessage(response.Content, SETTINGS.AssistantMessageColor);
                         Console.WriteLine();
                     }
                 }
