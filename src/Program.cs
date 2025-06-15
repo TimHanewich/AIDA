@@ -201,12 +201,6 @@ namespace AIDA
             tool_readfile.Parameters.Add(new ToolInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
             a.Tools.Add(tool_readfile);
 
-            //Add tool: schedule reminder (via outlook)
-            Tool tool_schedulereminder = new Tool("schedule_reminder", "Schedule a reminder on the user's Outlook Calendar.");
-            tool_schedulereminder.Parameters.Add(new ToolInputParameter("name", "The name of the reminder (what the user will be reminded of)."));
-            tool_schedulereminder.Parameters.Add(new ToolInputParameter("datetime", "The date and time of the reminder, in the format of the following example: 3/2/2025 12:02:38 PM"));
-            a.Tools.Add(tool_schedulereminder);
-
             //Add tool: check current time
             Tool tool_checkcurrenttime = new Tool("check_current_time", "Check the current date and time right now.");
             a.Tools.Add(tool_checkcurrenttime);
@@ -513,54 +507,6 @@ namespace AIDA
 
                             tool_call_response_payload = ReadFile(file_path);
                         }
-                        else if (tc.ToolName == "schedule_reminder")
-                        {
-
-                            if (mgh != null) //if we are logged in to Microsoft Graph, we can do it!
-                            {
-                                //Get name of the reminder
-                                string? ReminderName = null;
-                                JProperty? prop_name = tc.Arguments.Property("name");
-                                if (prop_name != null)
-                                {
-                                    ReminderName = prop_name.Value.ToString();
-                                }
-
-                                //Get the datetime
-                                DateTime? ReminderDateTime = null;
-                                JProperty? prop_datetime = tc.Arguments.Property("datetime");
-                                if (prop_datetime != null)
-                                {
-                                    string ai_provided_datetime = prop_datetime.Value.ToString();
-                                    try
-                                    {
-                                        ReminderDateTime = DateTime.Parse(ai_provided_datetime);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        tool_call_response_payload = "Unable to parse '" + ai_provided_datetime + " datetime provided by AI into a valid DateTime. Msg: " + ex.Message;
-                                    }
-                                }
-
-
-                                //Call to function
-                                if (ReminderName != null && ReminderDateTime != null)
-                                {
-                                    //Console.WriteLine("About to call to schedule a reminder.");
-                                    //Console.WriteLine("Reminder name: " + ReminderName);
-                                    //Console.WriteLine("ReminderDateTime: " + ReminderDateTime.ToString());
-                                    tool_call_response_payload = await ScheduleReminder(mgh, ReminderName, ReminderDateTime.Value, MicrosoftGraphHelperPath);
-                                }
-                                else
-                                {
-                                    tool_call_response_payload = "Due to being unable to collect and parse at least one of the necessary parameters to make a new calendar reminder, cancelling attempt to set reminder.";
-                                }
-                            }
-                            else
-                            {
-                                tool_call_response_payload = "Unable to schedule reminder because we are not logged in to Microsoft Outlook!";
-                            }
-                        }
                         else if (tc.ToolName == "check_current_time")
                         {
                             tool_call_response_payload = "The current date and time is " + DateTime.Now.ToString();
@@ -753,42 +699,6 @@ namespace AIDA
                 System.IO.File.WriteAllText(MicrosoftGraphHelperLocalFilePath, JsonConvert.SerializeObject(mgh, Formatting.Indented));
             }
         }
-
-        public static async Task<string> ScheduleReminder(MicrosoftGraphHelper mgh, string reminder_name, DateTime time, string MicrosoftGraphHelperLocalFilePath)
-        {
-            try
-            {
-                await RefreshMicrosoftGraphAccessTokensIfExpiredAsync(mgh, MicrosoftGraphHelperLocalFilePath);
-            }
-            catch (Exception ex)
-            {
-                return "Unable to set reminder due to refreshing of Microsoft Graph Access tokens failing. Error message: " + ex.Message;
-            }
-
-            //Set subject
-            OutlookEvent ev = new OutlookEvent();
-            ev.Subject = reminder_name;
-
-            //Set start and end time time
-            TimeZoneInfo estZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
-            DateTime utcTime = TimeZoneInfo.ConvertTimeToUtc(time, estZone);
-            ev.StartUTC = utcTime;
-            ev.EndUTC = ev.StartUTC.AddMinutes(15); //15 minute appointment
-
-            //Schedule
-            try
-            {
-                await mgh.CreateOutlookEventAsync(ev);
-            }
-            catch (Exception ex)
-            {
-                AnsiConsole.MarkupLine("[red]Scheduling of reminder failed: " + ex.Message + "[/]");
-                return "Attempt to schedule reminder failed. There was an issue when creating it. Error message: " + ex.Message;
-            }
-
-            return "Reminder '" + reminder_name + "' successfully scheduled for '" + time.ToString() + "' EST ('" + time.ToString() + "' UTC). When confirming this with the user, explicitly confirm the reminder name and date/time it was scheduled for.";
-        }
-
 
         public static async Task<string> SendEmail(MicrosoftGraphHelper mgh, string to, string subject, string body, string MicrosoftGraphHelperLocalFilePath)
         {
