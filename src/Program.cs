@@ -554,7 +554,7 @@ namespace AIDA
                 }
                 else if (SettingToDoAnswer == "Continue - everything looks great!")
                 {
-                    AnsiConsole.Markup("[gray]Saving... [/]");
+                    AnsiConsole.Markup("[gray]Saving settings... [/]");
                     SETTINGS.Save();
                     AnsiConsole.MarkupLine("[green]saved![/]");
                     return; //break out of while loop!
