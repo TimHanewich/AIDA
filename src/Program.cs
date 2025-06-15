@@ -458,26 +458,32 @@ namespace AIDA
             //READ SETTINGS
             AIDASettings SETTINGS = AIDASettings.Open();
 
-            //AIDA version
-            Assembly ass = Assembly.GetExecutingAssembly();
-            Version? v = ass.GetName().Version;
-            if (v != null)
-            {
-                AnsiConsole.MarkupLine("AIDA version [bold]" + v.ToString().Substring(0, v.ToString().Length - 2) + "[/]");
-            }
-
-            //Config directory
-            AnsiConsole.MarkupLine("Config directory: [bold]" + ConfigDirectory + "[/]");
-
-            //Model info
-            AnsiConsole.MarkupLine("Model endpoint: [bold]" + SETTINGS.Credentials.URL + "[/]");
-
-            //Assistant color
-            AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + SETTINGS.AssistantMessageColor + "[/] ([" + SETTINGS.AssistantMessageColor + "]looks like this[/])");
-
-            //Ask what to do
+            //Loop until selected out
             while (true)
             {
+
+                //Clear and print header
+                Console.Clear();
+                AnsiConsole.MarkupLine("[bold][underline]AIDA SETTINGS MENU[/][/]");
+
+                //AIDA version
+                Assembly ass = Assembly.GetExecutingAssembly();
+                Version? v = ass.GetName().Version;
+                if (v != null)
+                {
+                    AnsiConsole.MarkupLine("AIDA version [bold]" + v.ToString().Substring(0, v.ToString().Length - 2) + "[/]");
+                }
+
+                //Config directory
+                AnsiConsole.MarkupLine("Config directory: [bold]" + ConfigDirectory + "[/]");
+
+                //Model info
+                AnsiConsole.MarkupLine("Model endpoint: [bold]" + SETTINGS.Credentials.URL + "[/]");
+
+                //Assistant color
+                AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + SETTINGS.AssistantMessageColor + "[/] ([" + SETTINGS.AssistantMessageColor + "]looks like this[/])");
+
+                //Ask what to do
                 Console.WriteLine();
                 SelectionPrompt<string> SettingToDo = new SelectionPrompt<string>();
                 SettingToDo.Title("What do you want to do?");
@@ -507,6 +513,8 @@ namespace AIDA
                     {
                         AnsiConsole.MarkupLine("[red]That didn't work! Make sure it is a valid color and try again.[/]");
                     }
+                    AnsiConsole.Markup("[gray][italic]enter to continue... [/][/]");
+                    Console.ReadLine();
                 }
                 else if (SettingToDoAnswer == "Continue - everything looks great!")
                 {
