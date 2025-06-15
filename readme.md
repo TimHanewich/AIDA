@@ -1,6 +1,8 @@
 # AIDA: AI Desktop Assistant
 **AIDA**, short for **AI** **D**esktop **A**ssistant is a lightweight, console-based client for interfacing with a large language model.
 
+![AIDA](https://i.imgur.com/Yps2hcF.png)
+
 AIDA has built-in tools (function-calling) that give it several capabilities:
 - **Save File** - save a .txt file to the local computer.
 - **Open Folder** - read the contents of a folder (files and sub-folders within it)
@@ -17,6 +19,7 @@ In addition to the above capabilities, you can run several commands to manage th
 - `settings` - update endpoint settings, color and theme, etc.
 
 ## How to run AIDA
+AIDA is super lightweight and easy to run on Windows and Linux!
 1. Install the [.NET 9.0 runtime](https://dotnet.microsoft.com/en-us/download/dotnet/9.0).
 2. Download AIDA from [the changelog](./changelog.md). Place it anywhere you want on your computer. Add it to your **path** variable so you can call AIDA easily!
 
