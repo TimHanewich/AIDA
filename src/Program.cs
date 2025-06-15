@@ -5,8 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
 using Spectre.Console;
-using TimHanewich.MicrosoftGraphHelper;
-using TimHanewich.MicrosoftGraphHelper.Outlook;
 using System.Web;
 using System.Collections.Specialized;
 using HtmlAgilityPack;
@@ -15,7 +13,6 @@ using TimHanewich.AgentFramework;
 using Yahoo.Finance;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
-using System.Security.Cryptography;
 using System.IO.Compression;
 
 namespace AIDA
@@ -77,92 +74,6 @@ namespace AIDA
                     }
                 }
             }
-
-            //Try to revive stored MicrosoftGraphHelper
-            MicrosoftGraphHelper? mgh = null;
-            string MicrosoftGraphHelperPath = System.IO.Path.Combine(ConfigDirectory, "MicrosoftGraphHelper.json");
-            if (System.IO.File.Exists(MicrosoftGraphHelperPath))
-            {
-                mgh = JsonConvert.DeserializeObject<MicrosoftGraphHelper>(System.IO.File.ReadAllText(MicrosoftGraphHelperPath));
-            }
-
-            //If we were unable to get the microsoft graph credentials from file, ask if they want to sign in
-            if (mgh == null)
-            {
-                SelectionPrompt<string> WantToSignInToGraph = new SelectionPrompt<string>();
-                WantToSignInToGraph.Title("I was not able to find access to your Microsoft Graph credentials. Do you want to sign in to Microsoft Outlook so I can access your calendar?");
-                WantToSignInToGraph.AddChoices("Yes", "No");
-                string WantToSignInToGraphAnswer = AnsiConsole.Prompt(WantToSignInToGraph);
-                if (WantToSignInToGraphAnswer == "Yes")
-                {
-                    //Assemble the authroization URL
-                    mgh = new MicrosoftGraphHelper();
-                    mgh.Tenant = "consumers";
-                    mgh.ClientId = Guid.Parse("e32b77a3-67df-411b-927b-f05cc6fe8d5d");
-                    mgh.RedirectUrl = "https://www.google.com/";
-                    mgh.Scope.Add("User.Read");
-                    mgh.Scope.Add("Calendars.ReadWrite");
-                    mgh.Scope.Add("Mail.Read");
-                    string url = mgh.AssembleAuthorizationUrl();
-
-                    //Ask them to sign in
-                    AnsiConsole.MarkupLine("Great! Please go to the following URL and sign in, granting the necessary permissions:");
-                    AnsiConsole.MarkupLine("[gray][italic]" + url + "[/][/]");
-                    Console.WriteLine();
-                    AnsiConsole.MarkupLine("After you do, it will redirect you to a URL. Copy + Paste that URL back to me.");
-
-                    //Collect code by stripping it out of the redirect URL
-                    string? GraphAuthCode = null;
-                    while (GraphAuthCode == null)
-                    {
-
-                        //Ask for full URL it redirected them to
-                        Console.Write("Full URL it redirects you to (copy + paste): ");
-                        string? full_url = Console.ReadLine();
-                        while (full_url == null)
-                        {
-                            full_url = Console.ReadLine();
-                        }
-
-                        //Clip out the 'code' parameter
-                        Uri AuthRedirect = new Uri(full_url);
-                        NameValueCollection nvc = HttpUtility.ParseQueryString(AuthRedirect.Query); //Parse the query portion (where the parameters are in the URL) into a name value collection, splitting each param up
-                        GraphAuthCode = nvc["code"];
-                        if (GraphAuthCode == null)
-                        {
-                            AnsiConsole.MarkupLine("I'm sorry, I couldn't find the necessary 'code' parameter in that URL. Are you sure you are copying + pasting the full URL? Or perhaps it isn't working. Please try again.");
-                        }
-                    }
-
-                    //Now that we have the graph auth code, redeem it for a bearer token
-                    AnsiConsole.Markup("Authenticating with Microsoft Graph... ");
-                    bool GraphAuthenticationSuccessful = false;
-                    try
-                    {
-                        await mgh.GetAccessTokenAsync(GraphAuthCode);
-                        AnsiConsole.MarkupLine("[green]success![/]");
-                        GraphAuthenticationSuccessful = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        AnsiConsole.MarkupLine("[red]" + "redeeming code for bearer token failed! Msg: " + ex.Message + "[/]");
-                    }
-
-                    //Write to file if successful, but clear out if not
-                    if (GraphAuthenticationSuccessful)
-                    {
-                        AnsiConsole.Markup("Storing Graph credentials for future use... ");
-                        System.IO.File.WriteAllText(MicrosoftGraphHelperPath, JsonConvert.SerializeObject(mgh, Formatting.Indented));
-                        AnsiConsole.MarkupLine("[green]saved[/]!");
-                    }
-                    else
-                    {
-                        AnsiConsole.MarkupLine("Authenticating with the Microsoft Graph was unsuccesful. Proceeding with AIDA without Microsoft Graph capabilities for now. Outlook-related tools will not work.");
-                        mgh = null;
-                    }
-                }
-            }
-
 
             #endregion
 
@@ -590,27 +501,6 @@ namespace AIDA
             string DestinationPath = System.IO.Path.Combine(DestinationDirectory, file_name);
             System.IO.File.WriteAllText(DestinationPath, file_content);
             return "File successfully saved to '" + DestinationPath + "'. Explicitly tell the user where the file was saved in confirming it was saved (tell the full file path).";
-        }
-
-        public static async Task RefreshMicrosoftGraphAccessTokensIfExpiredAsync(MicrosoftGraphHelper mgh, string MicrosoftGraphHelperLocalFilePath)
-        {
-            //Check if credentials need to be refreshed
-            if (mgh.AccessTokenHasExpired())
-            {
-
-                //Refresh
-                try
-                {
-                    await mgh.RefreshAccessTokenAsync();
-                }
-                catch (Exception ex)
-                {
-                    AnsiConsole.MarkupLine("[red]Refreshing of graph token failed: " + ex.Message + "[/]");
-                }
-
-                //Save updated credentials to file
-                System.IO.File.WriteAllText(MicrosoftGraphHelperLocalFilePath, JsonConvert.SerializeObject(mgh, Formatting.Indented));
-            }
         }
 
         public static async Task<string> ReadWebpage(string url)
