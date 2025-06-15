@@ -513,6 +513,7 @@ namespace AIDA
                     AnsiConsole.Markup("[gray]Saving... [/]");
                     SETTINGS.Save();
                     AnsiConsole.MarkupLine("[green]saved![/]");
+                    return; //break out of while loop!
                 }
             }
         }
