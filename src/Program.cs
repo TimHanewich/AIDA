@@ -172,7 +172,13 @@ namespace AIDA
                 }
                 else if (input.ToLower() == "settings") //Where the config files are
                 {
+                    
+                    //Present settings menu and allow them to change things
                     SettingsMenu();
+
+                    //Now that it has changed, refresh settings
+                    SETTINGS = AIDASettings.Open();
+
                     goto Input;
                 }
                 else if (input.ToLower() == "tools")
@@ -467,7 +473,48 @@ namespace AIDA
             AnsiConsole.MarkupLine("Model endpoint: [bold]" + SETTINGS.Credentials.URL + "[/]");
 
             //Assistant color
-            AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + SETTINGS.AssistantMessageColor + "[/] ([italic][" + SETTINGS.AssistantMessageColor + "]looks like this[/][/])");
+            AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + SETTINGS.AssistantMessageColor + "[/] ([" + SETTINGS.AssistantMessageColor + "]looks like this[/])");
+
+            //Ask what to do
+            while (true)
+            {
+                Console.WriteLine();
+                SelectionPrompt<string> SettingToDo = new SelectionPrompt<string>();
+                SettingToDo.Title("What do you want to do?");
+                SettingToDo.AddChoice("Change AzureOpenAI Credentials");
+                SettingToDo.AddChoice("Change Assistant Message Color");
+                SettingToDo.AddChoice("Continue - everything looks great!");
+                string SettingToDoAnswer = AnsiConsole.Prompt(SettingToDo);
+
+                //Handle what to do
+                if (SettingToDoAnswer == "Change AzureOpenAI Credentials")
+                {
+                    string URL = AnsiConsole.Ask<string>("URL endpoint to your model?");
+                    string KEY = AnsiConsole.Ask<string>("API Key?");
+                    SETTINGS.Credentials = new AzureOpenAICredentials(URL, KEY);
+                    AnsiConsole.MarkupLine("[green]Updated![/]");
+                }
+                else if (SettingToDoAnswer == "Change Assistant Message Color")
+                {
+                    AnsiConsole.MarkupLine("Visit here to see the available colors: [bold]https://spectreconsole.net/appendix/colors[/]");
+                    string NewColor = AnsiConsole.Ask<string>("New color?");
+                    try
+                    {
+                        AnsiConsole.MarkupLine("Future AI messages will be in [" + NewColor + "]this color[/]");
+                        SETTINGS.AssistantMessageColor = NewColor;
+                    }
+                    catch
+                    {
+                        AnsiConsole.MarkupLine("[red]That didn't work! Make sure it is a valid color and try again.[/]");
+                    }
+                }
+                else if (SettingToDoAnswer == "Continue - everything looks great!")
+                {
+                    AnsiConsole.Markup("[gray]Saving... [/]");
+                    SETTINGS.Save();
+                    AnsiConsole.MarkupLine("[green]saved![/]");
+                }
+            }
         }
 
 
