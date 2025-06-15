@@ -137,7 +137,7 @@ namespace AIDA
                     Console.WriteLine();
                     AnsiConsole.MarkupLine("[bold]clear[/] - clear the chat history.");
                     AnsiConsole.MarkupLine("[bold]tokens[/] - check token consumption for this session.");
-                    AnsiConsole.MarkupLine("[bold]config[/] - print the path of the configuration directory, where settings files are stored.");
+                    AnsiConsole.MarkupLine("[bold]settings[/] - Open AIDA's settings menu");
                     AnsiConsole.MarkupLine("[bold]tools[/] - list all tools AIDA has available to it.");
                     AnsiConsole.MarkupLine("[bold]save[/] - Save chat history to a local file.");
                     AnsiConsole.MarkupLine("[bold]load[/] - Save chat history to a local file.");
@@ -170,14 +170,9 @@ namespace AIDA
                     Console.WriteLine();
                     goto Input;
                 }
-                else if (input.ToLower() == "config") //Where the config files are
+                else if (input.ToLower() == "settings") //Where the config files are
                 {
-                    AnsiConsole.MarkupLine("[underline]Config File Directory[/]");
-                    AnsiConsole.MarkupLine(ConfigDirectory);
-                    Console.WriteLine();
-                    AnsiConsole.MarkupLine("[underline]Azure OpenAI Endpoint[/]");
-                    AnsiConsole.MarkupLine(SETTINGS.Credentials.URL);
-                    Console.WriteLine();
+                    SettingsMenu();
                     goto Input;
                 }
                 else if (input.ToLower() == "tools")
@@ -451,6 +446,30 @@ namespace AIDA
                 Console.WriteLine(message);
             }
         }
+
+        public static void SettingsMenu()
+        {
+            //READ SETTINGS
+            AIDASettings SETTINGS = AIDASettings.Open();
+
+            //AIDA version
+            Assembly ass = Assembly.GetExecutingAssembly();
+            Version? v = ass.GetName().Version;
+            if (v != null)
+            {
+                AnsiConsole.MarkupLine("AIDA version [bold]" + v.ToString().Substring(0, v.ToString().Length - 2) + "[/]");
+            }
+
+            //Config directory
+            AnsiConsole.MarkupLine("Config directory: [bold]" + ConfigDirectory + "[/]");
+
+            //Model info
+            AnsiConsole.MarkupLine("Model endpoint: [bold]" + SETTINGS.Credentials.URL + "[/]");
+
+            //Assistant color
+            AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + SETTINGS.AssistantMessageColor + "[/] ([italic][" + SETTINGS.AssistantMessageColor + "]looks like this[/][/])");
+        }
+
 
 
         //////// TOOLS /////////
