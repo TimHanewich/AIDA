@@ -50,6 +50,12 @@ namespace AIDA
             //Load settings
             AIDASettings SETTINGS = AIDASettings.Open(); //will find and open from local file
 
+            //If settings has no azure openai credentials, show warning message
+            if (SETTINGS.Credentials.URL == "" || SETTINGS.Credentials.ApiKey == "")
+            {
+                AnsiConsole.MarkupLine("[red]:warning: Warning - Azure OpenAI credentials not specified! Use command '[bold]settings[/]' to update your model info before proceeding.[/]");
+            }
+
             #endregion
 
             //Create the agent
