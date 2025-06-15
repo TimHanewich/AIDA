@@ -23,6 +23,15 @@ namespace AIDA
             RunAsync().Wait();
         }
 
+        // GLOBAL VARIABLES
+        public static string ConfigDirectory
+        {
+            get
+            {
+                return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIDA");
+            }
+        }
+
         public static async Task RunAsync()
         {
 
@@ -33,52 +42,19 @@ namespace AIDA
 
             #region "credentials"
 
-            //Check Config directory for config files
-            string ConfigDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIDA");
             if (System.IO.Directory.Exists(ConfigDirectory) == false)
             {
                 System.IO.Directory.CreateDirectory(ConfigDirectory);
             }
 
-            //Get AzureOpenAICredentials.json
-            AzureOpenAICredentials azoai;
-            string AzureOpenAICredentialsPath = System.IO.Path.Combine(ConfigDirectory, "AzureOpenAICredentials.json");
-            if (System.IO.File.Exists(AzureOpenAICredentialsPath) == false)
-            {
-                //Write the file
-                System.IO.File.WriteAllText(AzureOpenAICredentialsPath, JsonConvert.SerializeObject(new AzureOpenAICredentials(), Formatting.Indented));
-
-                Console.WriteLine("Your Azure OpenAI secrets were not provided! Please enter your Azure OpenAI details here: " + AzureOpenAICredentialsPath);
-                return;
-            }
-            else
-            {
-                string content = System.IO.File.ReadAllText(AzureOpenAICredentialsPath);
-                AzureOpenAICredentials? azoaicreds = JsonConvert.DeserializeObject<AzureOpenAICredentials>(content);
-                if (azoaicreds == null)
-                {
-                    Console.WriteLine("Was unable to parse valid Azure OpenAI credentials out of file '" + AzureOpenAICredentialsPath + "'. Please fix the errors and try again.");
-                    return;
-                }
-                else
-                {
-                    if (azoaicreds.URL == "" || azoaicreds.ApiKey == "")
-                    {
-                        Console.WriteLine("The Azure OpenAI credentials in '" + AzureOpenAICredentialsPath + "' were not populated. Please add your Azure OpenAI details and try again.");
-                        return;
-                    }
-                    else
-                    {
-                        azoai = azoaicreds;
-                    }
-                }
-            }
+            //Load settings
+            AIDASettings settings = AIDASettings.Open(); //will find and open from local file
 
             #endregion
 
             //Create the agent
             Agent a = new Agent();
-            a.Model = azoai;
+            a.Model = settings.Credentials;
 
             //Add system message
             List<string> SystemMessage = new List<string>();
@@ -155,7 +131,7 @@ namespace AIDA
                     input = Console.ReadLine();
                     Console.WriteLine();
                 }
-                
+
 
                 //Handle special inputs
                 if (input.ToLower() == "help")
@@ -203,7 +179,7 @@ namespace AIDA
                     AnsiConsole.MarkupLine(ConfigDirectory);
                     Console.WriteLine();
                     AnsiConsole.MarkupLine("[underline]Azure OpenAI Endpoint[/]");
-                    AnsiConsole.MarkupLine(azoai.URL);
+                    AnsiConsole.MarkupLine(settings.Credentials.URL);
                     Console.WriteLine();
                     goto Input;
                 }
@@ -310,7 +286,7 @@ namespace AIDA
                     Console.WriteLine();
                     goto Input;
                 }
-                
+
                 //It did not trigger a special command, so add it to the history, it will be passed to the AI!
                 a.Messages.Add(new Message(Role.user, input));
 

@@ -31,7 +31,7 @@ namespace AIDA
 
         public static AIDASettings Open()
         {
-            if (System.IO.File.Exists(SavePath))
+            if (System.IO.File.Exists(SavePath) == false)
             {
                 return new AIDASettings();
             }
