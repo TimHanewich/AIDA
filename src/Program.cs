@@ -34,7 +34,7 @@ namespace AIDA
 
         public static async Task RunAsync()
         {
-
+ 
             //Ensure ConsoleOutput is in UTF-8 so it can show bullet points
             //I noticed when you publish and run the exe, it defaults to System.Text.OSEncoding as the ConsoleEncoding
             //When it goes to OSEncoding, the bullet points do not print
@@ -51,16 +51,28 @@ namespace AIDA
             AIDASettings SETTINGS = AIDASettings.Open(); //will find and open from local file
 
             //If settings has no azure openai credentials, show warning message
-            if (SETTINGS.Credentials.URL == "" || SETTINGS.Credentials.ApiKey == "")
+            if (SETTINGS.ActiveModelConnection == null)
             {
-                AnsiConsole.MarkupLine("[red]:warning: Warning - Azure OpenAI credentials not specified! Use command '[bold]settings[/]' to update your model info before proceeding.[/]");
+                AnsiConsole.MarkupLine("[red]:warning: Warning - no active model connection specified! Use command '[bold]settings[/]' to update your model info before proceeding.[/]");
             }
 
             #endregion
 
             //Create the agent
             Agent a = new Agent();
-            a.Model = SETTINGS.Credentials;
+
+            //Set model
+            if (SETTINGS.ActiveModelConnection != null)
+            {
+                if (SETTINGS.ActiveModelConnection.AzureOpenAIConnection != null)
+                {
+                    a.Model = SETTINGS.ActiveModelConnection.AzureOpenAIConnection;
+                }
+                else if (SETTINGS.ActiveModelConnection.OllamaModelConnection != null)
+                {
+                    a.Model = SETTINGS.ActiveModelConnection.OllamaModelConnection;
+                }
+            }
 
             //Add system message
             List<string> SystemMessage = new List<string>();
@@ -514,7 +526,21 @@ namespace AIDA
                 AnsiConsole.MarkupLine("Config directory: [bold]" + ConfigDirectory + "[/]");
 
                 //Model info
-                AnsiConsole.MarkupLine("Model endpoint: [bold]" + SETTINGS.Credentials.URL + "[/]");
+                if (SETTINGS.ActiveModelConnection == null)
+                {
+                    AnsiConsole.MarkupLine("Active Model: not specified!");
+                }
+                else
+                {
+                    if (SETTINGS.ActiveModelConnection.AzureOpenAIConnection != null)
+                    {
+                        AnsiConsole.MarkupLine("Active Model: " + SETTINGS.ActiveModelConnection.AzureOpenAIConnection.URL + " (Azure OpenAI)");
+                    }
+                    else if (SETTINGS.ActiveModelConnection.OllamaModelConnection != null)
+                    {
+                        AnsiConsole.MarkupLine("Active Model: " + SETTINGS.ActiveModelConnection.OllamaModelConnection + "(ollama)");
+                    }
+                }
 
                 //Assistant color
                 AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + SETTINGS.AssistantMessageColor + "[/] ([" + SETTINGS.AssistantMessageColor + "]looks like this[/])");
@@ -523,18 +549,122 @@ namespace AIDA
                 Console.WriteLine();
                 SelectionPrompt<string> SettingToDo = new SelectionPrompt<string>();
                 SettingToDo.Title("What do you want to do?");
-                SettingToDo.AddChoice("Change AzureOpenAI Credentials");
+                SettingToDo.AddChoice("Add model connection");
+                SettingToDo.AddChoice("Change model connection");
                 SettingToDo.AddChoice("Change Assistant Message Color");
-                SettingToDo.AddChoice("Continue - everything looks great!");
+                SettingToDo.AddChoice("Save & Continue");
                 string SettingToDoAnswer = AnsiConsole.Prompt(SettingToDo);
 
                 //Handle what to do
-                if (SettingToDoAnswer == "Change AzureOpenAI Credentials")
+                if (SettingToDoAnswer == "Add model connection")
                 {
-                    string URL = AnsiConsole.Ask<string>("URL endpoint to your model?");
-                    string KEY = AnsiConsole.Ask<string>("API Key?");
-                    SETTINGS.Credentials = new AzureOpenAICredentials(URL, KEY);
-                    AnsiConsole.MarkupLine("[green]Updated![/]");
+                    //Ask what type of model to add
+                    SelectionPrompt<string> WhatToAdd = new SelectionPrompt<string>();
+                    WhatToAdd.Title("What type of model connection do you want to add?");
+                    WhatToAdd.AddChoice("Azure OpenAI");
+                    WhatToAdd.AddChoice("Ollama");
+                    string WhatToAddAnswer = AnsiConsole.Prompt(WhatToAdd);
+
+                    if (WhatToAddAnswer == "Azure OpenAI")
+                    {
+                        AnsiConsole.MarkupLine("Ok, let's add your Azure OpenAI connection.");
+                        string URL = AnsiConsole.Ask<string>("URL endpoint to your model?");
+                        string KEY = AnsiConsole.Ask<string>("API Key?");
+                        ModelConnection newmc = new ModelConnection();
+                        newmc.Active = false;
+                        newmc.AzureOpenAIConnection = new AzureOpenAICredentials(URL, KEY);
+                        SETTINGS.ModelConnections.Add(newmc);
+                        AnsiConsole.Markup("[green]Connection added![/] [italic][gray]enter to continue[/][/]"); Console.ReadLine();
+                    }
+                    else if (WhatToAddAnswer == "Ollama")
+                    {
+                        AnsiConsole.MarkupLine("Ok, let's add your Ollama connection.");
+                        string ModelIdentifier = AnsiConsole.Ask<string>("What is your model identifier (i.e. \"qwen3:0.6b\")?");
+                        ModelConnection newmc = new ModelConnection();
+                        newmc.Active = false;
+                        newmc.OllamaModelConnection = new OllamaModel(ModelIdentifier);
+                        SETTINGS.ModelConnections.Add(newmc);
+                        AnsiConsole.Markup("[green]Connection added! [italic][gray]enter to continue[/][/][/]"); Console.ReadLine();
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLine("[red]I am sorry, I cannot handle that yet.[/]");
+                    }
+                }
+                else if (SettingToDoAnswer == "Change model connection")
+                {
+                    //Build model connection table
+                    Table ModelTable = new Table();
+                    ModelTable.Border(TableBorder.Rounded);
+                    ModelTable.AddColumn("Type");
+                    ModelTable.AddColumn("Identifier");
+                    ModelTable.AddColumn("Active");
+                    foreach (ModelConnection mc in SETTINGS.ModelConnections)
+                    {
+                        //prepare vars
+                        string dType = "";
+                        string dIdentifier = "";
+                        string dActive = "";
+
+                        //Plug in vars
+                        if (mc.AzureOpenAIConnection != null)
+                        {
+                            dType = "Azure OpenAI";
+                            dIdentifier = mc.AzureOpenAIConnection.URL;
+                        }
+                        else if (mc.OllamaModelConnection != null)
+                        {
+                            dType = "Ollama";
+                            dIdentifier = mc.OllamaModelConnection.ModelIdentifier;
+                        }
+
+                        //Plug in active?
+                        if (mc.Active)
+                        {
+                            dActive = "ACTIVE";
+                        }
+                        else
+                        {
+                            dActive = "";
+                        }
+
+                        //Add row
+                        ModelTable.AddRow(dType, dIdentifier, dActive);
+                    }
+
+                    //Print the table
+                    AnsiConsole.MarkupLine("[underline][bold]Stored Model Connections[/][/]");
+                    AnsiConsole.Write(ModelTable);
+
+                    //Ask which one to make active?
+                    SelectionPrompt<string> ModelToMakeActive = new SelectionPrompt<string>();
+                    ModelToMakeActive.Title("Which connection do you want to make active?");
+                    foreach (ModelConnection mc in SETTINGS.ModelConnections)
+                    {
+                        ModelToMakeActive.AddChoice(mc.ToString());
+                    }
+                    string ModelToMakeActiveAnswer = AnsiConsole.Prompt(ModelToMakeActive);
+
+                    //Make it active
+                    foreach (ModelConnection mc in SETTINGS.ModelConnections)
+                    {
+                        if (mc.ToString() == ModelToMakeActiveAnswer)
+                        {
+                            mc.Active = true;
+                        }
+                        else
+                        {
+                            mc.Active = false;
+                        }
+                    }
+
+                    //Print what is now active
+                    if (SETTINGS.ActiveModelConnection != null)
+                    {
+                        AnsiConsole.Markup("[green]Active model connection updated![/] [italic][gray]enter to continue...[/][/]");
+                        Console.ReadLine();
+                    }
+
                 }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
                 {
@@ -552,12 +682,17 @@ namespace AIDA
                     AnsiConsole.Markup("[gray][italic]enter to continue... [/][/]");
                     Console.ReadLine();
                 }
-                else if (SettingToDoAnswer == "Continue - everything looks great!")
+                else if (SettingToDoAnswer == "Save & Continue")
                 {
                     AnsiConsole.Markup("[gray]Saving settings... [/]");
                     SETTINGS.Save();
                     AnsiConsole.MarkupLine("[green]saved![/]");
                     return; //break out of while loop!
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine("[red]Sorry, I can't handle that yet![/]");
+                    Console.ReadLine();
                 }
             }
         }

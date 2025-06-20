@@ -2,18 +2,19 @@ using System;
 using TimHanewich.AgentFramework;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace AIDA
 {
     public class AIDASettings
     {
-        public AzureOpenAICredentials Credentials { get; set; }
+        public List<ModelConnection> ModelConnections { get; set; }
         public string AssistantMessageColor { get; set; } //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
 
         public AIDASettings()
         {
-            Credentials = new AzureOpenAICredentials();
             AssistantMessageColor = "navyblue";
+            ModelConnections = new List<ModelConnection>();
         }
 
         private static string SavePath
@@ -48,6 +49,21 @@ namespace AIDA
                     return new AIDASettings();
                 }
                 return ToReturn;
+            }
+        }
+
+        public ModelConnection? ActiveModelConnection
+        {
+            get
+            {
+                foreach (ModelConnection mc in ModelConnections)
+                {
+                    if (mc.Active)
+                    {
+                        return mc;
+                    }
+                }
+                return null;
             }
         }
 
