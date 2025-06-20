@@ -312,9 +312,13 @@ namespace AIDA
                         a.Model = SETTINGS.ActiveModelConnection.OllamaModelConnection;
                     }
                 }
+                else
+                {
+                    AnsiConsole.MarkupLine("[red]:warning: Warning - no active model connection specified! Use command '[bold]settings[/]' to update your model info before proceeding.[/]");
+                }
 
                 //Prompt the model
-                AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
+                    AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
                 Message response;
                 try
                 {
