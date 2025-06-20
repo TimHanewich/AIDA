@@ -61,19 +61,6 @@ namespace AIDA
             //Create the agent
             Agent a = new Agent();
 
-            //Set model
-            if (SETTINGS.ActiveModelConnection != null)
-            {
-                if (SETTINGS.ActiveModelConnection.AzureOpenAIConnection != null)
-                {
-                    a.Model = SETTINGS.ActiveModelConnection.AzureOpenAIConnection;
-                }
-                else if (SETTINGS.ActiveModelConnection.OllamaModelConnection != null)
-                {
-                    a.Model = SETTINGS.ActiveModelConnection.OllamaModelConnection;
-                }
-            }
-
             //Add system message
             List<string> SystemMessage = new List<string>();
             SystemMessage.Add("You are AIDA, Artificial Intelligence Desktop Assistant. Your role is to be a friendly and helpful assistant. Speak in a playful, lighthearted, and fun manner.");
