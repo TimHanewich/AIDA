@@ -318,7 +318,7 @@ namespace AIDA
                 }
 
                 //Prompt the model
-                    AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
+                AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
                 Message response;
                 try
                 {
