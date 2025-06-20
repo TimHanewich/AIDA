@@ -329,9 +329,10 @@ namespace AIDA
                     AnsiConsole.MarkupLine("[red]Uh oh! There was an issue when prompting the underlying model. Message: " + Markup.Escape(ex.Message) + "[/]");
                     Console.WriteLine();
                     Console.WriteLine();
-                    AnsiConsole.Markup("[italic][gray]Press enter to try again... [/][/]");
+                    AnsiConsole.Markup("[italic][gray]Press enter to try another input... [/][/]");
                     Console.ReadLine();
-                    goto Prompt;
+                    a.Messages.Remove(a.Messages.Last()); //Remove the last one (it failed)
+                    goto Input;
                 }
 
                 //Add it
@@ -600,14 +601,12 @@ namespace AIDA
                     ModelTable.Border(TableBorder.Rounded);
                     ModelTable.AddColumn("Name");
                     ModelTable.AddColumn("Type");
-                    ModelTable.AddColumn("Identifier");
                     ModelTable.AddColumn("Active");
                     foreach (ModelConnection mc in SETTINGS.ModelConnections)
                     {
                         //prepare vars
                         string vName = "";
                         string dType = "";
-                        string dIdentifier = "";
                         string dActive = "";
 
                         //name
@@ -617,12 +616,10 @@ namespace AIDA
                         if (mc.AzureOpenAIConnection != null)
                         {
                             dType = "Azure OpenAI";
-                            dIdentifier = mc.AzureOpenAIConnection.URL;
                         }
                         else if (mc.OllamaModelConnection != null)
                         {
                             dType = "Ollama";
-                            dIdentifier = mc.OllamaModelConnection.ModelIdentifier;
                         }
 
                         //Plug in active?
@@ -636,7 +633,7 @@ namespace AIDA
                         }
 
                         //Add row
-                        ModelTable.AddRow(vName, dType, dIdentifier, dActive);
+                        ModelTable.AddRow(vName, dType, dActive);
                     }
 
                     //Print the table
