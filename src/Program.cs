@@ -567,7 +567,9 @@ namespace AIDA
                         AnsiConsole.MarkupLine("Ok, let's add your Azure OpenAI connection.");
                         string URL = AnsiConsole.Ask<string>("URL endpoint to your model?");
                         string KEY = AnsiConsole.Ask<string>("API Key?");
+                        string NAME = AnsiConsole.Ask<string>("What do you want to call this connection (a custom name)?");
                         ModelConnection newmc = new ModelConnection();
+                        newmc.Name = NAME;
                         newmc.Active = false;
                         newmc.AzureOpenAIConnection = new AzureOpenAICredentials(URL, KEY);
                         SETTINGS.ModelConnections.Add(newmc);
@@ -577,7 +579,9 @@ namespace AIDA
                     {
                         AnsiConsole.MarkupLine("Ok, let's add your Ollama connection.");
                         string ModelIdentifier = AnsiConsole.Ask<string>("What is your model identifier (i.e. \"qwen3:0.6b\")?");
+                        string NAME = AnsiConsole.Ask<string>("What do you want to call this connection (a custom name)?");
                         ModelConnection newmc = new ModelConnection();
+                        newmc.Name = NAME;
                         newmc.Active = false;
                         newmc.OllamaModelConnection = new OllamaModel(ModelIdentifier);
                         SETTINGS.ModelConnections.Add(newmc);
@@ -593,15 +597,20 @@ namespace AIDA
                     //Build model connection table
                     Table ModelTable = new Table();
                     ModelTable.Border(TableBorder.Rounded);
+                    ModelTable.AddColumn("Name");
                     ModelTable.AddColumn("Type");
                     ModelTable.AddColumn("Identifier");
                     ModelTable.AddColumn("Active");
                     foreach (ModelConnection mc in SETTINGS.ModelConnections)
                     {
                         //prepare vars
+                        string vName = "";
                         string dType = "";
                         string dIdentifier = "";
                         string dActive = "";
+
+                        //name
+                        vName = mc.Name;
 
                         //Plug in vars
                         if (mc.AzureOpenAIConnection != null)
@@ -626,7 +635,7 @@ namespace AIDA
                         }
 
                         //Add row
-                        ModelTable.AddRow(dType, dIdentifier, dActive);
+                        ModelTable.AddRow(vName, dType, dIdentifier, dActive);
                     }
 
                     //Print the table
