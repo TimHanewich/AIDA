@@ -313,6 +313,19 @@ namespace AIDA
             //Prompt
             Prompt:
 
+                //Plug in the correct agent
+                if (SETTINGS.ActiveModelConnection != null)
+                {
+                    if (SETTINGS.ActiveModelConnection.AzureOpenAIConnection != null)
+                    {
+                        a.Model = SETTINGS.ActiveModelConnection.AzureOpenAIConnection;
+                    }
+                    else if (SETTINGS.ActiveModelConnection.OllamaModelConnection != null)
+                    {
+                        a.Model = SETTINGS.ActiveModelConnection.OllamaModelConnection;
+                    }
+                }
+
                 //Prompt the model
                 AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
                 Message response;
@@ -532,14 +545,7 @@ namespace AIDA
                 }
                 else
                 {
-                    if (SETTINGS.ActiveModelConnection.AzureOpenAIConnection != null)
-                    {
-                        AnsiConsole.MarkupLine("Active Model: " + SETTINGS.ActiveModelConnection.AzureOpenAIConnection.URL + " (Azure OpenAI)");
-                    }
-                    else if (SETTINGS.ActiveModelConnection.OllamaModelConnection != null)
-                    {
-                        AnsiConsole.MarkupLine("Active Model: " + SETTINGS.ActiveModelConnection.OllamaModelConnection + "(ollama)");
-                    }
+                    AnsiConsole.MarkupLine("Active Model: " + SETTINGS.ActiveModelConnection.ToString());
                 }
 
                 //Assistant color
