@@ -52,6 +52,7 @@ namespace AIDA
             }
         }
 
+        [JsonIgnore]
         public ModelConnection? ActiveModelConnection
         {
             get
