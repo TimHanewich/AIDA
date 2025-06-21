@@ -607,13 +607,6 @@ namespace AIDA
                             string URL = AnsiConsole.Ask<string>("URL endpoint to your model?");
                             string KEY = AnsiConsole.Ask<string>("API Key?");
                             string NAME = AnsiConsole.Ask<string>("What do you want to call this connection (a custom name)?");
-                            if (NAME == "")
-                            {
-                                while (NAME == "")
-                                {
-                                    NAME = AnsiConsole.Ask<string>("What name do you want to give to this connection? It cannot be left blank.");
-                                }
-                            }
                             ModelConnection newmc = new ModelConnection();
                             newmc.Name = NAME;
                             newmc.Active = false;
@@ -626,13 +619,6 @@ namespace AIDA
                             AnsiConsole.MarkupLine("Ok, let's add your Ollama connection.");
                             string ModelIdentifier = AnsiConsole.Ask<string>("What is your model identifier (i.e. \"qwen3:0.6b\")?");
                             string NAME = AnsiConsole.Ask<string>("What do you want to call this connection (a custom name)?");
-                            if (NAME == "")
-                            {
-                                while (NAME == "")
-                                {
-                                    NAME = AnsiConsole.Ask<string>("What name do you want to give to this connection? It cannot be left blank.");
-                                }
-                            }
                             ModelConnection newmc = new ModelConnection();
                             newmc.Name = NAME;
                             newmc.Active = false;
