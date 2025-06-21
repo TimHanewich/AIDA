@@ -515,8 +515,8 @@ namespace AIDA
             while (true)
             {
 
-                //Clear and print header
-                Console.Clear();
+                //Print header
+                Console.WriteLine();
                 AnsiConsole.MarkupLine("[bold][underline]AIDA SETTINGS MENU[/][/]");
 
                 //AIDA version
