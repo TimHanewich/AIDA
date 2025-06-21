@@ -270,10 +270,8 @@ namespace AIDA
 
                     //Load it up!
                     a.Messages = messages.ToList();
-                    AnsiConsole.MarkupLine("[green]" + messages.Length.ToString("#,##0") + " messages loaded from " + Markup.Escape(System.IO.Path.GetFileName(FilePath)) + "![/]");
-
-                    //Print how many messages were just loaded
-                    AnsiConsole.MarkupLine("[green][bold]" + a.Messages.Count.ToString("#,##0") + " messages loaded[/][/]");
+                    AnsiConsole.MarkupLine("[green][bold]" + messages.Length.ToString("#,##0") + " messages loaded from " + Markup.Escape(System.IO.Path.GetFileName(FilePath)) + "![/][/]");
+                    Console.WriteLine();
 
                     goto Input;
                 }
