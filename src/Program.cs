@@ -529,69 +529,15 @@ namespace AIDA
                 Console.WriteLine();
                 SelectionPrompt<string> SettingToDo = new SelectionPrompt<string>();
                 SettingToDo.Title("What do you want to do?");
-                SettingToDo.AddChoice("Add model connection");
-                SettingToDo.AddChoice("Change active model connection");
-                SettingToDo.AddChoice("Delete model connection");
+                SettingToDo.AddChoice("Add/Change/Delete a model connection");
                 SettingToDo.AddChoice("Change Assistant Message Color");
                 SettingToDo.AddChoice("Save & Continue");
                 string SettingToDoAnswer = AnsiConsole.Prompt(SettingToDo);
 
                 //Handle what to do
-                if (SettingToDoAnswer == "Add model connection")
+                if (SettingToDoAnswer == "Add/Change/Delete a model connection")
                 {
-                    //Ask what type of model to add
-                    SelectionPrompt<string> WhatToAdd = new SelectionPrompt<string>();
-                    WhatToAdd.Title("What type of model connection do you want to add?");
-                    WhatToAdd.AddChoice("Azure OpenAI");
-                    WhatToAdd.AddChoice("Ollama");
-                    string WhatToAddAnswer = AnsiConsole.Prompt(WhatToAdd);
 
-                    if (WhatToAddAnswer == "Azure OpenAI")
-                    {
-                        AnsiConsole.MarkupLine("Ok, let's add your Azure OpenAI connection.");
-                        string URL = AnsiConsole.Ask<string>("URL endpoint to your model?");
-                        string KEY = AnsiConsole.Ask<string>("API Key?");
-                        string NAME = AnsiConsole.Ask<string>("What do you want to call this connection (a custom name)?");
-                        if (NAME == "")
-                        {
-                            while (NAME == "")
-                            {
-                                NAME = AnsiConsole.Ask<string>("What name do you want to give to this connection? It cannot be left blank.");
-                            }
-                        }
-                        ModelConnection newmc = new ModelConnection();
-                        newmc.Name = NAME;
-                        newmc.Active = false;
-                        newmc.AzureOpenAIConnection = new AzureOpenAICredentials(URL, KEY);
-                        SETTINGS.ModelConnections.Add(newmc);
-                        AnsiConsole.Markup("[green]Connection added![/] [italic][gray]enter to continue[/][/]"); Console.ReadLine();
-                    }
-                    else if (WhatToAddAnswer == "Ollama")
-                    {
-                        AnsiConsole.MarkupLine("Ok, let's add your Ollama connection.");
-                        string ModelIdentifier = AnsiConsole.Ask<string>("What is your model identifier (i.e. \"qwen3:0.6b\")?");
-                        string NAME = AnsiConsole.Ask<string>("What do you want to call this connection (a custom name)?");
-                        if (NAME == "")
-                        {
-                            while (NAME == "")
-                            {
-                                NAME = AnsiConsole.Ask<string>("What name do you want to give to this connection? It cannot be left blank.");
-                            }
-                        }
-                        ModelConnection newmc = new ModelConnection();
-                        newmc.Name = NAME;
-                        newmc.Active = false;
-                        newmc.OllamaModelConnection = new OllamaModel(ModelIdentifier);
-                        SETTINGS.ModelConnections.Add(newmc);
-                        AnsiConsole.Markup("[green]Connection added! [italic][gray]enter to continue[/][/][/]"); Console.ReadLine();
-                    }
-                    else
-                    {
-                        AnsiConsole.MarkupLine("[red]I am sorry, I cannot handle that yet.[/]");
-                    }
-                }
-                else if (SettingToDoAnswer == "Change active model connection")
-                {
                     //Build model connection table
                     Table ModelTable = new Table();
                     ModelTable.Border(TableBorder.Rounded);
@@ -636,109 +582,174 @@ namespace AIDA
                     AnsiConsole.MarkupLine("[underline][bold]Stored Model Connections[/][/]");
                     AnsiConsole.Write(ModelTable);
 
+                    //Ask what to do
+                    SelectionPrompt<string> ModelActionQuestion = new SelectionPrompt<string>();
+                    ModelActionQuestion.Title("What do you want to do?");
+                    ModelActionQuestion.AddChoice("Add model connection");
+                    ModelActionQuestion.AddChoice("Change active model connection");
+                    ModelActionQuestion.AddChoice("Delete model connection");
+                    ModelActionQuestion.AddChoice("[gray]Nothing - continue[/]");
+                    string ModelActionQuestionAnswer = AnsiConsole.Prompt(ModelActionQuestion);
 
-
-                    //Ask which one to make active?
-                    if (SETTINGS.ModelConnections.Count > 0)
+                    //Handle
+                    if (ModelActionQuestionAnswer == "Add model connection")
                     {
-                        SelectionPrompt<string> ModelToMakeActive = new SelectionPrompt<string>();
-                        ModelToMakeActive.Title("Which connection do you want to make active?");
-                        foreach (ModelConnection mc in SETTINGS.ModelConnections)
-                        {
-                            ModelToMakeActive.AddChoice(mc.ToString());
-                        }
-                        string ModelToMakeActiveAnswer = AnsiConsole.Prompt(ModelToMakeActive);
+                        //Ask what type of model to add
+                        SelectionPrompt<string> WhatToAdd = new SelectionPrompt<string>();
+                        WhatToAdd.Title("What type of model connection do you want to add?");
+                        WhatToAdd.AddChoice("Azure OpenAI");
+                        WhatToAdd.AddChoice("Ollama");
+                        string WhatToAddAnswer = AnsiConsole.Prompt(WhatToAdd);
 
-                        //Make it active
-                        foreach (ModelConnection mc in SETTINGS.ModelConnections)
+                        if (WhatToAddAnswer == "Azure OpenAI")
                         {
-                            if (mc.ToString() == ModelToMakeActiveAnswer)
+                            AnsiConsole.MarkupLine("Ok, let's add your Azure OpenAI connection.");
+                            string URL = AnsiConsole.Ask<string>("URL endpoint to your model?");
+                            string KEY = AnsiConsole.Ask<string>("API Key?");
+                            string NAME = AnsiConsole.Ask<string>("What do you want to call this connection (a custom name)?");
+                            if (NAME == "")
                             {
-                                mc.Active = true;
+                                while (NAME == "")
+                                {
+                                    NAME = AnsiConsole.Ask<string>("What name do you want to give to this connection? It cannot be left blank.");
+                                }
                             }
-                            else
-                            {
-                                mc.Active = false;
-                            }
+                            ModelConnection newmc = new ModelConnection();
+                            newmc.Name = NAME;
+                            newmc.Active = false;
+                            newmc.AzureOpenAIConnection = new AzureOpenAICredentials(URL, KEY);
+                            SETTINGS.ModelConnections.Add(newmc);
+                            AnsiConsole.Markup("[green]Connection added![/] [italic][gray]enter to continue[/][/]"); Console.ReadLine();
                         }
-
-                        //Print what is now active
-                        if (SETTINGS.ActiveModelConnection != null)
+                        else if (WhatToAddAnswer == "Ollama")
                         {
-                            AnsiConsole.Markup("[green]Active model connection updated![/] [italic][gray]enter to continue...[/][/]");
-                            Console.ReadLine();
+                            AnsiConsole.MarkupLine("Ok, let's add your Ollama connection.");
+                            string ModelIdentifier = AnsiConsole.Ask<string>("What is your model identifier (i.e. \"qwen3:0.6b\")?");
+                            string NAME = AnsiConsole.Ask<string>("What do you want to call this connection (a custom name)?");
+                            if (NAME == "")
+                            {
+                                while (NAME == "")
+                                {
+                                    NAME = AnsiConsole.Ask<string>("What name do you want to give to this connection? It cannot be left blank.");
+                                }
+                            }
+                            ModelConnection newmc = new ModelConnection();
+                            newmc.Name = NAME;
+                            newmc.Active = false;
+                            newmc.OllamaModelConnection = new OllamaModel(ModelIdentifier);
+                            SETTINGS.ModelConnections.Add(newmc);
+                            AnsiConsole.Markup("[green]Connection added! [italic][gray]enter to continue[/][/][/]"); Console.ReadLine();
+                        }
+                        else
+                        {
+                            AnsiConsole.MarkupLine("[red]I am sorry, I cannot handle that yet.[/]");
                         }
                     }
-                    else
+                    else if (ModelActionQuestionAnswer == "Change active model connection")
                     {
-                        AnsiConsole.Markup("[red]No model connections added! Add some first.[/]");
-                        Console.ReadLine();
-                    }
-                }
-                else if (SettingToDoAnswer == "Delete model connection")
-                {
-                    if (SETTINGS.ModelConnections.Count > 0)
-                    {
-                        //Build question
-                        SelectionPrompt<string> ToDeleteQuestion = new SelectionPrompt<string>();
-                        ToDeleteQuestion.Title("Which connection do you want to delete?");
-                        foreach (ModelConnection mc in SETTINGS.ModelConnections)
+                   
+                        //Ask which one to make active?
+                        if (SETTINGS.ModelConnections.Count > 0)
                         {
-                            ToDeleteQuestion.AddChoice(mc.ToString());
-                        }
-
-                        //Ask
-                        string ToDeleteAnswer = AnsiConsole.Prompt(ToDeleteQuestion);
-
-                        //Select
-                        ModelConnection? ToDelete = null;
-                        foreach (ModelConnection mc in SETTINGS.ModelConnections)
-                        {
-                            if (mc.ToString() == ToDeleteAnswer)
+                            SelectionPrompt<string> ModelToMakeActive = new SelectionPrompt<string>();
+                            ModelToMakeActive.Title("Which connection do you want to make active?");
+                            foreach (ModelConnection mc in SETTINGS.ModelConnections)
                             {
-                                ToDelete = mc;
+                                ModelToMakeActive.AddChoice(mc.ToString());
                             }
-                        }
+                            string ModelToMakeActiveAnswer = AnsiConsole.Prompt(ModelToMakeActive);
 
-
-                        if (ToDelete != null)
-                        {
-                            //Print some info about it
-                            AnsiConsole.MarkupLine("[bold]Delete a Model[/]");
-                            AnsiConsole.MarkupLine("[bold]Name:[/] " + ToDelete.Name);
-                            if (ToDelete.AzureOpenAIConnection != null)
+                            //Make it active
+                            foreach (ModelConnection mc in SETTINGS.ModelConnections)
                             {
-                                AnsiConsole.MarkupLine("[bold]Type: [/]Azure OpenAI");
-                                AnsiConsole.MarkupLine("[bold]URL:[/] " + ToDelete.AzureOpenAIConnection.URL);
-                                AnsiConsole.MarkupLine("[bold]API Key:[/] " + ToDelete.AzureOpenAIConnection.ApiKey);
-                            }
-                            else if (ToDelete.OllamaModelConnection != null)
-                            {
-                                AnsiConsole.MarkupLine("[bold]Type: [/]Ollama");
-                                AnsiConsole.MarkupLine("[bold]Identifier: [/] " + ToDelete.OllamaModelConnection.ModelIdentifier);
+                                if (mc.ToString() == ModelToMakeActiveAnswer)
+                                {
+                                    mc.Active = true;
+                                }
+                                else
+                                {
+                                    mc.Active = false;
+                                }
                             }
 
-                            //Confirm
-                            SelectionPrompt<string> DeleteConfirmation = new SelectionPrompt<string>();
-                            DeleteConfirmation.Title("Are you sure you want to delete this connection?");
-                            DeleteConfirmation.AddChoice("Yes");
-                            DeleteConfirmation.AddChoice("No");
-                            Console.WriteLine();
-                            string DeleteConfirmationAnswer = AnsiConsole.Prompt(DeleteConfirmation);
-                            if (DeleteConfirmationAnswer == "Yes")
+                            //Print what is now active
+                            if (SETTINGS.ActiveModelConnection != null)
                             {
-                                SETTINGS.ModelConnections.Remove(ToDelete);
-                                AnsiConsole.Markup("[green]Model deleted![/] [italic][gray]enter to continue...[/][/]");
+                                AnsiConsole.Markup("[green]Active model connection updated![/] [italic][gray]enter to continue...[/][/]");
                                 Console.ReadLine();
                             }
                         }
+                        else
+                        {
+                            AnsiConsole.Markup("[red]No model connections added! Add some first.[/]");
+                            Console.ReadLine();
+                        }
                     }
-                    else
+                    else if (ModelActionQuestionAnswer == "Delete model connection")
                     {
-                        AnsiConsole.Markup("[red]No model connections added yet.[/]");
-                        Console.ReadLine();
+                        if (SETTINGS.ModelConnections.Count > 0)
+                        {
+                            //Build question
+                            SelectionPrompt<string> ToDeleteQuestion = new SelectionPrompt<string>();
+                            ToDeleteQuestion.Title("Which connection do you want to delete?");
+                            foreach (ModelConnection mc in SETTINGS.ModelConnections)
+                            {
+                                ToDeleteQuestion.AddChoice(mc.ToString());
+                            }
+
+                            //Ask
+                            string ToDeleteAnswer = AnsiConsole.Prompt(ToDeleteQuestion);
+
+                            //Select
+                            ModelConnection? ToDelete = null;
+                            foreach (ModelConnection mc in SETTINGS.ModelConnections)
+                            {
+                                if (mc.ToString() == ToDeleteAnswer)
+                                {
+                                    ToDelete = mc;
+                                }
+                            }
+
+                            if (ToDelete != null)
+                            {
+                                //Print some info about it
+                                AnsiConsole.MarkupLine("[bold]Delete a Model[/]");
+                                AnsiConsole.MarkupLine("[bold]Name:[/] " + ToDelete.Name);
+                                if (ToDelete.AzureOpenAIConnection != null)
+                                {
+                                    AnsiConsole.MarkupLine("[bold]Type: [/]Azure OpenAI");
+                                    AnsiConsole.MarkupLine("[bold]URL:[/] " + ToDelete.AzureOpenAIConnection.URL);
+                                    AnsiConsole.MarkupLine("[bold]API Key:[/] " + ToDelete.AzureOpenAIConnection.ApiKey);
+                                }
+                                else if (ToDelete.OllamaModelConnection != null)
+                                {
+                                    AnsiConsole.MarkupLine("[bold]Type: [/]Ollama");
+                                    AnsiConsole.MarkupLine("[bold]Identifier: [/] " + ToDelete.OllamaModelConnection.ModelIdentifier);
+                                }
+
+                                //Confirm
+                                SelectionPrompt<string> DeleteConfirmation = new SelectionPrompt<string>();
+                                DeleteConfirmation.Title("Are you sure you want to delete this connection?");
+                                DeleteConfirmation.AddChoice("Yes");
+                                DeleteConfirmation.AddChoice("No");
+                                Console.WriteLine();
+                                string DeleteConfirmationAnswer = AnsiConsole.Prompt(DeleteConfirmation);
+                                if (DeleteConfirmationAnswer == "Yes")
+                                {
+                                    SETTINGS.ModelConnections.Remove(ToDelete);
+                                    AnsiConsole.Markup("[green]Model deleted![/] [italic][gray]enter to continue...[/][/]");
+                                    Console.ReadLine();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            AnsiConsole.Markup("[red]No model connections added yet.[/]");
+                            Console.ReadLine();
+                        }
                     }
                 }
+
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
                 {
                     AnsiConsole.MarkupLine("Visit here to see the available colors: [bold]https://spectreconsole.net/appendix/colors[/]");
