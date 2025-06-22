@@ -521,7 +521,7 @@ namespace AIDA
                                         }
                                     }
 
-                                    ToGive = ToGive + "\n" + "- " + f.Tag + ": " + f.Description + " (last reported" + MostRecentReported.ToShortDateString() + ")";
+                                    ToGive = ToGive + "\n" + "- " + f.Tag + ": " + f.Description + " (last reported " + MostRecentReported.ToShortDateString() + ")";
                                 }
 
                                 tool_call_response_payload = ToGive;
