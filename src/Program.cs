@@ -22,6 +22,7 @@ namespace AIDA
         #region "GLOBAL VARIABLES"
         
         public static Agent AGENT { get; set; }
+        public static AIDASettings SETTINGS { get; set; }
 
         public static string ConfigDirectory
         {
@@ -46,23 +47,20 @@ namespace AIDA
             //When it goes to OSEncoding, the bullet points do not print
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            #region "credentials"
-
+            //Does config directory exist? if not, make it
             if (System.IO.Directory.Exists(ConfigDirectory) == false)
             {
                 System.IO.Directory.CreateDirectory(ConfigDirectory);
             }
 
-            //Load settings
-            AIDASettings SETTINGS = AIDASettings.Open(); //will find and open from local file
+            //Retrieve settings
+            SETTINGS = AIDASettings.Open();
 
             //If settings has no credentials, show warning message
             if (SETTINGS.ActiveModelConnection == null)
             {
                 AnsiConsole.MarkupLine("[red]:warning: Warning - no active model connection specified! Use command '[bold]settings[/]' to update your model info before proceeding.[/]");
             }
-
-            #endregion
 
             //Create the agent
             AGENT = new Agent();
@@ -511,9 +509,7 @@ namespace AIDA
 
         public static void SettingsMenu()
         {
-            //READ SETTINGS
-            AIDASettings SETTINGS = AIDASettings.Open();
-
+            
             //Loop until selected out
             while (true)
             {
