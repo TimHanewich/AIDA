@@ -20,7 +20,7 @@ namespace AIDA
     public class Program
     {
         #region "GLOBAL VARIABLES"
-        
+
         public static Agent AGENT { get; set; }
         public static AIDASettings SETTINGS { get; set; }
 
@@ -31,8 +31,9 @@ namespace AIDA
                 return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIDA");
             }
         }
-        
+
         #endregion
+
 
         public static void Main(string[] args)
         {
@@ -484,6 +485,339 @@ namespace AIDA
 
         }
 
+
+
+        #region "TOOLS FOR THE AI"
+
+        public static async Task<string> CheckWeather(float latitude, float longitude)
+        {
+            string url = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude.ToString() + "&longitude=" + longitude.ToString() + "&current=temperature_2m,relative_humidity_2m,precipitation,rain,apparent_temperature,is_day,showers,snowfall,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&temperature_unit=fahrenheit";
+            HttpClient hc = new HttpClient();
+            HttpResponseMessage resp = await hc.GetAsync(url);
+            string content = await resp.Content.ReadAsStringAsync();
+            if (resp.StatusCode != HttpStatusCode.OK)
+            {
+                throw new Exception("Request to open-meteo.com returned code '" + resp.StatusCode.ToString() + "'. Msg: " + content);
+            }
+            return content; //Just return the entire body
+        }
+
+        public static string SaveFile(string file_name, string file_content)
+        {
+            string DestinationDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+            string DestinationPath = System.IO.Path.Combine(DestinationDirectory, file_name);
+            System.IO.File.WriteAllText(DestinationPath, file_content);
+            return "File successfully saved to '" + DestinationPath + "'. Explicitly tell the user where the file was saved in confirming it was saved (tell the full file path).";
+        }
+
+        public static async Task<string> ReadWebpage(string url)
+        {
+            HttpClient hc = new HttpClient();
+            HttpRequestMessage req = new HttpRequestMessage();
+            req.Method = HttpMethod.Get;
+            req.RequestUri = new Uri(url);
+            req.Headers.Add("User-Agent", "AIDA/1.0.0");
+            hc.Timeout = new TimeSpan(0, 1, 0); // 1 minute timeout
+            AnsiConsole.Markup("[gray][italic]reading '" + url + "'... [/][/]");
+            HttpResponseMessage resp = await hc.SendAsync(req);
+            if (resp.StatusCode != HttpStatusCode.OK)
+            {
+                return "Attempt to read the web page came back with status code '" + resp.StatusCode.ToString() + "', so unfortunately it cannot be read (wasn't 200 OK)";
+            }
+            string content = await resp.Content.ReadAsStringAsync();
+
+            //Convert raw HTML to text
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(content);
+            string PlainText = doc.DocumentNode.InnerText;
+
+            return PlainText;
+        }
+
+        public static string ReadFile(string path)
+        {
+            //Print what file we are reading
+            string FileName = System.IO.Path.GetFileName(path);
+            string FullPath = System.IO.Path.GetFullPath(path);
+            AnsiConsole.Markup("[gray][italic]reading file '" + Markup.Escape(FullPath) + "'... [/][/]");
+
+            //Does file exist?
+            if (System.IO.File.Exists(path) == false)
+            {
+                return "File with path '" + path + "' does not exist!";
+            }
+
+            //Handle based on what type of file it is
+            if (path.ToLower().EndsWith(".pdf"))
+            {
+                string FullTxt = "";
+                PdfDocument doc = PdfDocument.Open(path);
+                foreach (UglyToad.PdfPig.Content.Page p in doc.GetPages())
+                {
+                    string txt = ContentOrderTextExtractor.GetText(p);
+                    FullTxt = FullTxt + txt + "\n\n";
+                }
+                if (FullTxt.Length > 0)
+                {
+                    FullTxt = FullTxt.Substring(0, FullTxt.Length - 2); //Strip out trailing two new lines
+                }
+                return FullTxt;
+            }
+            else if (path.ToLower().EndsWith(".zip"))
+            {
+                return "Cannot read the raw content of a .zip folder!";
+            }
+            else if (path.ToLower().EndsWith(".docx") || path.ToLower().EndsWith(".doc"))
+            {
+                return ReadWordDocument(path);
+            }
+            else if (path.ToLower().EndsWith(".xlsx") || path.ToLower().EndsWith(".xls"))
+            {
+                return "Cannot read an excel document";
+            }
+            else if (path.ToLower().EndsWith(".pptx") || path.ToLower().EndsWith(".ppt"))
+            {
+                return "Cannot read a PowerPoint deck.";
+            }
+            else //every other file
+            {
+                return System.IO.File.ReadAllText(path);
+            }
+        }
+
+        public static string OpenFolder(string path)
+        {
+            //Print message
+            string FolderName = System.IO.Path.GetFileName(path);
+            string FullPath = System.IO.Path.GetFullPath(path);
+            AnsiConsole.Markup("[gray][italic]opening folder '" + Markup.Escape(FullPath) + "'... [/][/]");
+
+            //Is it a real directory?
+            if (System.IO.Directory.Exists(path) == false)
+            {
+                return "'" + path + "' is not a directory!";
+            }
+
+            //Get the stuff in it
+            string[] folders = System.IO.Directory.GetDirectories(path);
+            string[] files = System.IO.Directory.GetFiles(path);
+
+            //Put them in a variable
+            string ToReturn = "The directory '" + path + "' contains the following:" + "\n";
+
+            //Files
+            ToReturn = ToReturn + "\n" + "Files:" + "\n";
+            foreach (string file in files)
+            {
+                string? name = System.IO.Path.GetFileName(file);
+                if (name != null)
+                {
+                    ToReturn = ToReturn + "\"" + name + "\"" + "\n";
+                }
+            }
+
+            //Folders
+            ToReturn = ToReturn + "\n" + "Child directories (folders):" + "\n";
+            foreach (string folder in folders)
+            {
+                string? name = System.IO.Path.GetFileName(folder);
+                if (name != null)
+                {
+                    ToReturn = ToReturn + "\"" + name + "\"" + "\n";
+                }
+            }
+
+            return ToReturn;
+        }
+
+        #endregion
+
+        #region "UTILITIES"
+
+        public static string ReadWordDocument(string path)
+        {
+            //Get the RAW content (the document.xml file)
+            string RawXmlContent = "";
+            try
+            {
+                FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+                MemoryStream ms = new MemoryStream();
+                fs.CopyTo(ms);
+                ZipArchive za = new ZipArchive(ms, ZipArchiveMode.Read);
+                foreach (ZipArchiveEntry zae in za.Entries)
+                {
+                    if (zae.FullName == "word/document.xml") //the file that contains the document content itsef
+                    {
+                        Stream EntryStream = zae.Open();
+                        StreamReader sr = new StreamReader(EntryStream);
+                        string RawText = sr.ReadToEnd();
+                        RawXmlContent = RawText;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return "There was an error while trying to open word document '" + path + "'. Exception message: " + ex.Message;
+            }
+
+            //Now that we found something, pick it apart (if we did find something that is)
+            string ToReturn = "";
+            if (RawXmlContent == "")
+            {
+                ToReturn = "Unable to read Word document content.";
+            }
+            else
+            {
+                //Extract content, line by line
+                string[] parts = RawXmlContent.Split("<w:t>", StringSplitOptions.None);
+                for (int t = 1; t < parts.Length; t++)
+                {
+                    string ThisPart = parts[t];
+                    int ClosingTagLocation = ThisPart.IndexOf("</w:t>");
+                    if (ClosingTagLocation > -1)
+                    {
+                        string TextContent = ThisPart.Substring(0, ClosingTagLocation);
+                        ToReturn = ToReturn + TextContent + "\n";
+                    }
+                }
+
+                //Trim ending newline
+                ToReturn = ToReturn.TrimEnd('\n');
+            }
+
+            return ToReturn;
+        }
+
+        public static string MarkdownToSpectre(string markdown)
+        {
+
+            string ToReturn = markdown;
+
+            //First, look for bolds (**)
+            int OnIndex = 0;
+            while (true)
+            {
+                int DoubleStarLocation1 = ToReturn.IndexOf("**", OnIndex);
+                if (DoubleStarLocation1 != -1)
+                {
+                    int DoubleStarLocation2 = ToReturn.IndexOf("**", DoubleStarLocation1 + 2);
+                    if (DoubleStarLocation2 != -1)
+                    {
+                        //Replace first "**" with "[bold]"
+                        string PartBefore = ToReturn.Substring(0, DoubleStarLocation1);
+                        string PartAfter = ToReturn.Substring(DoubleStarLocation1 + 2);
+                        ToReturn = PartBefore + "[bold]" + PartAfter;
+
+                        //Find second "**" again
+                        DoubleStarLocation2 = ToReturn.IndexOf("**", DoubleStarLocation1);
+                        PartBefore = ToReturn.Substring(0, DoubleStarLocation2);
+                        PartAfter = ToReturn.Substring(DoubleStarLocation2 + 2);
+                        ToReturn = PartBefore + "[/]" + PartAfter;
+
+                        //Update OnIndex
+                        OnIndex = DoubleStarLocation2;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            //Look for italics "*"
+            OnIndex = 0;
+            while (true)
+            {
+                int StarLocation1 = ToReturn.IndexOf("*", OnIndex);
+                if (StarLocation1 != -1)
+                {
+                    int StarLocation2 = ToReturn.IndexOf("*", StarLocation1 + 1);
+                    if (StarLocation2 != -1)
+                    {
+                        //Replace first star with "[italic]"
+                        string PartBefore = ToReturn.Substring(0, StarLocation1);
+                        string PartAfter = ToReturn.Substring(StarLocation1 + 1);
+                        ToReturn = PartBefore + "[italic]" + PartAfter;
+
+                        //Find second "*" again and replace with "[/]"
+                        StarLocation2 = ToReturn.IndexOf("*", StarLocation1);
+                        PartBefore = ToReturn.Substring(0, StarLocation2);
+                        PartAfter = ToReturn.Substring(StarLocation2 + 1);
+                        ToReturn = PartBefore + "[/]" + PartAfter;
+
+
+                        //Update OnIndex
+                        OnIndex = StarLocation2;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            //Headings
+            string[] lines = ToReturn.Split("\n", StringSplitOptions.None);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i];
+                if (line.StartsWith("# ") || line.StartsWith("## ") || line.StartsWith("### ") || line.StartsWith("#### "))
+                {
+                    int SpaceLocation = line.IndexOf(" ");
+                    if (SpaceLocation != -1)
+                    {
+                        string ReplacementLine = "[underline]" + line.Substring(SpaceLocation + 1) + "[/]";
+                        lines[i] = ReplacementLine;
+                    }
+                }
+            }
+            //Now re-stitch together
+            ToReturn = "";
+            foreach (string line in lines)
+            {
+                ToReturn = ToReturn + line + "\n";
+            }
+            if (ToReturn.Length > 0)
+            {
+                ToReturn = ToReturn.Substring(0, ToReturn.Length - 1); //remove last one we added
+            }
+
+            //bullet points
+            lines = ToReturn.Split("\n", StringSplitOptions.None);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].StartsWith("- "))
+                {
+                    lines[i] = "• " + lines[i].Substring(2);
+                }
+                else if (lines[i].StartsWith("  - ")) //sub bullet
+                {
+                    lines[i] = "  ‣ " + lines[i].Substring(4);
+                }
+            }
+            //Now re-stitch together
+            ToReturn = "";
+            foreach (string line in lines)
+            {
+                ToReturn = ToReturn + line + "\n";
+            }
+            if (ToReturn.Length > 0)
+            {
+                ToReturn = ToReturn.Substring(0, ToReturn.Length - 1); //remove last one we added
+            }
+
+
+            return ToReturn;
+        }
+
         public static void PrintAIMessage(string message, string color = "navyblue")
         {
             //Convert the markdown it gave to spectre and AnsiConsole it out
@@ -509,7 +843,7 @@ namespace AIDA
 
         public static void SettingsMenu()
         {
-            
+
             //Loop until selected out
             while (true)
             {
@@ -816,336 +1150,7 @@ namespace AIDA
             }
         }
 
-
-
-        //////// TOOLS /////////
-        public static async Task<string> CheckWeather(float latitude, float longitude)
-        {
-            string url = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude.ToString() + "&longitude=" + longitude.ToString() + "&current=temperature_2m,relative_humidity_2m,precipitation,rain,apparent_temperature,is_day,showers,snowfall,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&temperature_unit=fahrenheit";
-            HttpClient hc = new HttpClient();
-            HttpResponseMessage resp = await hc.GetAsync(url);
-            string content = await resp.Content.ReadAsStringAsync();
-            if (resp.StatusCode != HttpStatusCode.OK)
-            {
-                throw new Exception("Request to open-meteo.com returned code '" + resp.StatusCode.ToString() + "'. Msg: " + content);
-            }
-            return content; //Just return the entire body
-        }
-
-        public static string SaveFile(string file_name, string file_content)
-        {
-            string DestinationDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-            string DestinationPath = System.IO.Path.Combine(DestinationDirectory, file_name);
-            System.IO.File.WriteAllText(DestinationPath, file_content);
-            return "File successfully saved to '" + DestinationPath + "'. Explicitly tell the user where the file was saved in confirming it was saved (tell the full file path).";
-        }
-
-        public static async Task<string> ReadWebpage(string url)
-        {
-            HttpClient hc = new HttpClient();
-            HttpRequestMessage req = new HttpRequestMessage();
-            req.Method = HttpMethod.Get;
-            req.RequestUri = new Uri(url);
-            req.Headers.Add("User-Agent", "AIDA/1.0.0");
-            hc.Timeout = new TimeSpan(0, 1, 0); // 1 minute timeout
-            AnsiConsole.Markup("[gray][italic]reading '" + url + "'... [/][/]");
-            HttpResponseMessage resp = await hc.SendAsync(req);
-            if (resp.StatusCode != HttpStatusCode.OK)
-            {
-                return "Attempt to read the web page came back with status code '" + resp.StatusCode.ToString() + "', so unfortunately it cannot be read (wasn't 200 OK)";
-            }
-            string content = await resp.Content.ReadAsStringAsync();
-
-            //Convert raw HTML to text
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(content);
-            string PlainText = doc.DocumentNode.InnerText;
-
-            return PlainText;
-        }
-
-        public static string ReadFile(string path)
-        {
-            //Print what file we are reading
-            string FileName = System.IO.Path.GetFileName(path);
-            string FullPath = System.IO.Path.GetFullPath(path);
-            AnsiConsole.Markup("[gray][italic]reading file '" + Markup.Escape(FullPath) + "'... [/][/]");
-
-            //Does file exist?
-            if (System.IO.File.Exists(path) == false)
-            {
-                return "File with path '" + path + "' does not exist!";
-            }
-
-            //Handle based on what type of file it is
-            if (path.ToLower().EndsWith(".pdf"))
-            {
-                string FullTxt = "";
-                PdfDocument doc = PdfDocument.Open(path);
-                foreach (UglyToad.PdfPig.Content.Page p in doc.GetPages())
-                {
-                    string txt = ContentOrderTextExtractor.GetText(p);
-                    FullTxt = FullTxt + txt + "\n\n";
-                }
-                if (FullTxt.Length > 0)
-                {
-                    FullTxt = FullTxt.Substring(0, FullTxt.Length - 2); //Strip out trailing two new lines
-                }
-                return FullTxt;
-            }
-            else if (path.ToLower().EndsWith(".zip"))
-            {
-                return "Cannot read the raw content of a .zip folder!";
-            }
-            else if (path.ToLower().EndsWith(".docx") || path.ToLower().EndsWith(".doc"))
-            {
-                return ReadWordDocument(path);
-            }
-            else if (path.ToLower().EndsWith(".xlsx") || path.ToLower().EndsWith(".xls"))
-            {
-                return "Cannot read an excel document";
-            }
-            else if (path.ToLower().EndsWith(".pptx") || path.ToLower().EndsWith(".ppt"))
-            {
-                return "Cannot read a PowerPoint deck.";
-            }
-            else //every other file
-            {
-                return System.IO.File.ReadAllText(path);
-            }
-        }
-
-        public static string OpenFolder(string path)
-        {
-            //Print message
-            string FolderName = System.IO.Path.GetFileName(path);
-            string FullPath = System.IO.Path.GetFullPath(path);
-            AnsiConsole.Markup("[gray][italic]opening folder '" + Markup.Escape(FullPath) + "'... [/][/]");
-
-            //Is it a real directory?
-            if (System.IO.Directory.Exists(path) == false)
-            {
-                return "'" + path + "' is not a directory!";
-            }
-
-            //Get the stuff in it
-            string[] folders = System.IO.Directory.GetDirectories(path);
-            string[] files = System.IO.Directory.GetFiles(path);
-
-            //Put them in a variable
-            string ToReturn = "The directory '" + path + "' contains the following:" + "\n";
-
-            //Files
-            ToReturn = ToReturn + "\n" + "Files:" + "\n";
-            foreach (string file in files)
-            {
-                string? name = System.IO.Path.GetFileName(file);
-                if (name != null)
-                {
-                    ToReturn = ToReturn + "\"" + name + "\"" + "\n";
-                }
-            }
-
-            //Folders
-            ToReturn = ToReturn + "\n" + "Child directories (folders):" + "\n";
-            foreach (string folder in folders)
-            {
-                string? name = System.IO.Path.GetFileName(folder);
-                if (name != null)
-                {
-                    ToReturn = ToReturn + "\"" + name + "\"" + "\n";
-                }
-            }
-
-            return ToReturn;
-        }
-
-        //Utilities below
-
-        public static string ReadWordDocument(string path)
-        {
-            //Get the RAW content (the document.xml file)
-            string RawXmlContent = "";
-            try
-            {
-                FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-                MemoryStream ms = new MemoryStream();
-                fs.CopyTo(ms);
-                ZipArchive za = new ZipArchive(ms, ZipArchiveMode.Read);
-                foreach (ZipArchiveEntry zae in za.Entries)
-                {
-                    if (zae.FullName == "word/document.xml") //the file that contains the document content itsef
-                    {
-                        Stream EntryStream = zae.Open();
-                        StreamReader sr = new StreamReader(EntryStream);
-                        string RawText = sr.ReadToEnd();
-                        RawXmlContent = RawText;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return "There was an error while trying to open word document '" + path + "'. Exception message: " + ex.Message;
-            }
-
-            //Now that we found something, pick it apart (if we did find something that is)
-            string ToReturn = "";
-            if (RawXmlContent == "")
-            {
-                ToReturn = "Unable to read Word document content.";
-            }
-            else
-            {
-                //Extract content, line by line
-                string[] parts = RawXmlContent.Split("<w:t>", StringSplitOptions.None);
-                for (int t = 1; t < parts.Length; t++)
-                {
-                    string ThisPart = parts[t];
-                    int ClosingTagLocation = ThisPart.IndexOf("</w:t>");
-                    if (ClosingTagLocation > -1)
-                    {
-                        string TextContent = ThisPart.Substring(0, ClosingTagLocation);
-                        ToReturn = ToReturn + TextContent + "\n";
-                    }
-                }
-
-                //Trim ending newline
-                ToReturn = ToReturn.TrimEnd('\n');
-            }
-
-            return ToReturn;
-        }
-
-        public static string MarkdownToSpectre(string markdown)
-        {
-
-            string ToReturn = markdown;
-
-            //First, look for bolds (**)
-            int OnIndex = 0;
-            while (true)
-            {
-                int DoubleStarLocation1 = ToReturn.IndexOf("**", OnIndex);
-                if (DoubleStarLocation1 != -1)
-                {
-                    int DoubleStarLocation2 = ToReturn.IndexOf("**", DoubleStarLocation1 + 2);
-                    if (DoubleStarLocation2 != -1)
-                    {
-                        //Replace first "**" with "[bold]"
-                        string PartBefore = ToReturn.Substring(0, DoubleStarLocation1);
-                        string PartAfter = ToReturn.Substring(DoubleStarLocation1 + 2);
-                        ToReturn = PartBefore + "[bold]" + PartAfter;
-
-                        //Find second "**" again
-                        DoubleStarLocation2 = ToReturn.IndexOf("**", DoubleStarLocation1);
-                        PartBefore = ToReturn.Substring(0, DoubleStarLocation2);
-                        PartAfter = ToReturn.Substring(DoubleStarLocation2 + 2);
-                        ToReturn = PartBefore + "[/]" + PartAfter;
-
-                        //Update OnIndex
-                        OnIndex = DoubleStarLocation2;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            //Look for italics "*"
-            OnIndex = 0;
-            while (true)
-            {
-                int StarLocation1 = ToReturn.IndexOf("*", OnIndex);
-                if (StarLocation1 != -1)
-                {
-                    int StarLocation2 = ToReturn.IndexOf("*", StarLocation1 + 1);
-                    if (StarLocation2 != -1)
-                    {
-                        //Replace first star with "[italic]"
-                        string PartBefore = ToReturn.Substring(0, StarLocation1);
-                        string PartAfter = ToReturn.Substring(StarLocation1 + 1);
-                        ToReturn = PartBefore + "[italic]" + PartAfter;
-
-                        //Find second "*" again and replace with "[/]"
-                        StarLocation2 = ToReturn.IndexOf("*", StarLocation1);
-                        PartBefore = ToReturn.Substring(0, StarLocation2);
-                        PartAfter = ToReturn.Substring(StarLocation2 + 1);
-                        ToReturn = PartBefore + "[/]" + PartAfter;
-
-
-                        //Update OnIndex
-                        OnIndex = StarLocation2;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            //Headings
-            string[] lines = ToReturn.Split("\n", StringSplitOptions.None);
-            for (int i = 0; i < lines.Length; i++)
-            {
-                string line = lines[i];
-                if (line.StartsWith("# ") || line.StartsWith("## ") || line.StartsWith("### ") || line.StartsWith("#### "))
-                {
-                    int SpaceLocation = line.IndexOf(" ");
-                    if (SpaceLocation != -1)
-                    {
-                        string ReplacementLine = "[underline]" + line.Substring(SpaceLocation + 1) + "[/]";
-                        lines[i] = ReplacementLine;
-                    }
-                }
-            }
-            //Now re-stitch together
-            ToReturn = "";
-            foreach (string line in lines)
-            {
-                ToReturn = ToReturn + line + "\n";
-            }
-            if (ToReturn.Length > 0)
-            {
-                ToReturn = ToReturn.Substring(0, ToReturn.Length - 1); //remove last one we added
-            }
-
-            //bullet points
-            lines = ToReturn.Split("\n", StringSplitOptions.None);
-            for (int i = 0; i < lines.Length; i++)
-            {
-                if (lines[i].StartsWith("- "))
-                {
-                    lines[i] = "• " + lines[i].Substring(2);
-                }
-                else if (lines[i].StartsWith("  - ")) //sub bullet
-                {
-                    lines[i] = "  ‣ " + lines[i].Substring(4);
-                }
-            }
-            //Now re-stitch together
-            ToReturn = "";
-            foreach (string line in lines)
-            {
-                ToReturn = ToReturn + line + "\n";
-            }
-            if (ToReturn.Length > 0)
-            {
-                ToReturn = ToReturn.Substring(0, ToReturn.Length - 1); //remove last one we added
-            }
-
-
-            return ToReturn;
-        }
-
+        #endregion
 
     }
 }
