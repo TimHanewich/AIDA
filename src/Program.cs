@@ -547,6 +547,7 @@ namespace AIDA
                 SettingToDo.Title("What do you want to do?");
                 SettingToDo.AddChoice("Add/Change/Delete a model connection");
                 SettingToDo.AddChoice("Change Assistant Message Color");
+                SettingToDo.AddChoice("Enable/Disable a tool package");
                 SettingToDo.AddChoice("Save & Continue");
                 string SettingToDoAnswer = AnsiConsole.Prompt(SettingToDo);
 
@@ -649,7 +650,7 @@ namespace AIDA
                     }
                     else if (ModelActionQuestionAnswer == "Change active model connection")
                     {
-                   
+
                         //Ask which one to make active?
                         if (SETTINGS.ModelConnections.Count > 0)
                         {
@@ -767,6 +768,37 @@ namespace AIDA
                     }
                     AnsiConsole.Markup("[gray][italic]enter to continue... [/][/]");
                     Console.ReadLine();
+                }
+                else if (SettingToDoAnswer == "Enable/Disable a tool package")
+                {
+
+                    //Prepare packages question (multi selection prompt)
+                    MultiSelectionPrompt<string> PackagesQuestion = new MultiSelectionPrompt<string>();
+                    PackagesQuestion.Title("What tool packages do you want enabled?");
+                    PackagesQuestion.NotRequired(); //selecting none is fine!
+                    PackagesQuestion.AddChoice("Finance");
+
+                    //Defaults
+                    if (SETTINGS.FinancePackageEnabled)
+                    {
+                        PackagesQuestion.Select("Finance");
+                    }
+
+                    //Ask
+                    List<string> PackagesToEnable = AnsiConsole.Prompt(PackagesQuestion);
+
+                    //Enable/Disable
+                    if (PackagesToEnable.Contains("Finance"))
+                    {
+                        SETTINGS.FinancePackageEnabled = true;
+                    }
+                    else
+                    {
+                        SETTINGS.FinancePackageEnabled = false;
+                    }
+
+                    //Confirm
+                    AnsiConsole.MarkupLine("[green][bold]" + PackagesToEnable.Count.ToString() + " packages enabled[/][/]");
                 }
                 else if (SettingToDoAnswer == "Save & Continue")
                 {
