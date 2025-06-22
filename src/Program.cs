@@ -572,9 +572,53 @@ namespace AIDA
                                 //If we found it, provide it
                                 if (DesiredFact != null)
                                 {
+
+                                    //Build a list of ones we will collect
+                                    List<FactDataPoint> AllFDPs = new List<FactDataPoint>();
+                                    AllFDPs.AddRange(DesiredFact.DataPoints);
+
+                                    //Sort from NEWEST to OLDEST
+                                    //We do this because, if there are multiple reports of the same time period, the most recent one is correct as it is probably the amdneded/updated value
+                                    List<FactDataPoint> AllFDPsNewestToOldest = new List<FactDataPoint>();
+                                    while (AllFDPs.Count > 0)
+                                    {
+                                        FactDataPoint winner = AllFDPs[0];
+                                        foreach (FactDataPoint fdp in AllFDPs)
+                                        {
+                                            if (fdp.End > winner.End)
+                                            {
+                                                winner = fdp;
+                                            }
+                                        }
+                                        AllFDPsNewestToOldest.Add(winner);
+                                        AllFDPs.Remove(winner);
+                                    }
+
+                                    //Build a list of UNIQUE data points (don't allow on same day)
+                                    List<FactDataPoint> UniqueFDPs = new List<FactDataPoint>();
+                                    foreach (FactDataPoint fdp in AllFDPsNewestToOldest)
+                                    {
+
+                                        //Check if unique list already has this...
+                                        bool AlreadyHasIt = false;
+                                        foreach (FactDataPoint havealready in UniqueFDPs)
+                                        {
+                                            if (havealready.End == fdp.End)
+                                            {
+                                                AlreadyHasIt = true;
+                                            }
+                                        }
+
+                                        //If we do not already have this day, add it
+                                        if (AlreadyHasIt == false)
+                                        {
+                                            UniqueFDPs.Add(fdp);
+                                        }
+                                    }
+
                                     //Stitch together what we will give to the AI
                                     string ToGive = "Historical data for fact '" + DesiredFact.Tag + "' for company '" + cfq.EntityName + "' (CIK " + cfq.CIK.ToString() + "):";
-                                    foreach (FactDataPoint fdp in DesiredFact.DataPoints)
+                                    foreach (FactDataPoint fdp in UniqueFDPs)
                                     {
 
                                         //Determine how to express period
