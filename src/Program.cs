@@ -511,9 +511,8 @@ namespace AIDA
                                 string ToGive = "Financial facts available for " + CIK.Value.ToString() + " that match your search: ";
                                 foreach (Fact f in SearchResultFacts)
                                 {
-                                    ToGive = ToGive + f.Tag + ", ";
+                                    ToGive = ToGive + "\n" + "- " + f.Tag + ": " + f.Description;
                                 }
-                                ToGive = ToGive.Substring(0, ToGive.Length - 2); //Strip last chars
 
                                 tool_call_response_payload = ToGive;
                             }
