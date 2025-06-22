@@ -469,7 +469,7 @@ namespace AIDA
                             }
 
                         }
-                        else if (tc.ToolName == "search_available_financial_data")
+                        else if (tc.ToolName == "search_financial_data")
                         {
                             //Get CIK
                             int? CIK = null;
@@ -1352,10 +1352,10 @@ namespace AIDA
                 ToReturn.Add(tool_SymbolToCik);
 
                 //Search available financial data
-                Tool tool_search_available_financial_data = new Tool("search_available_financial_data", "Search for available XBRL facts the company has reported before (i.e. 'AssetsCurrent', 'Liabilities', etc).");
-                tool_search_available_financial_data.Parameters.Add(new ToolInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
-                tool_search_available_financial_data.Parameters.Add(new ToolInputParameter("search_term", "The term to search for, i.e. 'revenue' or 'assets' or 'advertising'."));
-                ToReturn.Add(tool_search_available_financial_data);
+                Tool tool_search_financial_data = new Tool("search_financial_data", "Search for available XBRL facts the company has reported before (i.e. 'AssetsCurrent', 'Liabilities', etc).");
+                tool_search_financial_data.Parameters.Add(new ToolInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
+                tool_search_financial_data.Parameters.Add(new ToolInputParameter("search_term", "The term to search for, i.e. 'revenue' or 'assets' or 'advertising'."));
+                ToReturn.Add(tool_search_financial_data);
 
                 //Get financial data
                 Tool tool_get_financial_data = new Tool("get_financial_data", "Gather current and historical financial data for a particular company for a particular financial XBRL fact (i.e. 'Assets' or 'CurrentLiabilities').");
