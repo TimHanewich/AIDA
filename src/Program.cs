@@ -43,6 +43,8 @@ namespace AIDA
         public static async Task RunAsync()
         {
 
+            #region "Setup"
+
             //Ensure ConsoleOutput is in UTF-8 so it can show bullet points
             //I noticed when you publish and run the exe, it defaults to System.Text.OSEncoding as the ConsoleEncoding
             //When it goes to OSEncoding, the bullet points do not print
@@ -62,6 +64,13 @@ namespace AIDA
             {
                 AnsiConsole.MarkupLine("[red]:warning: Warning - no active model connection specified! Use command '[bold]settings[/]' to update your model info before proceeding.[/]");
             }
+
+            //Plug in SEC info in case it is used later
+            IdentificationManager.Instance.AppName = "AIDA";
+            IdentificationManager.Instance.AppVersion = "1.0";
+            IdentificationManager.Instance.Email = "admin@gmail.com";
+
+            #endregion
 
             //Create the agent
             AGENT = new Agent();
@@ -425,9 +434,47 @@ namespace AIDA
                                 tool_call_response_payload = OpenFolder(folder_path);
                             }
                         }
+                        else if (tc.ToolName == "get_cik")
+                        {
+
+                            //Get symbol
+                            string? symbol = null;
+                            JProperty? prop_symbol = tc.Arguments.Property("symbol");
+                            if (prop_symbol != null)
+                            {
+                                symbol = prop_symbol.Value.ToString();
+                            }
+
+                            //Handle
+                            if (symbol != null)
+                            {
+                                //Print status
+                                AnsiConsole.Markup("[gray][italic]getting CIK for '" + symbol.Trim().ToUpper() + "'... [/][/]");
+
+                                try
+                                {
+                                    string cik = await SecToolkit.GetCompanyCikFromTradingSymbolAsync(symbol);
+                                    tool_call_response_payload = cik;
+                                }
+                                catch (Exception ex)
+                                {
+                                    tool_call_response_payload = "Attempt to find CIK from trading symbol failed. Exception message: " + ex.Message;
+                                }
+                            }
+                            else
+                            {
+                                tool_call_response_payload = "To use the this tool you must provide the symbol parameter!";
+                            }
+
+                        }
+                        else
+                        {
+                            AnsiConsole.MarkupLine("[red]Model called tool '" + tc.ToolName + "' but AIDA is not properly configured to handle that! Oops, sorry about that! We dropped the ball (not the AI). Please contact support.[/]");
+                            tool_call_response_payload = "Tool '" + tc.ToolName + "' is not working right now. Sorry.";
+                        }
 
                         //Append tool response to messages
-                        Message ToolResponseMessage = new Message();
+                            Message ToolResponseMessage = new Message();
                         ToolResponseMessage.Role = Role.tool;
                         ToolResponseMessage.ToolCallID = tc.ID;
                         ToolResponseMessage.Content = tool_call_response_payload;
