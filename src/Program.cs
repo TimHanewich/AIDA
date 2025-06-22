@@ -166,7 +166,7 @@ namespace AIDA
                 else if (input.ToLower() == "tools")
                 {
                     AnsiConsole.MarkupLine("[underline]AIDA's Available Tools[/]");
-                    foreach (Tool t in AGENT.Tools)
+                    foreach (Tool t in DetermineAvailableTools())
                     {
                         AnsiConsole.MarkupLine("[bold][blue]" + t.Name + "[/][/] - [gray]" + t.Description + "[/]");
                     }
@@ -278,44 +278,8 @@ namespace AIDA
                 //The clearing and re-adding process will happen each time so they can update the tools available on the fly
                 AGENT.Tools.Clear();
 
-                //Add tool: check weather
-                Tool tool_weather = new Tool("check_weather", "Check the weather for the current location.");
-                tool_weather.Parameters.Add(new ToolInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
-                tool_weather.Parameters.Add(new ToolInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
-                AGENT.Tools.Add(tool_weather);
-
-                //Add tool: save text file
-                Tool tool_savetxtfile = new Tool("save_txt_file", "Save a text file to the user's computer.");
-                tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_name", "The name of the file, WITHOUT the '.txt' file extension at the end."));
-                tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_content", "The content of the .txt file (raw text)."));
-                AGENT.Tools.Add(tool_savetxtfile);
-
-                //Add tool: read file
-                Tool tool_readfile = new Tool("read_file", "Read the contents of a file of any type (txt, pdf, word document, etc.) from the user's computer");
-                tool_readfile.Parameters.Add(new ToolInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
-                AGENT.Tools.Add(tool_readfile);
-
-                //Add tool: check current time
-                Tool tool_checkcurrenttime = new Tool("check_current_time", "Check the current date and time right now.");
-                AGENT.Tools.Add(tool_checkcurrenttime);
-
-                //Add tool: open web page
-                Tool tool_readwebpage = new Tool("read_webpage", "Read the contents of a particular web page.");
-                tool_readwebpage.Parameters.Add(new ToolInputParameter("url", "The specific URL of the webpage to read."));
-                AGENT.Tools.Add(tool_readwebpage);
-
-                //Add tool: Open Folder
-                Tool tool_OpenFolder = new Tool("open_folder", "Open a folder (directory) to see its contents (files and child folders).");
-                tool_OpenFolder.Parameters.Add(new ToolInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
-                AGENT.Tools.Add(tool_OpenFolder);
-
-                //Add finance package?
-                if (SETTINGS.FinancePackageEnabled)
-                {
-                    Tool tool_SymbolToCik = new Tool("get_cik", "Get the CIK (Central Index Key) for a company based on its stock symbol.");
-                    tool_SymbolToCik.Parameters.Add(new ToolInputParameter("symbol", "Stock symbol, i.e. 'MSFT'."));
-                    AGENT.Tools.Add(tool_SymbolToCik);
-                }
+                //Add them back
+                AGENT.Tools = DetermineAvailableTools().ToList();
 
                 #endregion
 
@@ -1148,6 +1112,52 @@ namespace AIDA
                     Console.ReadLine();
                 }
             }
+        }
+
+        public static Tool[] DetermineAvailableTools()
+        {
+            List<Tool> ToReturn = new List<Tool>();
+
+            //Add tool: check weather
+            Tool tool_weather = new Tool("check_weather", "Check the weather for the current location.");
+            tool_weather.Parameters.Add(new ToolInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
+            tool_weather.Parameters.Add(new ToolInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
+            ToReturn.Add(tool_weather);
+
+            //Add tool: save text file
+            Tool tool_savetxtfile = new Tool("save_txt_file", "Save a text file to the user's computer.");
+            tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_name", "The name of the file, WITHOUT the '.txt' file extension at the end."));
+            tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_content", "The content of the .txt file (raw text)."));
+            ToReturn.Add(tool_savetxtfile);
+
+            //Add tool: read file
+            Tool tool_readfile = new Tool("read_file", "Read the contents of a file of any type (txt, pdf, word document, etc.) from the user's computer");
+            tool_readfile.Parameters.Add(new ToolInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
+            ToReturn.Add(tool_readfile);
+
+            //Add tool: check current time
+            Tool tool_checkcurrenttime = new Tool("check_current_time", "Check the current date and time right now.");
+            ToReturn.Add(tool_checkcurrenttime);
+
+            //Add tool: open web page
+            Tool tool_readwebpage = new Tool("read_webpage", "Read the contents of a particular web page.");
+            tool_readwebpage.Parameters.Add(new ToolInputParameter("url", "The specific URL of the webpage to read."));
+            ToReturn.Add(tool_readwebpage);
+
+            //Add tool: Open Folder
+            Tool tool_OpenFolder = new Tool("open_folder", "Open a folder (directory) to see its contents (files and child folders).");
+            tool_OpenFolder.Parameters.Add(new ToolInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
+            ToReturn.Add(tool_OpenFolder);
+
+            //Add finance package?
+            if (SETTINGS.FinancePackageEnabled)
+            {
+                Tool tool_SymbolToCik = new Tool("get_cik", "Get the CIK (Central Index Key) for a company based on its stock symbol.");
+                tool_SymbolToCik.Parameters.Add(new ToolInputParameter("symbol", "Stock symbol, i.e. 'MSFT'."));
+                ToReturn.Add(tool_SymbolToCik);
+            }
+
+            return ToReturn.ToArray();
         }
 
         #endregion
