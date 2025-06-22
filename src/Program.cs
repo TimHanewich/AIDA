@@ -14,6 +14,7 @@ using UglyToad.PdfPig;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 using System.IO.Compression;
 using SecuritiesExchangeCommission.Edgar;
+using SecuritiesExchangeCommission.Edgar.Data;
 
 namespace AIDA
 {
@@ -464,6 +465,42 @@ namespace AIDA
                             else
                             {
                                 tool_call_response_payload = "To use the this tool you must provide the symbol parameter!";
+                            }
+
+                        }
+                        else if (tc.ToolName == "available_financial_data")
+                        {
+                            //Get CIK
+                            int? CIK = null;
+                            JProperty? prop_CIK = tc.Arguments.Property("CIK");
+                            if (prop_CIK != null)
+                            {
+                                CIK = Convert.ToInt32(prop_CIK.Value.ToString());
+                            }
+
+                            //Perform the query
+                            if (CIK != null)
+                            {
+
+                                //Print status
+                                AnsiConsole.Markup("[gray][italic]querying facts for '" + CIK.Value.ToString() + "'... [/][/]");
+
+                                //Perform query
+                                CompanyFactsQuery cfq = await CompanyFactsQuery.QueryAsync(CIK.Value);
+
+                                //Prepare string
+                                string ToGive = "Financial facts available for " + CIK.Value.ToString() + ": ";
+                                foreach (Fact f in cfq.Facts)
+                                {
+                                    ToGive = ToGive + f.Tag + ", ";
+                                }
+                                ToGive = ToGive.Substring(0, ToGive.Length - 2); //Strip last chars
+
+                                tool_call_response_payload = ToGive;
+                            }
+                            else
+                            {
+                                tool_call_response_payload = "To use this tool you must provide the CIK paramete!";
                             }
 
                         }
@@ -1199,9 +1236,15 @@ namespace AIDA
             //Add finance package?
             if (SETTINGS.FinancePackageEnabled)
             {
+                //Symbol to CIK
                 Tool tool_SymbolToCik = new Tool("get_cik", "Get the CIK (Central Index Key) for a company based on its stock symbol.");
                 tool_SymbolToCik.Parameters.Add(new ToolInputParameter("symbol", "Stock symbol, i.e. 'MSFT'."));
                 ToReturn.Add(tool_SymbolToCik);
+
+                //Available Facts
+                Tool tool_AvailableFinancialData = new Tool("available_financial_data", "Check the available financial data points for a publicly traded company (i.e. 'AssetsCurrent', 'Liabilities', etc.).");
+                tool_AvailableFinancialData.Parameters.Add(new ToolInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
+                ToReturn.Add(tool_AvailableFinancialData);
             }
 
             return ToReturn.ToArray();
