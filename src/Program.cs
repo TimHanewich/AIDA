@@ -492,7 +492,7 @@ namespace AIDA
                             {
 
                                 //Print status
-                                AnsiConsole.Markup("[gray][italic]querying facts for '" + CIK.Value.ToString() + "'... [/][/]");
+                                AnsiConsole.Markup("[gray][italic] searching '" + CIK.Value.ToString() + "' for '" + search_term + "' facts... [/][/]");
 
                                 //Perform query (get the company's facts)
                                 CompanyFactsQuery cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
@@ -518,7 +518,99 @@ namespace AIDA
                             }
                             else
                             {
-                                tool_call_response_payload = "To use this tool you must provide the CIK paramete!";
+                                tool_call_response_payload = "To use this tool you must provide the CIK and search term parameter!";
+                            }
+
+                        }
+                        else if (tc.ToolName == "get_financial_data")
+                        {
+                            //Get parameter: CIK
+                            int? CIK = null;
+                            JProperty? prop_CIK = tc.Arguments.Property("CIK");
+                            if (prop_CIK != null)
+                            {
+                                CIK = Convert.ToInt32(prop_CIK.Value.ToString());
+                            }
+
+                            //Get fact
+                            string? fact = null;
+                            JProperty? prop_fact = tc.Arguments.Property("fact");
+                            if (prop_fact != null)
+                            {
+                                fact = prop_fact.Value.ToString();
+                            }
+
+                            //Query
+                            if (CIK.HasValue && fact != null)
+                            {
+                                //Print more info
+                                AnsiConsole.Markup("[gray][italic]retrieving '" + fact + "' data for '" + CIK.Value.ToString() + "'... [/][/]");
+
+                                //Query the data
+                                CompanyFactsQuery cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
+
+                                //Find the fact
+                                Fact? DesiredFact = null;
+                                foreach (Fact f in cfq.Facts)
+                                {
+                                    if (f.Tag == fact)
+                                    {
+                                        DesiredFact = f;
+                                    }
+                                }
+
+                                //If we found it, provide it
+                                if (DesiredFact != null)
+                                {
+                                    //Stitch together what we will give to the AI
+                                    string ToGive = "Historical data for fact '" + DesiredFact.Tag + "' for company '" + cfq.EntityName + "' (CIK " + cfq.CIK.ToString() + "):";
+                                    foreach (FactDataPoint fdp in DesiredFact.DataPoints)
+                                    {
+
+                                        //Determine how to express period
+                                        string PeriodPart = "";
+                                        if (fdp.Start.HasValue) //if it is for a period
+                                        {
+                                            //Determine Year/Quarter End
+                                            string YearQuarterEnd = "";
+                                            if (fdp.Period == FiscalPeriod.FiscalYear)
+                                            {
+                                                YearQuarterEnd = "Year End";
+                                            }
+                                            else
+                                            {
+                                                YearQuarterEnd = "Quarter End";
+                                            }
+
+                                            //Figure out date part
+                                            string DatePart = fdp.End.ToShortDateString();
+
+                                            PeriodPart = YearQuarterEnd + " " + DatePart;
+                                        }
+                                        else //If it is just a snap in time, just do the date
+                                        {
+                                            PeriodPart = fdp.End.ToShortDateString();
+                                        }
+
+                                        //The value
+                                        string ValuePart = fdp.Value.ToString("#,##0");
+
+                                        //Add it
+                                        ToGive = ToGive + "\n" + "- " + PeriodPart + ": " + ValuePart;
+                                    }
+
+                                    //Give it to the AI
+                                    tool_call_response_payload = ToGive;
+                                }
+                                else
+                                {
+                                    tool_call_response_payload = "Fact '" + fact + "' not found for company '" + cfq.EntityName + "' (CIK " + cfq.CIK.ToString() + ")";
+                                }
+
+                            }
+                            else
+                            {
+                                tool_call_response_payload = "To use this tool you must provide the CIK and fact parameter!";
                             }
 
                         }
@@ -1264,6 +1356,12 @@ namespace AIDA
                 tool_search_available_financial_data.Parameters.Add(new ToolInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
                 tool_search_available_financial_data.Parameters.Add(new ToolInputParameter("search_term", "The term to search for, i.e. 'revenue' or 'assets' or 'advertising'."));
                 ToReturn.Add(tool_search_available_financial_data);
+
+                //Get financial data
+                Tool tool_get_financial_data = new Tool("get_financial_data", "Gather current and historical financial data for a particular company for a particular financial XBRL fact (i.e. 'Assets' or 'CurrentLiabilities').");
+                tool_get_financial_data.Parameters.Add(new ToolInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
+                tool_get_financial_data.Parameters.Add(new ToolInputParameter("fact", "The name (tag) of the specific XBRL fact you are requesting historical financial data for (i.e. 'Assets' or 'CurrentLiabilities' or 'RevenueNet')"));
+                ToReturn.Add(tool_get_financial_data);
             }
 
             return ToReturn.ToArray();
