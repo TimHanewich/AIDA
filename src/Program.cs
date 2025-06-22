@@ -501,7 +501,7 @@ namespace AIDA
                                 List<Fact> SearchResultFacts = new List<Fact>();
                                 foreach (Fact f in cfq.Facts)
                                 {
-                                    if (f.Tag.ToLower().Contains(search_term.ToLower()) || f.Label.ToLower().Contains(search_term.ToLower())) //If it matches the search results
+                                    if (f.Tag.ToLower().Contains(search_term.ToLower()) || f.Label.ToLower().Contains(search_term.ToLower()) || f.Description.ToLower().Contains(search_term.ToLower())) //If it matches the search results
                                     {
                                         SearchResultFacts.Add(f);
                                     }
