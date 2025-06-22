@@ -15,6 +15,7 @@ using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 using System.IO.Compression;
 using SecuritiesExchangeCommission.Edgar;
 using SecuritiesExchangeCommission.Edgar.Data;
+using AIDA.Finance;
 
 namespace AIDA
 {
@@ -486,7 +487,7 @@ namespace AIDA
                                 AnsiConsole.Markup("[gray][italic]querying facts for '" + CIK.Value.ToString() + "'... [/][/]");
 
                                 //Perform query
-                                CompanyFactsQuery cfq = await CompanyFactsQuery.QueryAsync(CIK.Value);
+                                CompanyFactsQuery cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
 
                                 //Prepare string
                                 string ToGive = "Financial facts available for " + CIK.Value.ToString() + ": ";
