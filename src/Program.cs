@@ -530,7 +530,7 @@ namespace AIDA
                         }
 
                         //Append tool response to messages
-                            Message ToolResponseMessage = new Message();
+                        Message ToolResponseMessage = new Message();
                         ToolResponseMessage.Role = Role.tool;
                         ToolResponseMessage.ToolCallID = tc.ID;
                         ToolResponseMessage.Content = tool_call_response_payload;
