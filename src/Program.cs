@@ -501,7 +501,7 @@ namespace AIDA
                                 List<Fact> SearchResultFacts = new List<Fact>();
                                 foreach (Fact f in cfq.Facts)
                                 {
-                                    if (f.Tag.ToLower().Contains(search_term.ToLower()) || f.Label.ToLower().Contains(search_term.ToLower()))
+                                    if (f.Tag.ToLower().Contains(search_term.ToLower()) || f.Label.ToLower().Contains(search_term.ToLower())) //If it matches the search results
                                     {
                                         SearchResultFacts.Add(f);
                                     }
@@ -511,7 +511,17 @@ namespace AIDA
                                 string ToGive = "Financial facts available for " + CIK.Value.ToString() + " that match your search: ";
                                 foreach (Fact f in SearchResultFacts)
                                 {
-                                    ToGive = ToGive + "\n" + "- " + f.Tag + ": " + f.Description;
+                                    //Figure out last reported date
+                                    DateTime MostRecentReported = DateTime.Now.AddYears(-999);
+                                    foreach (FactDataPoint fdp in f.DataPoints)
+                                    {
+                                        if (fdp.End > MostRecentReported)
+                                        {
+                                            MostRecentReported = fdp.End;
+                                        }
+                                    }
+
+                                    ToGive = ToGive + "\n" + "- " + f.Tag + ": " + f.Description + " (last reported" + MostRecentReported.ToShortDateString() + ")";
                                 }
 
                                 tool_call_response_payload = ToGive;
