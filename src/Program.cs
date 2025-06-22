@@ -13,6 +13,7 @@ using TimHanewich.AgentFramework;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 using System.IO.Compression;
+using SecuritiesExchangeCommission.Edgar;
 
 namespace AIDA
 {
@@ -20,7 +21,7 @@ namespace AIDA
     {
         public static void Main(string[] args)
         {
-            RunAsync().Wait();
+            //RunAsync().Wait();
         }
 
         // GLOBAL VARIABLES
@@ -50,7 +51,7 @@ namespace AIDA
             //Load settings
             AIDASettings SETTINGS = AIDASettings.Open(); //will find and open from local file
 
-            //If settings has no azure openai credentials, show warning message
+            //If settings has no credentials, show warning message
             if (SETTINGS.ActiveModelConnection == null)
             {
                 AnsiConsole.MarkupLine("[red]:warning: Warning - no active model connection specified! Use command '[bold]settings[/]' to update your model info before proceeding.[/]");
@@ -73,37 +74,6 @@ namespace AIDA
             sysmsg = sysmsg.Substring(0, sysmsg.Length - 2);
             a.Messages.Add(new Message(Role.system, sysmsg));
 
-            //Add tool: check weather
-            Tool tool_weather = new Tool("check_weather", "Check the weather for the current location.");
-            tool_weather.Parameters.Add(new ToolInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
-            tool_weather.Parameters.Add(new ToolInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
-            a.Tools.Add(tool_weather);
-
-            //Add tool: save text file
-            Tool tool_savetxtfile = new Tool("save_txt_file", "Save a text file to the user's computer.");
-            tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_name", "The name of the file, WITHOUT the '.txt' file extension at the end."));
-            tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_content", "The content of the .txt file (raw text)."));
-            a.Tools.Add(tool_savetxtfile);
-
-            //Add tool: read file
-            Tool tool_readfile = new Tool("read_file", "Read the contents of a file of any type (txt, pdf, word document, etc.) from the user's computer");
-            tool_readfile.Parameters.Add(new ToolInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
-            a.Tools.Add(tool_readfile);
-
-            //Add tool: check current time
-            Tool tool_checkcurrenttime = new Tool("check_current_time", "Check the current date and time right now.");
-            a.Tools.Add(tool_checkcurrenttime);
-
-            //Add tool: open web page
-            Tool tool_readwebpage = new Tool("read_webpage", "Read the contents of a particular web page.");
-            tool_readwebpage.Parameters.Add(new ToolInputParameter("url", "The specific URL of the webpage to read."));
-            a.Tools.Add(tool_readwebpage);
-
-            //Add tool: Open Folder
-            Tool tool_OpenFolder = new Tool("open_folder", "Open a folder (directory) to see its contents (files and child folders).");
-            tool_OpenFolder.Parameters.Add(new ToolInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
-            a.Tools.Add(tool_OpenFolder);
-
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
             a.Messages.Add(new Message(Role.assistant, opening_msg));
@@ -124,8 +94,8 @@ namespace AIDA
             Console.WriteLine();
             while (true)
             {
-            //Collect input
-            Input:
+                //Collect input
+                Input:
 
                 //Collect the raw input
                 string? input = null;
@@ -135,7 +105,6 @@ namespace AIDA
                     input = Console.ReadLine();
                     Console.WriteLine();
                 }
-
 
                 //Handle special inputs
                 if (input.ToLower() == "help")
@@ -298,6 +267,45 @@ namespace AIDA
                 {
                     AnsiConsole.MarkupLine("[red]:warning: Warning - no active model connection specified! Use command '[bold]settings[/]' to update your model info before proceeding.[/]");
                 }
+
+                #region "Plug in tools"
+
+                //CLEAR TOOLS (so we don't re-add them)
+                //The clearing and re-adding process will happen each time so they can update the tools available on the fly
+                a.Tools.Clear();
+
+                //Add tool: check weather
+                Tool tool_weather = new Tool("check_weather", "Check the weather for the current location.");
+                tool_weather.Parameters.Add(new ToolInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
+                tool_weather.Parameters.Add(new ToolInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
+                a.Tools.Add(tool_weather);
+
+                //Add tool: save text file
+                Tool tool_savetxtfile = new Tool("save_txt_file", "Save a text file to the user's computer.");
+                tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_name", "The name of the file, WITHOUT the '.txt' file extension at the end."));
+                tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_content", "The content of the .txt file (raw text)."));
+                a.Tools.Add(tool_savetxtfile);
+
+                //Add tool: read file
+                Tool tool_readfile = new Tool("read_file", "Read the contents of a file of any type (txt, pdf, word document, etc.) from the user's computer");
+                tool_readfile.Parameters.Add(new ToolInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
+                a.Tools.Add(tool_readfile);
+
+                //Add tool: check current time
+                Tool tool_checkcurrenttime = new Tool("check_current_time", "Check the current date and time right now.");
+                a.Tools.Add(tool_checkcurrenttime);
+
+                //Add tool: open web page
+                Tool tool_readwebpage = new Tool("read_webpage", "Read the contents of a particular web page.");
+                tool_readwebpage.Parameters.Add(new ToolInputParameter("url", "The specific URL of the webpage to read."));
+                a.Tools.Add(tool_readwebpage);
+
+                //Add tool: Open Folder
+                Tool tool_OpenFolder = new Tool("open_folder", "Open a folder (directory) to see its contents (files and child folders).");
+                tool_OpenFolder.Parameters.Add(new ToolInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
+                a.Tools.Add(tool_OpenFolder);
+
+                #endregion
 
                 //Prompt the model
                 AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
