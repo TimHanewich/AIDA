@@ -19,12 +19,10 @@ namespace AIDA
 {
     public class Program
     {
-        public static void Main(string[] args)
-        {
-            //RunAsync().Wait();
-        }
+        #region "GLOBAL VARIABLES"
+        
+        public static Agent AGENT { get; set; }
 
-        // GLOBAL VARIABLES
         public static string ConfigDirectory
         {
             get
@@ -32,10 +30,17 @@ namespace AIDA
                 return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIDA");
             }
         }
+        
+        #endregion
+
+        public static void Main(string[] args)
+        {
+            RunAsync().Wait();
+        }
 
         public static async Task RunAsync()
         {
- 
+
             //Ensure ConsoleOutput is in UTF-8 so it can show bullet points
             //I noticed when you publish and run the exe, it defaults to System.Text.OSEncoding as the ConsoleEncoding
             //When it goes to OSEncoding, the bullet points do not print
@@ -60,7 +65,7 @@ namespace AIDA
             #endregion
 
             //Create the agent
-            Agent a = new Agent();
+            AGENT = new Agent();
 
             //Add system message
             List<string> SystemMessage = new List<string>();
@@ -72,11 +77,11 @@ namespace AIDA
                 sysmsg = sysmsg + s + "\n\n";
             }
             sysmsg = sysmsg.Substring(0, sysmsg.Length - 2);
-            a.Messages.Add(new Message(Role.system, sysmsg));
+            AGENT.Messages.Add(new Message(Role.system, sysmsg));
 
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
-            a.Messages.Add(new Message(Role.assistant, opening_msg));
+            AGENT.Messages.Add(new Message(Role.assistant, opening_msg));
             AnsiConsole.MarkupLine("[bold][" + SETTINGS.AssistantMessageColor + "]" + opening_msg + "[/][/]");
 
             //Add link to project
@@ -94,8 +99,8 @@ namespace AIDA
             Console.WriteLine();
             while (true)
             {
-                //Collect input
-                Input:
+            //Collect input
+            Input:
 
                 //Collect the raw input
                 string? input = null;
@@ -125,15 +130,15 @@ namespace AIDA
 
                     //Print tokens
                     AnsiConsole.MarkupLine("[blue][underline]Cumulative Tokens so Far[/][/]");
-                    AnsiConsole.MarkupLine("[blue]Prompt tokens: [bold]" + a.CumulativePromptTokens.ToString("#,##0") + "[/][/]");
-                    AnsiConsole.MarkupLine("[blue]Completion tokens: [bold]" + a.CumulativeCompletionTokens.ToString("#,##0") + "[/][/]");
+                    AnsiConsole.MarkupLine("[blue]Prompt tokens: [bold]" + AGENT.CumulativePromptTokens.ToString("#,##0") + "[/][/]");
+                    AnsiConsole.MarkupLine("[blue]Completion tokens: [bold]" + AGENT.CumulativeCompletionTokens.ToString("#,##0") + "[/][/]");
                     Console.WriteLine();
 
                     //Print costs
                     float input_cost_per_1M = 2.00f; //in US dollars
                     float output_cost_per_1M = 8.00f; //in US dollars
-                    float input_costs = (input_cost_per_1M / 1000000f) * a.CumulativePromptTokens;
-                    float output_costs = (output_cost_per_1M / 1000000f) * a.CumulativeCompletionTokens;
+                    float input_costs = (input_cost_per_1M / 1000000f) * AGENT.CumulativePromptTokens;
+                    float output_costs = (output_cost_per_1M / 1000000f) * AGENT.CumulativeCompletionTokens;
                     AnsiConsole.MarkupLine("[blue][underline]Token Cost Estimates[/][/]");
                     AnsiConsole.MarkupLine("[blue]Input token costs: [bold]$" + input_costs.ToString("#,##0.00") + "[/][/]");
                     AnsiConsole.MarkupLine("[blue]Output token costs: [bold]$" + output_costs.ToString("#,##0.00") + "[/][/]");
@@ -149,7 +154,7 @@ namespace AIDA
                 }
                 else if (input.ToLower() == "settings") //Where the config files are
                 {
-                    
+
                     //Present settings menu and allow them to change things
                     SettingsMenu();
 
@@ -162,7 +167,7 @@ namespace AIDA
                 else if (input.ToLower() == "tools")
                 {
                     AnsiConsole.MarkupLine("[underline]AIDA's Available Tools[/]");
-                    foreach (Tool t in a.Tools)
+                    foreach (Tool t in AGENT.Tools)
                     {
                         AnsiConsole.MarkupLine("[bold][blue]" + t.Name + "[/][/] - [gray]" + t.Description + "[/]");
                     }
@@ -171,8 +176,8 @@ namespace AIDA
                 }
                 else if (input.ToLower() == "clear")
                 {
-                    a.Messages.Clear(); //clear the message history
-                    a.Messages.Add(new Message(Role.system, sysmsg)); //but add the system message back (need that!)
+                    AGENT.Messages.Clear(); //clear the message history
+                    AGENT.Messages.Add(new Message(Role.system, sysmsg)); //but add the system message back (need that!)
                     AnsiConsole.MarkupLine("[blue][bold]Chat history cleared.[/][/]");
                     Console.WriteLine();
                     goto Input;
@@ -185,7 +190,7 @@ namespace AIDA
 
                     //Save
                     AnsiConsole.Markup("[gray]saving...[/] ");
-                    System.IO.File.WriteAllText(SavePath, JsonConvert.SerializeObject(a.Messages, Formatting.Indented));
+                    System.IO.File.WriteAllText(SavePath, JsonConvert.SerializeObject(AGENT.Messages, Formatting.Indented));
                     AnsiConsole.MarkupLine("[green]success![/]");
 
                     //Say it was successful
@@ -238,7 +243,7 @@ namespace AIDA
                     }
 
                     //Load it up!
-                    a.Messages = messages.ToList();
+                    AGENT.Messages = messages.ToList();
                     AnsiConsole.MarkupLine("[green][bold]" + messages.Length.ToString("#,##0") + " messages loaded from " + Markup.Escape(System.IO.Path.GetFileName(FilePath)) + "![/][/]");
                     Console.WriteLine();
 
@@ -246,7 +251,7 @@ namespace AIDA
                 }
 
                 //It did not trigger a special command, so add it to the history, it will be passed to the AI!
-                a.Messages.Add(new Message(Role.user, input));
+                AGENT.Messages.Add(new Message(Role.user, input));
 
             //Prompt
             Prompt:
@@ -256,11 +261,11 @@ namespace AIDA
                 {
                     if (SETTINGS.ActiveModelConnection.AzureOpenAIConnection != null)
                     {
-                        a.Model = SETTINGS.ActiveModelConnection.AzureOpenAIConnection;
+                        AGENT.Model = SETTINGS.ActiveModelConnection.AzureOpenAIConnection;
                     }
                     else if (SETTINGS.ActiveModelConnection.OllamaModelConnection != null)
                     {
-                        a.Model = SETTINGS.ActiveModelConnection.OllamaModelConnection;
+                        AGENT.Model = SETTINGS.ActiveModelConnection.OllamaModelConnection;
                     }
                 }
                 else
@@ -272,45 +277,45 @@ namespace AIDA
 
                 //CLEAR TOOLS (so we don't re-add them)
                 //The clearing and re-adding process will happen each time so they can update the tools available on the fly
-                a.Tools.Clear();
+                AGENT.Tools.Clear();
 
                 //Add tool: check weather
                 Tool tool_weather = new Tool("check_weather", "Check the weather for the current location.");
                 tool_weather.Parameters.Add(new ToolInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
                 tool_weather.Parameters.Add(new ToolInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
-                a.Tools.Add(tool_weather);
+                AGENT.Tools.Add(tool_weather);
 
                 //Add tool: save text file
                 Tool tool_savetxtfile = new Tool("save_txt_file", "Save a text file to the user's computer.");
                 tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_name", "The name of the file, WITHOUT the '.txt' file extension at the end."));
                 tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_content", "The content of the .txt file (raw text)."));
-                a.Tools.Add(tool_savetxtfile);
+                AGENT.Tools.Add(tool_savetxtfile);
 
                 //Add tool: read file
                 Tool tool_readfile = new Tool("read_file", "Read the contents of a file of any type (txt, pdf, word document, etc.) from the user's computer");
                 tool_readfile.Parameters.Add(new ToolInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
-                a.Tools.Add(tool_readfile);
+                AGENT.Tools.Add(tool_readfile);
 
                 //Add tool: check current time
                 Tool tool_checkcurrenttime = new Tool("check_current_time", "Check the current date and time right now.");
-                a.Tools.Add(tool_checkcurrenttime);
+                AGENT.Tools.Add(tool_checkcurrenttime);
 
                 //Add tool: open web page
                 Tool tool_readwebpage = new Tool("read_webpage", "Read the contents of a particular web page.");
                 tool_readwebpage.Parameters.Add(new ToolInputParameter("url", "The specific URL of the webpage to read."));
-                a.Tools.Add(tool_readwebpage);
+                AGENT.Tools.Add(tool_readwebpage);
 
                 //Add tool: Open Folder
                 Tool tool_OpenFolder = new Tool("open_folder", "Open a folder (directory) to see its contents (files and child folders).");
                 tool_OpenFolder.Parameters.Add(new ToolInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
-                a.Tools.Add(tool_OpenFolder);
+                AGENT.Tools.Add(tool_OpenFolder);
 
                 //Add finance package?
                 if (SETTINGS.FinancePackageEnabled)
                 {
                     Tool tool_SymbolToCik = new Tool("get_cik", "Get the CIK (Central Index Key) for a company based on its stock symbol.");
                     tool_SymbolToCik.Parameters.Add(new ToolInputParameter("symbol", "Stock symbol, i.e. 'MSFT'."));
-                    a.Tools.Add(tool_SymbolToCik);
+                    AGENT.Tools.Add(tool_SymbolToCik);
                 }
 
                 #endregion
@@ -320,7 +325,7 @@ namespace AIDA
                 Message response;
                 try
                 {
-                    response = await a.PromptAsync(9999);
+                    response = await AGENT.PromptAsync(9999);
                 }
                 catch (Exception ex)
                 {
@@ -329,12 +334,12 @@ namespace AIDA
                     Console.WriteLine();
                     AnsiConsole.Markup("[italic][gray]Press enter to try another input... [/][/]");
                     Console.ReadLine();
-                    a.Messages.Remove(a.Messages.Last()); //Remove the last one (it failed)
+                    AGENT.Messages.Remove(AGENT.Messages.Last()); //Remove the last one (it failed)
                     goto Input;
                 }
 
                 //Add it
-                a.Messages.Add(response); //Add response to message array
+                AGENT.Messages.Add(response); //Add response to message array
                 Console.WriteLine();
 
                 //Write content if there is some
@@ -463,7 +468,7 @@ namespace AIDA
                         ToolResponseMessage.Role = Role.tool;
                         ToolResponseMessage.ToolCallID = tc.ID;
                         ToolResponseMessage.Content = tool_call_response_payload;
-                        a.Messages.Add(ToolResponseMessage);
+                        AGENT.Messages.Add(ToolResponseMessage);
 
                         //Confirm completion of tool call
                         AnsiConsole.MarkupLine("[gray][italic]complete[/][/]");
