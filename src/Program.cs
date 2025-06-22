@@ -557,110 +557,121 @@ namespace AIDA
                                 AnsiConsole.Markup("[gray][italic]retrieving '" + fact + "' data for '" + CIK.Value.ToString() + "'... [/][/]");
 
                                 //Query the data
-                                CompanyFactsQuery cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
-
-                                //Find the fact
-                                Fact? DesiredFact = null;
-                                foreach (Fact f in cfq.Facts)
+                                CompanyFactsQuery? cfq = null;
+                                try
                                 {
-                                    if (f.Tag == fact)
-                                    {
-                                        DesiredFact = f;
-                                    }
+                                    cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
+                                }
+                                catch (Exception ex)
+                                {
+                                    tool_call_response_payload = "Unable to perform Company Facts Query via SEC API: " + ex.Message;
                                 }
 
-                                //If we found it, provide it
-                                if (DesiredFact != null)
+                                //If we got it, continue
+                                if (cfq != null)
                                 {
-
-                                    //Build a list of ones we will collect
-                                    List<FactDataPoint> AllFDPs = new List<FactDataPoint>();
-                                    AllFDPs.AddRange(DesiredFact.DataPoints);
-
-                                    //Sort from NEWEST to OLDEST
-                                    //We do this because, if there are multiple reports of the same time period, the most recent one is correct as it is probably the amdneded/updated value
-                                    List<FactDataPoint> AllFDPsNewestToOldest = new List<FactDataPoint>();
-                                    while (AllFDPs.Count > 0)
+                                    //Find the fact
+                                    Fact? DesiredFact = null;
+                                    foreach (Fact f in cfq.Facts)
                                     {
-                                        FactDataPoint winner = AllFDPs[0];
-                                        foreach (FactDataPoint fdp in AllFDPs)
+                                        if (f.Tag == fact)
                                         {
-                                            if (fdp.End > winner.End)
-                                            {
-                                                winner = fdp;
-                                            }
-                                        }
-                                        AllFDPsNewestToOldest.Add(winner);
-                                        AllFDPs.Remove(winner);
-                                    }
-
-                                    //Build a list of UNIQUE data points (don't allow on same day)
-                                    List<FactDataPoint> UniqueFDPs = new List<FactDataPoint>();
-                                    foreach (FactDataPoint fdp in AllFDPsNewestToOldest)
-                                    {
-
-                                        //Check if unique list already has this...
-                                        bool AlreadyHasIt = false;
-                                        foreach (FactDataPoint havealready in UniqueFDPs)
-                                        {
-                                            if (havealready.End == fdp.End)
-                                            {
-                                                AlreadyHasIt = true;
-                                            }
-                                        }
-
-                                        //If we do not already have this day, add it
-                                        if (AlreadyHasIt == false)
-                                        {
-                                            UniqueFDPs.Add(fdp);
+                                            DesiredFact = f;
                                         }
                                     }
 
-                                    //Stitch together what we will give to the AI
-                                    string ToGive = "Historical data for fact '" + DesiredFact.Tag + "' for company '" + cfq.EntityName + "' (CIK " + cfq.CIK.ToString() + "):";
-                                    foreach (FactDataPoint fdp in UniqueFDPs)
+                                    //If we found it, provide it
+                                    if (DesiredFact != null)
                                     {
 
-                                        //Determine how to express period
-                                        string PeriodPart = "";
-                                        if (fdp.Start.HasValue) //if it is for a period
-                                        {
-                                            //Determine Year/Quarter End
-                                            string YearQuarterEnd = "";
-                                            if (fdp.Period == FiscalPeriod.FiscalYear)
-                                            {
-                                                YearQuarterEnd = "Year End";
-                                            }
-                                            else
-                                            {
-                                                YearQuarterEnd = "Quarter End";
-                                            }
+                                        //Build a list of ones we will collect
+                                        List<FactDataPoint> AllFDPs = new List<FactDataPoint>();
+                                        AllFDPs.AddRange(DesiredFact.DataPoints);
 
-                                            //Figure out date part
-                                            string DatePart = fdp.End.ToShortDateString();
-
-                                            PeriodPart = YearQuarterEnd + " " + DatePart;
-                                        }
-                                        else //If it is just a snap in time, just do the date
+                                        //Sort from NEWEST to OLDEST
+                                        //We do this because, if there are multiple reports of the same time period, the most recent one is correct as it is probably the amdneded/updated value
+                                        List<FactDataPoint> AllFDPsNewestToOldest = new List<FactDataPoint>();
+                                        while (AllFDPs.Count > 0)
                                         {
-                                            PeriodPart = fdp.End.ToShortDateString();
+                                            FactDataPoint winner = AllFDPs[0];
+                                            foreach (FactDataPoint fdp in AllFDPs)
+                                            {
+                                                if (fdp.End > winner.End)
+                                                {
+                                                    winner = fdp;
+                                                }
+                                            }
+                                            AllFDPsNewestToOldest.Add(winner);
+                                            AllFDPs.Remove(winner);
                                         }
 
-                                        //The value
-                                        string ValuePart = fdp.Value.ToString("#,##0");
+                                        //Build a list of UNIQUE data points (don't allow on same day)
+                                        List<FactDataPoint> UniqueFDPs = new List<FactDataPoint>();
+                                        foreach (FactDataPoint fdp in AllFDPsNewestToOldest)
+                                        {
 
-                                        //Add it
-                                        ToGive = ToGive + "\n" + "- " + PeriodPart + ": " + ValuePart;
+                                            //Check if unique list already has this...
+                                            bool AlreadyHasIt = false;
+                                            foreach (FactDataPoint havealready in UniqueFDPs)
+                                            {
+                                                if (havealready.End == fdp.End)
+                                                {
+                                                    AlreadyHasIt = true;
+                                                }
+                                            }
+
+                                            //If we do not already have this day, add it
+                                            if (AlreadyHasIt == false)
+                                            {
+                                                UniqueFDPs.Add(fdp);
+                                            }
+                                        }
+
+                                        //Stitch together what we will give to the AI
+                                        string ToGive = "Historical data for fact '" + DesiredFact.Tag + "' for company '" + cfq.EntityName + "' (CIK " + cfq.CIK.ToString() + "):";
+                                        foreach (FactDataPoint fdp in UniqueFDPs)
+                                        {
+
+                                            //Determine how to express period
+                                            string PeriodPart = "";
+                                            if (fdp.Start.HasValue) //if it is for a period
+                                            {
+                                                //Determine Year/Quarter End
+                                                string YearQuarterEnd = "";
+                                                if (fdp.Period == FiscalPeriod.FiscalYear)
+                                                {
+                                                    YearQuarterEnd = "Year End";
+                                                }
+                                                else
+                                                {
+                                                    YearQuarterEnd = "Quarter End";
+                                                }
+
+                                                //Figure out date part
+                                                string DatePart = fdp.End.ToShortDateString();
+
+                                                PeriodPart = YearQuarterEnd + " " + DatePart;
+                                            }
+                                            else //If it is just a snap in time, just do the date
+                                            {
+                                                PeriodPart = fdp.End.ToShortDateString();
+                                            }
+
+                                            //The value
+                                            string ValuePart = fdp.Value.ToString("#,##0");
+
+                                            //Add it
+                                            ToGive = ToGive + "\n" + "- " + PeriodPart + ": " + ValuePart;
+                                        }
+
+                                        //Give it to the AI
+                                        tool_call_response_payload = ToGive;
                                     }
-
-                                    //Give it to the AI
-                                    tool_call_response_payload = ToGive;
+                                    else
+                                    {
+                                        tool_call_response_payload = "Fact '" + fact + "' not found for company '" + cfq.EntityName + "' (CIK " + cfq.CIK.ToString() + ")";
+                                    }
                                 }
-                                else
-                                {
-                                    tool_call_response_payload = "Fact '" + fact + "' not found for company '" + cfq.EntityName + "' (CIK " + cfq.CIK.ToString() + ")";
-                                }
-
                             }
                             else
                             {
