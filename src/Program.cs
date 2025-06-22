@@ -469,7 +469,7 @@ namespace AIDA
                             }
 
                         }
-                        else if (tc.ToolName == "available_financial_data")
+                        else if (tc.ToolName == "search_available_financial_data")
                         {
                             //Get CIK
                             int? CIK = null;
@@ -479,19 +479,37 @@ namespace AIDA
                                 CIK = Convert.ToInt32(prop_CIK.Value.ToString());
                             }
 
+                            //Get search term
+                            string? search_term = null;
+                            JProperty? prop_search_term = tc.Arguments.Property("search_term");
+                            if (prop_search_term != null)
+                            {
+                                search_term = prop_search_term.Value.ToString();
+                            }
+
                             //Perform the query
-                            if (CIK != null)
+                            if (CIK != null && search_term != null)
                             {
 
                                 //Print status
                                 AnsiConsole.Markup("[gray][italic]querying facts for '" + CIK.Value.ToString() + "'... [/][/]");
 
-                                //Perform query
+                                //Perform query (get the company's facts)
                                 CompanyFactsQuery cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
 
-                                //Prepare string
-                                string ToGive = "Financial facts available for " + CIK.Value.ToString() + ": ";
+                                //Pull facts via keyword search
+                                List<Fact> SearchResultFacts = new List<Fact>();
                                 foreach (Fact f in cfq.Facts)
+                                {
+                                    if (f.Tag.ToLower().Contains(search_term.ToLower()) || f.Label.ToLower().Contains(search_term.ToLower()))
+                                    {
+                                        SearchResultFacts.Add(f);
+                                    }
+                                }
+
+                                //Prepare string
+                                string ToGive = "Financial facts available for " + CIK.Value.ToString() + " that match your search: ";
+                                foreach (Fact f in SearchResultFacts)
                                 {
                                     ToGive = ToGive + f.Tag + ", ";
                                 }
@@ -1242,10 +1260,11 @@ namespace AIDA
                 tool_SymbolToCik.Parameters.Add(new ToolInputParameter("symbol", "Stock symbol, i.e. 'MSFT'."));
                 ToReturn.Add(tool_SymbolToCik);
 
-                //Available Facts
-                Tool tool_AvailableFinancialData = new Tool("available_financial_data", "Check the available financial data points for a publicly traded company (i.e. 'AssetsCurrent', 'Liabilities', etc.).");
-                tool_AvailableFinancialData.Parameters.Add(new ToolInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
-                ToReturn.Add(tool_AvailableFinancialData);
+                //Search available financial data
+                Tool tool_search_available_financial_data = new Tool("search_available_financial_data", "Search for available XBRL facts the company has reported before (i.e. 'AssetsCurrent', 'Liabilities', etc).");
+                tool_search_available_financial_data.Parameters.Add(new ToolInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
+                tool_search_available_financial_data.Parameters.Add(new ToolInputParameter("search_term", "The term to search for, i.e. 'revenue' or 'assets' or 'advertising'."));
+                ToReturn.Add(tool_search_available_financial_data);
             }
 
             return ToReturn.ToArray();
