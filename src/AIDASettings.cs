@@ -10,11 +10,13 @@ namespace AIDA
     {
         public List<ModelConnection> ModelConnections { get; set; }
         public string AssistantMessageColor { get; set; } //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
+        public bool FinancePackageEnabled { get; set; } //enables SEC.EDGAR
 
         public AIDASettings()
         {
             AssistantMessageColor = "navyblue";
             ModelConnections = new List<ModelConnection>();
+            FinancePackageEnabled = false;
         }
 
         private static string SavePath

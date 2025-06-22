@@ -305,6 +305,14 @@ namespace AIDA
                 tool_OpenFolder.Parameters.Add(new ToolInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
                 a.Tools.Add(tool_OpenFolder);
 
+                //Add finance package?
+                if (SETTINGS.FinancePackageEnabled)
+                {
+                    Tool tool_SymbolToCik = new Tool("get_cik", "Get the CIK (Central Index Key) for a company based on its stock symbol.");
+                    tool_SymbolToCik.Parameters.Add(new ToolInputParameter("symbol", "Stock symbol, i.e. 'MSFT'."));
+                    a.Tools.Add(tool_SymbolToCik);
+                }
+
                 #endregion
 
                 //Prompt the model
