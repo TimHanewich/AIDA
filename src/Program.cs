@@ -495,36 +495,48 @@ namespace AIDA
                                 AnsiConsole.Markup("[gray][italic] searching '" + CIK.Value.ToString() + "' for '" + search_term + "' facts... [/][/]");
 
                                 //Perform query (get the company's facts)
-                                CompanyFactsQuery cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
-
-                                //Pull facts via keyword search
-                                List<Fact> SearchResultFacts = new List<Fact>();
-                                foreach (Fact f in cfq.Facts)
+                                CompanyFactsQuery? cfq = null;
+                                try
                                 {
-                                    if (f.Tag.ToLower().Contains(search_term.ToLower()) || f.Label.ToLower().Contains(search_term.ToLower()) || f.Description.ToLower().Contains(search_term.ToLower())) //If it matches the search results
-                                    {
-                                        SearchResultFacts.Add(f);
-                                    }
+                                    cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
+                                }
+                                catch (Exception ex)
+                                {
+                                    tool_call_response_payload = "Unable to perform Company Facts Query via SEC API: " + ex.Message;
                                 }
 
-                                //Prepare string
-                                string ToGive = "Financial facts available for " + CIK.Value.ToString() + " that match your search: ";
-                                foreach (Fact f in SearchResultFacts)
+                                //If we successfully got data
+                                if (cfq != null)
                                 {
-                                    //Figure out last reported date
-                                    DateTime MostRecentReported = DateTime.Now.AddYears(-999);
-                                    foreach (FactDataPoint fdp in f.DataPoints)
+                                    //Pull facts via keyword search
+                                    List<Fact> SearchResultFacts = new List<Fact>();
+                                    foreach (Fact f in cfq.Facts)
                                     {
-                                        if (fdp.End > MostRecentReported)
+                                        if (f.Tag.ToLower().Contains(search_term.ToLower()) || f.Label.ToLower().Contains(search_term.ToLower()) || f.Description.ToLower().Contains(search_term.ToLower())) //If it matches the search results
                                         {
-                                            MostRecentReported = fdp.End;
+                                            SearchResultFacts.Add(f);
                                         }
                                     }
 
-                                    ToGive = ToGive + "\n" + "- " + f.Tag + ": " + f.Description + " (last reported " + MostRecentReported.ToShortDateString() + ")";
-                                }
+                                    //Prepare string
+                                    string ToGive = "Financial facts available for " + CIK.Value.ToString() + " that match your search: ";
+                                    foreach (Fact f in SearchResultFacts)
+                                    {
+                                        //Figure out last reported date
+                                        DateTime MostRecentReported = DateTime.Now.AddYears(-999);
+                                        foreach (FactDataPoint fdp in f.DataPoints)
+                                        {
+                                            if (fdp.End > MostRecentReported)
+                                            {
+                                                MostRecentReported = fdp.End;
+                                            }
+                                        }
 
-                                tool_call_response_payload = ToGive;
+                                        ToGive = ToGive + "\n" + "- " + f.Tag + ": " + f.Description + " (last reported " + MostRecentReported.ToShortDateString() + ")";
+                                    }
+
+                                    tool_call_response_payload = ToGive;
+                                }
                             }
                             else
                             {
