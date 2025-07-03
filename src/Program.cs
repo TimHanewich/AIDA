@@ -1389,12 +1389,6 @@ namespace AIDA
         {
             List<Tool> ToReturn = new List<Tool>();
 
-            //Add tool: check weather
-            Tool tool_weather = new Tool("check_weather", "Check the weather for the current location.");
-            tool_weather.Parameters.Add(new ToolInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
-            tool_weather.Parameters.Add(new ToolInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
-            ToReturn.Add(tool_weather);
-
             //Add tool: save text file
             Tool tool_savetxtfile = new Tool("save_txt_file", "Save a text file to the user's computer.");
             tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_name", "The name of the file, WITHOUT the '.txt' file extension at the end."));
@@ -1439,6 +1433,16 @@ namespace AIDA
                 tool_get_financial_data.Parameters.Add(new ToolInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
                 tool_get_financial_data.Parameters.Add(new ToolInputParameter("fact", "The name (tag) of the specific XBRL fact you are requesting historical financial data for (i.e. 'Assets' or 'CurrentLiabilities' or 'RevenueNet')"));
                 ToReturn.Add(tool_get_financial_data);
+            }
+
+            //Weather package?
+            if (SETTINGS.WeatherPackageEnabled)
+            {
+                //Add tool: check weather
+                Tool tool_weather = new Tool("check_weather", "Check the weather for the current location.");
+                tool_weather.Parameters.Add(new ToolInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
+                tool_weather.Parameters.Add(new ToolInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
+                ToReturn.Add(tool_weather);
             }
 
             return ToReturn.ToArray();
