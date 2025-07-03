@@ -1346,6 +1346,7 @@ namespace AIDA
                     MultiSelectionPrompt<string> PackagesQuestion = new MultiSelectionPrompt<string>();
                     PackagesQuestion.Title("What tool packages do you want enabled?");
                     PackagesQuestion.NotRequired(); //selecting none is fine!
+                    PackagesQuestion.AddChoice("Weather");
                     PackagesQuestion.AddChoice("Finance");
 
                     //Defaults
@@ -1357,7 +1358,7 @@ namespace AIDA
                     //Ask
                     List<string> PackagesToEnable = AnsiConsole.Prompt(PackagesQuestion);
 
-                    //Enable/Disable
+                    //Enable/Disable: Finance
                     if (PackagesToEnable.Contains("Finance"))
                     {
                         SETTINGS.FinancePackageEnabled = true;
@@ -1365,6 +1366,16 @@ namespace AIDA
                     else
                     {
                         SETTINGS.FinancePackageEnabled = false;
+                    }
+
+                    //Enable/Disable: Weather
+                    if (PackagesToEnable.Contains("Weather"))
+                    {
+                        SETTINGS.WeatherPackageEnabled = true;
+                    }
+                    else
+                    {
+                        SETTINGS.WeatherPackageEnabled = true;
                     }
 
                     //Confirm
