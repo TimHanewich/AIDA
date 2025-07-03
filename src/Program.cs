@@ -1354,6 +1354,10 @@ namespace AIDA
                     {
                         PackagesQuestion.Select("Finance");
                     }
+                    if (SETTINGS.WeatherPackageEnabled)
+                    {
+                        PackagesQuestion.Select("Weather");
+                    }
 
                     //Ask
                     List<string> PackagesToEnable = AnsiConsole.Prompt(PackagesQuestion);
@@ -1375,7 +1379,7 @@ namespace AIDA
                     }
                     else
                     {
-                        SETTINGS.WeatherPackageEnabled = true;
+                        SETTINGS.WeatherPackageEnabled = false;
                     }
 
                     //Confirm
