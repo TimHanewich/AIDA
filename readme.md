@@ -35,3 +35,6 @@ For linux:
 ```
 dotnet publish AIDA.csproj -c Release -r linux-x64 --self-contained false
 ```
+
+## Other Resources
+- [AIDA Banner](https://github.com/TimHanewich/AIDA/releases/download/12/AIDA_header.pptx)
