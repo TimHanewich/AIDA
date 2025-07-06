@@ -3,8 +3,6 @@
 
 **AIDA**, short for **AI** **D**esktop **A**ssistant is a lightweight, console-based client for interfacing with a large language model.
 
-![AIDA](https://i.imgur.com/Yps2hcF.png)
-
 AIDA has built-in tools (function-calling) that give it several capabilities:
 - **Save File** - save a .txt file to the local computer.
 - **Open Folder** - read the contents of a folder (files and sub-folders within it)
