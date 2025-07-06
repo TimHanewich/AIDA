@@ -1,4 +1,6 @@
 # AIDA: AI Desktop Assistant
+![AIDA banner](https://i.imgur.com/824qYfQ.png)
+
 **AIDA**, short for **AI** **D**esktop **A**ssistant is a lightweight, console-based client for interfacing with a large language model.
 
 ![AIDA](https://i.imgur.com/Yps2hcF.png)
