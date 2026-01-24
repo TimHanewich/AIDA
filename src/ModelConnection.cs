@@ -1,42 +1,48 @@
 using System;
-using TimHanewich.AgentFramework;
+using TimHanewich.Foundry;
 
 namespace AIDA
 {
     public class ModelConnection
     {
-        public string Name { get; set; }
-        public AzureOpenAICredentials? AzureOpenAIConnection { get; set; }
-        public OllamaModel? OllamaModelConnection { get; set; }
-        public bool Active { get; set; }
+        
+        //Configuration of the foundry resource and model name
+        public string FoundryUrl {get; set;} //i.e. https://myfoundry.services.ai.azure.com
+        public string ModelName {get; set;} //i.e. gpt-5.2
+
+        //If they use an API key
+        public string? ApiKey {get; set;} // if they choose to use an API key
+
+        //if they use Entra Authentication
+        public string? TenantID {get; set;}
+        public string? ClientID {get; set;} 
+        public string? ClientSecret {get; set;}
+
+        
 
         public ModelConnection()
         {
-            Name = "";
-            AzureOpenAIConnection = null;
-            OllamaModelConnection = null;
+            FoundryUrl = string.Empty;
+            ModelName = string.Empty;
+            ApiKey = null;
+            TenantID = null;
+            ClientID = null;
+            ClientSecret = null;
         }
 
         public override string ToString()
         {
-            if (Name != "")
+            if (ApiKey != null)
             {
-                return Name;
+                return ModelName + " (API key)";
+            }
+            else if (TenantID != null && ClientID != null && ClientSecret != null)
+            {
+                return ModelName = " (Entra ID Auth)";
             }
             else
             {
-                if (AzureOpenAIConnection != null)
-                {
-                    return AzureOpenAIConnection.URL + " (Azure OpenAI)";
-                }
-                else if (OllamaModelConnection != null)
-                {
-                    return OllamaModelConnection.ModelIdentifier + " (Ollama)";
-                }
-                else
-                {
-                    return "UNKNOWN MODEL CONNECTION TYPE";
-                }
+                return ModelName;
             }
         }
     }
