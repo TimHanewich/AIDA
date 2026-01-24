@@ -25,6 +25,7 @@ namespace AIDA
         #region "GLOBAL VARIABLES"
 
         public static AIDASettings SETTINGS { get; set; }
+        public static Agent AGENT {get; set;}
 
         public static string ConfigDirectory
         {
@@ -73,7 +74,7 @@ namespace AIDA
             IdentificationManager.Instance.Email = "admin@gmail.com";
 
             //Set up main AGENT
-            Agent AGENT = new Agent();
+            AGENT = new Agent();
 
             #endregion
 
@@ -963,7 +964,7 @@ namespace AIDA
             }
         }
 
-        public static void SettingsMenu()
+        public static async Task SettingsMenu()
         {
 
             //Loop until selected out
@@ -1030,11 +1031,49 @@ namespace AIDA
                 //Handle what to do
                 if (SettingToDoAnswer == "Update Foundry Connection Info")
                 {
-                    
+                    //Get foundry URL
+                    string url = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
+                    FoundryResource fr = new FoundryResource(url);
+    
+                    //Ask how they want to authenticate
+                    SelectionPrompt<string> FoundryAuthOptions = new SelectionPrompt<string>();
+                    FoundryAuthOptions.Title("How do you want to authenticate?");
+                    FoundryAuthOptions.AddChoice("API Key");
+                    FoundryAuthOptions.AddChoice("Entra ID");
+                    string FoundryAuthSelection = AnsiConsole.Prompt(FoundryAuthOptions);
+
+                    //Handle auth
+                    if (FoundryAuthSelection == "API Key")
+                    {
+                        fr.ApiKey = AnsiConsole.Ask<string>("What is the API key?");
+                    }
+                    else if (FoundryAuthSelection == "Entra ID")
+                    {
+                        EntraAuthenticationHandler auth = new EntraAuthenticationHandler();
+                        auth.TenantID = AnsiConsole.Ask<string>("Tenant ID?");
+                        auth.ClientID = AnsiConsole.Ask<string>("Client ID?");
+                        auth.ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
+
+                        //Authenticate
+                        Console.Write("Authenticating... ");
+                        try
+                        {
+                            TokenCredential cred = await auth.AuthenticateAsync();
+                            AnsiConsole.MarkupLine("[green]success![/]");
+                            Console.WriteLine("Expires: " + cred.Expires.ToString());
+                            fr.AccessToken = cred.AccessToken;
+                        }
+                        catch (Exception ex)
+                        {
+                            AnsiConsole.MarkupLine("[red]Authentication failed! Msg: " + ex.Message + "[/]");
+                        }
+                    }
                 }
                 else if (SettingToDoAnswer == "Update Model")
                 {
-                    
+                    string model_name = AnsiConsole.Ask<string>("Model name?");
+                    AGENT.ModelName = model_name;
+                    AnsiConsole.MarkupLine("Model updated to '" + model_name + "'");
                 }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
                 {
