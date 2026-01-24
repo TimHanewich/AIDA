@@ -9,13 +9,14 @@ using System.Web;
 using System.Collections.Specialized;
 using HtmlAgilityPack;
 using System.Reflection;
-using TimHanewich.AgentFramework;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 using System.IO.Compression;
 using SecuritiesExchangeCommission.Edgar;
 using SecuritiesExchangeCommission.Edgar.Data;
 using AIDA.Finance;
+using TimHanewich.Foundry;
+using TimHanewich.Foundry.OpenAI.Responses;
 
 namespace AIDA
 {
@@ -23,7 +24,6 @@ namespace AIDA
     {
         #region "GLOBAL VARIABLES"
 
-        public static Agent AGENT { get; set; }
         public static AIDASettings SETTINGS { get; set; }
 
         public static string ConfigDirectory
@@ -62,9 +62,9 @@ namespace AIDA
             SETTINGS = AIDASettings.Open();
 
             //If settings has no credentials, show warning message
-            if (SETTINGS.ActiveModelConnection == null)
+            if (SETTINGS.FoundryConnection == null || SETTINGS.ModelName == null)
             {
-                AnsiConsole.MarkupLine("[red]:warning: Warning - no active model connection specified! Use command '[bold]settings[/]' to update your model info before proceeding.[/]");
+                AnsiConsole.MarkupLine("[red]:warning: Warning - foundry resource info or model not specified! Use command '[bold]settings[/]' to update before proceeding.[/]");
             }
 
             //Plug in SEC info in case it is used later
@@ -72,10 +72,10 @@ namespace AIDA
             IdentificationManager.Instance.AppVersion = "1.0";
             IdentificationManager.Instance.Email = "admin@gmail.com";
 
-            #endregion
+            //Set up main AGENT
+            Agent AGENT = new Agent();
 
-            //Create the agent
-            AGENT = new Agent();
+            #endregion
 
             //Add system message
             List<string> SystemMessage = new List<string>();
@@ -87,11 +87,11 @@ namespace AIDA
                 sysmsg = sysmsg + s + "\n\n";
             }
             sysmsg = sysmsg.Substring(0, sysmsg.Length - 2);
-            AGENT.Messages.Add(new Message(Role.system, sysmsg));
+            AGENT.Inputs.Add(new Message(Role.developer, sysmsg));
 
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
-            AGENT.Messages.Add(new Message(Role.assistant, opening_msg));
+            AGENT.Inputs.Add(new Message(Role.assistant, opening_msg));
             AnsiConsole.MarkupLine("[bold][" + SETTINGS.AssistantMessageColor + "]" + opening_msg + "[/][/]");
 
             //Add link to project
@@ -130,8 +130,6 @@ namespace AIDA
                     AnsiConsole.MarkupLine("[bold]tokens[/] - check token consumption for this session.");
                     AnsiConsole.MarkupLine("[bold]settings[/] - Open AIDA's settings menu");
                     AnsiConsole.MarkupLine("[bold]tools[/] - list all tools AIDA has available to it.");
-                    AnsiConsole.MarkupLine("[bold]save[/] - Save chat history to a local file.");
-                    AnsiConsole.MarkupLine("[bold]load[/] - Save chat history to a local file.");
                     Console.WriteLine();
                     goto Input;
                 }
@@ -140,24 +138,9 @@ namespace AIDA
 
                     //Print tokens
                     AnsiConsole.MarkupLine("[blue][underline]Cumulative Tokens so Far[/][/]");
-                    AnsiConsole.MarkupLine("[blue]Prompt tokens: [bold]" + AGENT.CumulativePromptTokens.ToString("#,##0") + "[/][/]");
-                    AnsiConsole.MarkupLine("[blue]Completion tokens: [bold]" + AGENT.CumulativeCompletionTokens.ToString("#,##0") + "[/][/]");
+                    AnsiConsole.MarkupLine("[blue]Prompt tokens: [bold]" + AGENT.CumulativeInputTokens.ToString("#,##0") + "[/][/]");
+                    AnsiConsole.MarkupLine("[blue]Completion tokens: [bold]" + AGENT.CumulativeOutputTokens.ToString("#,##0") + "[/][/]");
                     Console.WriteLine();
-
-                    //Print costs
-                    float input_cost_per_1M = 2.00f; //in US dollars
-                    float output_cost_per_1M = 8.00f; //in US dollars
-                    float input_costs = (input_cost_per_1M / 1000000f) * AGENT.CumulativePromptTokens;
-                    float output_costs = (output_cost_per_1M / 1000000f) * AGENT.CumulativeCompletionTokens;
-                    AnsiConsole.MarkupLine("[blue][underline]Token Cost Estimates[/][/]");
-                    AnsiConsole.MarkupLine("[blue]Input token costs: [bold]$" + input_costs.ToString("#,##0.00") + "[/][/]");
-                    AnsiConsole.MarkupLine("[blue]Output token costs: [bold]$" + output_costs.ToString("#,##0.00") + "[/][/]");
-                    Console.WriteLine();
-
-                    //print the Cost Assumptions
-                    AnsiConsole.MarkupLine("[gray][underline]Cost Assumptions Used[/][/]");
-                    AnsiConsole.MarkupLine("[gray]Input = $" + input_cost_per_1M.ToString("#,##0.00") + " per 1M tokens[/]");
-                    AnsiConsole.MarkupLine("[gray]Output = $" + output_cost_per_1M.ToString("#,##0.00") + " per 1M tokens[/]");
 
                     Console.WriteLine();
                     goto Input;
@@ -177,129 +160,45 @@ namespace AIDA
                 else if (input.ToLower() == "tools")
                 {
                     AnsiConsole.MarkupLine("[underline]AIDA's Available Tools[/]");
-                    foreach (Tool t in DetermineAvailableTools())
+                    foreach (Function f in DetermineAvailableFunctions())
                     {
-                        AnsiConsole.MarkupLine("[bold][blue]" + t.Name + "[/][/] - [gray]" + t.Description + "[/]");
+                        AnsiConsole.MarkupLine("[bold][blue]" + f.Name + "[/][/] - [gray]" + f.Description + "[/]");
                     }
                     Console.WriteLine();
                     goto Input;
                 }
                 else if (input.ToLower() == "clear")
                 {
-                    AGENT.Messages.Clear(); //clear the message history
-                    AGENT.Messages.Add(new Message(Role.system, sysmsg)); //but add the system message back (need that!)
+                    AGENT.ClearHistory();
+                    AGENT.Inputs.Add(new Message(Role.user, sysmsg)); //add the system message back (need that!)
                     AnsiConsole.MarkupLine("[blue][bold]Chat history cleared.[/][/]");
                     Console.WriteLine();
                     goto Input;
                 }
-                else if (input.ToLower().Trim() == "save")
-                {
-                    string FileName = "chat-" + Guid.NewGuid().ToString().Replace("-", "") + ".json";
-                    string DownloadsPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-                    string SavePath = Path.Combine(DownloadsPath, FileName);
-
-                    //Save
-                    AnsiConsole.Markup("[gray]saving...[/] ");
-                    System.IO.File.WriteAllText(SavePath, JsonConvert.SerializeObject(AGENT.Messages, Formatting.Indented));
-                    AnsiConsole.MarkupLine("[green]success![/]");
-
-                    //Say it was successful
-                    Console.WriteLine();
-                    AnsiConsole.MarkupLine("[green]Chat history saved to:[/]");
-                    AnsiConsole.MarkupLine("[green]" + SavePath + "[/]");
-
-                    Console.WriteLine();
-                    goto Input;
-                }
-                else if (input.ToLower().Trim() == "load")
-                {
-                    string FilePath = AnsiConsole.Ask<string>("What is the path to the chat file?");
-
-                    //Clean the file path
-                    FilePath = FilePath.Replace("\"", "");
-
-                    //Is it legit?
-                    if (System.IO.File.Exists(FilePath) == false)
-                    {
-                        AnsiConsole.MarkupLine("[red]That is not a valid file![/]");
-                        goto Input;
-                    }
-
-                    //Is it a JSON file?
-                    if (System.IO.Path.GetExtension(FilePath).ToLower() != ".json")
-                    {
-                        AnsiConsole.MarkupLine("[red]That is not a JSON file![/]");
-                        goto Input;
-                    }
-
-                    //Open it
-                    string FileContent = System.IO.File.ReadAllText(FilePath);
-                    Message[]? messages;
-                    try
-                    {
-                        messages = JsonConvert.DeserializeObject<Message[]>(FileContent);
-                    }
-                    catch (Exception ex)
-                    {
-                        AnsiConsole.MarkupLine("[red]Error while deserializing file content! Message: " + Markup.Escape(ex.Message) + "[/]");
-                        goto Input;
-                    }
-
-                    //If messages are empty
-                    if (messages == null)
-                    {
-                        AnsiConsole.MarkupLine("[red]Messages did not deserialize properly for an unknown reason.[/]");
-                        goto Input;
-                    }
-
-                    //Load it up!
-                    AGENT.Messages = messages.ToList();
-                    AnsiConsole.MarkupLine("[green][bold]" + messages.Length.ToString("#,##0") + " messages loaded from " + Markup.Escape(System.IO.Path.GetFileName(FilePath)) + "![/][/]");
-                    Console.WriteLine();
-
-                    goto Input;
-                }
 
                 //It did not trigger a special command, so add it to the history, it will be passed to the AI!
-                AGENT.Messages.Add(new Message(Role.user, input));
+                AGENT.Inputs.Add(new Message(Role.user, input));
 
             //Prompt
             Prompt:
-
-                //Plug in the correct agent
-                if (SETTINGS.ActiveModelConnection != null)
-                {
-                    if (SETTINGS.ActiveModelConnection.AzureOpenAIConnection != null)
-                    {
-                        AGENT.Model = SETTINGS.ActiveModelConnection.AzureOpenAIConnection;
-                    }
-                    else if (SETTINGS.ActiveModelConnection.OllamaModelConnection != null)
-                    {
-                        AGENT.Model = SETTINGS.ActiveModelConnection.OllamaModelConnection;
-                    }
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("[red]:warning: Warning - no active model connection specified! Use command '[bold]settings[/]' to update your model info before proceeding.[/]");
-                }
 
                 #region "Plug in tools"
 
                 //CLEAR TOOLS (so we don't re-add them)
                 //The clearing and re-adding process will happen each time so they can update the tools available on the fly
-                AGENT.Tools.Clear();
+                AGENT.Functions.Clear();
 
                 //Add them back
-                AGENT.Tools = DetermineAvailableTools().ToList();
+                AGENT.Functions = DetermineAvailableFunctions().ToList();
 
                 #endregion
 
                 //Prompt the model
                 AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
-                Message response;
+                Exchange[] outputs;
                 try
                 {
-                    response = await AGENT.PromptAsync(9999);
+                    outputs = await AGENT.PromptAsync();
                 }
                 catch (Exception ex)
                 {
@@ -308,39 +207,33 @@ namespace AIDA
                     Console.WriteLine();
                     AnsiConsole.Markup("[italic][gray]Press enter to try another input... [/][/]");
                     Console.ReadLine();
-                    AGENT.Messages.Remove(AGENT.Messages.Last()); //Remove the last one (it failed)
                     goto Input;
                 }
 
-                //Add it
-                AGENT.Messages.Add(response); //Add response to message array
-                Console.WriteLine();
-
-                //Write content if there is some
-                if (response.Content != null)
+                //Handle outputs
+                foreach (Exchange ex in outputs)
                 {
-                    if (response.Content != "")
+                    //If it is a message (text)
+                    if (ex is Message msg)
                     {
-                        PrintAIMessage(response.Content, SETTINGS.AssistantMessageColor);
-                        Console.WriteLine();
+                        if (msg.Text != null)
+                        {
+                            PrintAIMessage(msg.Text, SETTINGS.AssistantMessageColor);
+                            Console.WriteLine();
+                        }
                     }
-                }
-
-                //Handle tool calls
-                if (response.ToolCalls.Length > 0)
-                {
-                    foreach (ToolCall tc in response.ToolCalls)
+                    else if (ex is FunctionCall fc) // if it is a function call
                     {
-                        AnsiConsole.Markup("[gray][italic]calling tool '" + tc.ToolName + "'... [/][/]");
+                        AnsiConsole.Markup("[gray][italic]calling tool '" + fc.FunctionName + "'... [/][/]");
                         string tool_call_response_payload = "";
 
                         //Call to the tool and save the response from that tool
-                        if (tc.ToolName == "check_weather")
+                        if (fc.FunctionName == "check_weather")
                         {
 
                             //Get latitude
                             float? latitude = null;
-                            JProperty? prop_latitude = tc.Arguments.Property("latitude");
+                            JProperty? prop_latitude = fc.Arguments.Property("latitude");
                             if (prop_latitude != null)
                             {
                                 latitude = Convert.ToSingle(prop_latitude.Value.ToString());
@@ -348,7 +241,7 @@ namespace AIDA
 
                             //Get longitude
                             float? longitude = null;
-                            JProperty? prop_longitude = tc.Arguments.Property("longitude");
+                            JProperty? prop_longitude = fc.Arguments.Property("longitude");
                             if (prop_longitude != null)
                             {
                                 longitude = Convert.ToSingle(prop_longitude.Value.ToString());
@@ -365,11 +258,11 @@ namespace AIDA
                                 tool_call_response_payload = await CheckWeather(latitude.Value, longitude.Value);
                             }
                         }
-                        else if (tc.ToolName == "save_txt_file")
+                        else if (fc.FunctionName == "save_txt_file")
                         {
                             //Get file name
                             string file_name = "dummy.txt";
-                            JProperty? prop_file_name = tc.Arguments.Property("file_name");
+                            JProperty? prop_file_name = fc.Arguments.Property("file_name");
                             if (prop_file_name != null)
                             {
                                 file_name = prop_file_name.Value.ToString() + ".txt";
@@ -377,7 +270,7 @@ namespace AIDA
 
                             //Get file content
                             string file_content = "(dummy content)";
-                            JProperty? prop_file_content = tc.Arguments.Property("file_content");
+                            JProperty? prop_file_content = fc.Arguments.Property("file_content");
                             if (prop_file_content != null)
                             {
                                 file_content = prop_file_content.Value.ToString();
@@ -386,11 +279,11 @@ namespace AIDA
                             //Save file
                             tool_call_response_payload = SaveFile(file_name, file_content);
                         }
-                        else if (tc.ToolName == "read_file")
+                        else if (fc.FunctionName == "read_file")
                         {
                             //Get file path
                             string file_path = "?";
-                            JProperty? prop_file_path = tc.Arguments.Property("file_path");
+                            JProperty? prop_file_path = fc.Arguments.Property("file_path");
                             if (prop_file_path != null)
                             {
                                 file_path = prop_file_path.Value.ToString();
@@ -398,15 +291,15 @@ namespace AIDA
 
                             tool_call_response_payload = ReadFile(file_path);
                         }
-                        else if (tc.ToolName == "check_current_time")
+                        else if (fc.FunctionName == "check_current_time")
                         {
                             tool_call_response_payload = "The current date and time is " + DateTime.Now.ToString();
                         }
-                        else if (tc.ToolName == "read_webpage")
+                        else if (fc.FunctionName == "read_webpage")
                         {
                             //Get URL
                             string? url = null;
-                            JProperty? prop_url = tc.Arguments.Property("url");
+                            JProperty? prop_url = fc.Arguments.Property("url");
                             if (prop_url != null)
                             {
                                 url = prop_url.Value.ToString();
@@ -422,10 +315,10 @@ namespace AIDA
                                 tool_call_response_payload = "Unable to read webpage because the 'url' parameter was not successfully provided by the AI.";
                             }
                         }
-                        else if (tc.ToolName == "open_folder")
+                        else if (fc.FunctionName == "open_folder")
                         {
                             //Get the folder_path variable
-                            JProperty? prop_folder_path = tc.Arguments.Property("folder_path");
+                            JProperty? prop_folder_path = fc.Arguments.Property("folder_path");
                             if (prop_folder_path == null)
                             {
                                 tool_call_response_payload = "You did not provide the folder path correctly! Provide it as the 'folder_path' property."; //message back to the AI.
@@ -436,12 +329,12 @@ namespace AIDA
                                 tool_call_response_payload = OpenFolder(folder_path);
                             }
                         }
-                        else if (tc.ToolName == "get_cik")
+                        else if (fc.FunctionName == "get_cik")
                         {
 
                             //Get symbol
                             string? symbol = null;
-                            JProperty? prop_symbol = tc.Arguments.Property("symbol");
+                            JProperty? prop_symbol = fc.Arguments.Property("symbol");
                             if (prop_symbol != null)
                             {
                                 symbol = prop_symbol.Value.ToString();
@@ -458,9 +351,9 @@ namespace AIDA
                                     string cik = await SecToolkit.GetCompanyCikFromTradingSymbolAsync(symbol);
                                     tool_call_response_payload = cik;
                                 }
-                                catch (Exception ex)
+                                catch (Exception bex)
                                 {
-                                    tool_call_response_payload = "Attempt to find CIK from trading symbol failed. Exception message: " + ex.Message;
+                                    tool_call_response_payload = "Attempt to find CIK from trading symbol failed. Exception message: " + bex.Message;
                                 }
                             }
                             else
@@ -469,11 +362,11 @@ namespace AIDA
                             }
 
                         }
-                        else if (tc.ToolName == "search_financial_data")
+                        else if (fc.FunctionName == "search_financial_data")
                         {
                             //Get CIK
                             int? CIK = null;
-                            JProperty? prop_CIK = tc.Arguments.Property("CIK");
+                            JProperty? prop_CIK = fc.Arguments.Property("CIK");
                             if (prop_CIK != null)
                             {
                                 CIK = Convert.ToInt32(prop_CIK.Value.ToString());
@@ -481,7 +374,7 @@ namespace AIDA
 
                             //Get search term
                             string? search_term = null;
-                            JProperty? prop_search_term = tc.Arguments.Property("search_term");
+                            JProperty? prop_search_term = fc.Arguments.Property("search_term");
                             if (prop_search_term != null)
                             {
                                 search_term = prop_search_term.Value.ToString();
@@ -500,9 +393,9 @@ namespace AIDA
                                 {
                                     cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
                                 }
-                                catch (Exception ex)
+                                catch (Exception bex)
                                 {
-                                    tool_call_response_payload = "Unable to perform Company Facts Query via SEC API: " + ex.Message;
+                                    tool_call_response_payload = "Unable to perform Company Facts Query via SEC API: " + bex.Message;
                                 }
 
                                 //If we successfully got data
@@ -544,11 +437,11 @@ namespace AIDA
                             }
 
                         }
-                        else if (tc.ToolName == "get_financial_data")
+                        else if (fc.FunctionName == "get_financial_data")
                         {
                             //Get parameter: CIK
                             int? CIK = null;
-                            JProperty? prop_CIK = tc.Arguments.Property("CIK");
+                            JProperty? prop_CIK = fc.Arguments.Property("CIK");
                             if (prop_CIK != null)
                             {
                                 CIK = Convert.ToInt32(prop_CIK.Value.ToString());
@@ -556,7 +449,7 @@ namespace AIDA
 
                             //Get fact
                             string? fact = null;
-                            JProperty? prop_fact = tc.Arguments.Property("fact");
+                            JProperty? prop_fact = fc.Arguments.Property("fact");
                             if (prop_fact != null)
                             {
                                 fact = prop_fact.Value.ToString();
@@ -574,9 +467,9 @@ namespace AIDA
                                 {
                                     cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
                                 }
-                                catch (Exception ex)
+                                catch (Exception bex)
                                 {
-                                    tool_call_response_payload = "Unable to perform Company Facts Query via SEC API: " + ex.Message;
+                                    tool_call_response_payload = "Unable to perform Company Facts Query via SEC API: " + bex.Message;
                                 }
 
                                 //If we got it, continue
@@ -693,25 +586,19 @@ namespace AIDA
                         }
                         else
                         {
-                            AnsiConsole.MarkupLine("[red]Model called tool '" + tc.ToolName + "' but AIDA is not properly configured to handle that! Oops, sorry about that! We dropped the ball (not the AI). Please contact support.[/]");
-                            tool_call_response_payload = "Tool '" + tc.ToolName + "' is not working right now. Sorry.";
+                            AnsiConsole.MarkupLine("[red]Model called tool '" + fc.FunctionName + "' but AIDA is not properly configured to handle that! Oops, sorry about that! We dropped the ball (not the AI). Please contact support.[/]");
+                            tool_call_response_payload = "Tool '" + fc.FunctionName + "' is not working right now. Sorry.";
                         }
 
-                        //Append tool response to messages
-                        Message ToolResponseMessage = new Message();
-                        ToolResponseMessage.Role = Role.tool;
-                        ToolResponseMessage.ToolCallID = tc.ID;
-                        ToolResponseMessage.Content = tool_call_response_payload;
-                        AGENT.Messages.Add(ToolResponseMessage);
-
+                        //Append function call result
+                        FunctionCallOutput fco = new FunctionCallOutput();
+                        fco.CallId = fc.CallId;
+                        fco.Output = tool_call_response_payload;
+                        AGENT.Inputs.Add(fco);
                         //Confirm completion of tool call
                         AnsiConsole.MarkupLine("[gray][italic]complete[/][/]");
                     }
-
-                    //Prompt right away (do not ask for user for input yet)
-                    goto Prompt;
                 }
-
 
 
             } //END INFINITE CHAT
@@ -1098,14 +985,32 @@ namespace AIDA
                 //Config directory
                 AnsiConsole.MarkupLine("Config directory: [bold]" + ConfigDirectory + "[/]");
 
-                //Model info
-                if (SETTINGS.ActiveModelConnection == null)
+                //Foundry info
+                if (SETTINGS.FoundryConnection != null)
                 {
-                    AnsiConsole.MarkupLine("Active Model: not specified!");
+                    AnsiConsole.MarkupLine("Foundry Resource: " + SETTINGS.FoundryConnection.Endpoint);
+                    if (SETTINGS.FoundryConnection.ApiKey != null)
+                    {
+                        AnsiConsole.MarkupLine("Auth Type: API Key");
+                    }
+                    else if (SETTINGS.FoundryConnection.AccessToken != null)
+                    {
+                        AnsiConsole.MarkupLine("Auth Type: Access Token");
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLine("Auth Type: (unknown)");
+                    }
+                }
+
+                //Model name
+                if (SETTINGS.ModelName != null)
+                {
+                    AnsiConsole.MarkupLine("Model: " + SETTINGS.ModelName);
                 }
                 else
                 {
-                    AnsiConsole.MarkupLine("Active Model: " + SETTINGS.ActiveModelConnection.ToString());
+                    AnsiConsole.MarkupLine("Model: (none)");
                 }
 
                 //Assistant color
@@ -1115,214 +1020,22 @@ namespace AIDA
                 Console.WriteLine();
                 SelectionPrompt<string> SettingToDo = new SelectionPrompt<string>();
                 SettingToDo.Title("What do you want to do?");
-                SettingToDo.AddChoice("Add/Change/Delete a model connection");
+                SettingToDo.AddChoice("Update Foundry Connection Info");
+                SettingToDo.AddChoice("Update Model");
                 SettingToDo.AddChoice("Change Assistant Message Color");
                 SettingToDo.AddChoice("Enable/Disable a tool package");
                 SettingToDo.AddChoice("Save & Continue");
                 string SettingToDoAnswer = AnsiConsole.Prompt(SettingToDo);
 
                 //Handle what to do
-                if (SettingToDoAnswer == "Add/Change/Delete a model connection")
+                if (SettingToDoAnswer == "Update Foundry Connection Info")
                 {
-
-                    //Build model connection table
-                    Table ModelTable = new Table();
-                    ModelTable.Border(TableBorder.Rounded);
-                    ModelTable.AddColumn("Name");
-                    ModelTable.AddColumn("Type");
-                    ModelTable.AddColumn("Active");
-                    foreach (ModelConnection mc in SETTINGS.ModelConnections)
-                    {
-                        //prepare vars
-                        string vName = "";
-                        string dType = "";
-                        string dActive = "";
-
-                        //name
-                        vName = mc.Name;
-
-                        //Plug in vars
-                        if (mc.AzureOpenAIConnection != null)
-                        {
-                            dType = "Azure OpenAI";
-                        }
-                        else if (mc.OllamaModelConnection != null)
-                        {
-                            dType = "Ollama";
-                        }
-
-                        //Plug in active?
-                        if (mc.Active)
-                        {
-                            dActive = "ACTIVE";
-                        }
-                        else
-                        {
-                            dActive = "";
-                        }
-
-                        //Add row
-                        ModelTable.AddRow(vName, dType, dActive);
-                    }
-
-                    //Print the table
-                    AnsiConsole.MarkupLine("[underline][bold]Stored Model Connections[/][/]");
-                    AnsiConsole.Write(ModelTable);
-
-                    //Ask what to do
-                    SelectionPrompt<string> ModelActionQuestion = new SelectionPrompt<string>();
-                    ModelActionQuestion.Title("What do you want to do?");
-                    ModelActionQuestion.AddChoice("Add model connection");
-                    ModelActionQuestion.AddChoice("Change active model connection");
-                    ModelActionQuestion.AddChoice("Delete model connection");
-                    ModelActionQuestion.AddChoice("[gray]Nothing - continue[/]");
-                    string ModelActionQuestionAnswer = AnsiConsole.Prompt(ModelActionQuestion);
-
-                    //Handle
-                    if (ModelActionQuestionAnswer == "Add model connection")
-                    {
-                        //Ask what type of model to add
-                        SelectionPrompt<string> WhatToAdd = new SelectionPrompt<string>();
-                        WhatToAdd.Title("What type of model connection do you want to add?");
-                        WhatToAdd.AddChoice("Azure OpenAI");
-                        WhatToAdd.AddChoice("Ollama");
-                        string WhatToAddAnswer = AnsiConsole.Prompt(WhatToAdd);
-
-                        if (WhatToAddAnswer == "Azure OpenAI")
-                        {
-                            AnsiConsole.MarkupLine("Ok, let's add your Azure OpenAI connection.");
-                            string URL = AnsiConsole.Ask<string>("URL endpoint to your model?");
-                            string KEY = AnsiConsole.Ask<string>("API Key?");
-                            string NAME = AnsiConsole.Ask<string>("What do you want to call this connection (a custom name)?");
-                            ModelConnection newmc = new ModelConnection();
-                            newmc.Name = NAME;
-                            newmc.Active = false;
-                            newmc.AzureOpenAIConnection = new AzureOpenAICredentials(URL, KEY);
-                            SETTINGS.ModelConnections.Add(newmc);
-                            AnsiConsole.Markup("[green]Connection added![/] [italic][gray]enter to continue[/][/]"); Console.ReadLine();
-                        }
-                        else if (WhatToAddAnswer == "Ollama")
-                        {
-                            AnsiConsole.MarkupLine("Ok, let's add your Ollama connection.");
-                            string ModelIdentifier = AnsiConsole.Ask<string>("What is your model identifier (i.e. \"qwen3:0.6b\")?");
-                            string NAME = AnsiConsole.Ask<string>("What do you want to call this connection (a custom name)?");
-                            ModelConnection newmc = new ModelConnection();
-                            newmc.Name = NAME;
-                            newmc.Active = false;
-                            newmc.OllamaModelConnection = new OllamaModel(ModelIdentifier);
-                            SETTINGS.ModelConnections.Add(newmc);
-                            AnsiConsole.Markup("[green]Connection added! [italic][gray]enter to continue[/][/][/]"); Console.ReadLine();
-                        }
-                        else
-                        {
-                            AnsiConsole.MarkupLine("[red]I am sorry, I cannot handle that yet.[/]");
-                        }
-                    }
-                    else if (ModelActionQuestionAnswer == "Change active model connection")
-                    {
-
-                        //Ask which one to make active?
-                        if (SETTINGS.ModelConnections.Count > 0)
-                        {
-                            SelectionPrompt<string> ModelToMakeActive = new SelectionPrompt<string>();
-                            ModelToMakeActive.Title("Which connection do you want to make active?");
-                            foreach (ModelConnection mc in SETTINGS.ModelConnections)
-                            {
-                                ModelToMakeActive.AddChoice(mc.ToString());
-                            }
-                            string ModelToMakeActiveAnswer = AnsiConsole.Prompt(ModelToMakeActive);
-
-                            //Make it active
-                            foreach (ModelConnection mc in SETTINGS.ModelConnections)
-                            {
-                                if (mc.ToString() == ModelToMakeActiveAnswer)
-                                {
-                                    mc.Active = true;
-                                }
-                                else
-                                {
-                                    mc.Active = false;
-                                }
-                            }
-
-                            //Print what is now active
-                            if (SETTINGS.ActiveModelConnection != null)
-                            {
-                                AnsiConsole.Markup("[green]Active model connection updated![/] [italic][gray]enter to continue...[/][/]");
-                                Console.ReadLine();
-                            }
-                        }
-                        else
-                        {
-                            AnsiConsole.Markup("[red]No model connections added! Add some first.[/]");
-                            Console.ReadLine();
-                        }
-                    }
-                    else if (ModelActionQuestionAnswer == "Delete model connection")
-                    {
-                        if (SETTINGS.ModelConnections.Count > 0)
-                        {
-                            //Build question
-                            SelectionPrompt<string> ToDeleteQuestion = new SelectionPrompt<string>();
-                            ToDeleteQuestion.Title("Which connection do you want to delete?");
-                            foreach (ModelConnection mc in SETTINGS.ModelConnections)
-                            {
-                                ToDeleteQuestion.AddChoice(mc.ToString());
-                            }
-
-                            //Ask
-                            string ToDeleteAnswer = AnsiConsole.Prompt(ToDeleteQuestion);
-
-                            //Select
-                            ModelConnection? ToDelete = null;
-                            foreach (ModelConnection mc in SETTINGS.ModelConnections)
-                            {
-                                if (mc.ToString() == ToDeleteAnswer)
-                                {
-                                    ToDelete = mc;
-                                }
-                            }
-
-                            if (ToDelete != null)
-                            {
-                                //Print some info about it
-                                AnsiConsole.MarkupLine("[bold]Delete a Model[/]");
-                                AnsiConsole.MarkupLine("[bold]Name:[/] " + ToDelete.Name);
-                                if (ToDelete.AzureOpenAIConnection != null)
-                                {
-                                    AnsiConsole.MarkupLine("[bold]Type: [/]Azure OpenAI");
-                                    AnsiConsole.MarkupLine("[bold]URL:[/] " + ToDelete.AzureOpenAIConnection.URL);
-                                    AnsiConsole.MarkupLine("[bold]API Key:[/] " + ToDelete.AzureOpenAIConnection.ApiKey);
-                                }
-                                else if (ToDelete.OllamaModelConnection != null)
-                                {
-                                    AnsiConsole.MarkupLine("[bold]Type: [/]Ollama");
-                                    AnsiConsole.MarkupLine("[bold]Identifier: [/] " + ToDelete.OllamaModelConnection.ModelIdentifier);
-                                }
-
-                                //Confirm
-                                SelectionPrompt<string> DeleteConfirmation = new SelectionPrompt<string>();
-                                DeleteConfirmation.Title("Are you sure you want to delete this connection?");
-                                DeleteConfirmation.AddChoice("Yes");
-                                DeleteConfirmation.AddChoice("No");
-                                Console.WriteLine();
-                                string DeleteConfirmationAnswer = AnsiConsole.Prompt(DeleteConfirmation);
-                                if (DeleteConfirmationAnswer == "Yes")
-                                {
-                                    SETTINGS.ModelConnections.Remove(ToDelete);
-                                    AnsiConsole.Markup("[green]Model deleted![/] [italic][gray]enter to continue...[/][/]");
-                                    Console.ReadLine();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            AnsiConsole.Markup("[red]No model connections added yet.[/]");
-                            Console.ReadLine();
-                        }
-                    }
+                    
                 }
-
+                else if (SettingToDoAnswer == "Update Model")
+                {
+                    
+                }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
                 {
                     AnsiConsole.MarkupLine("Visit here to see the available colors: [bold]https://spectreconsole.net/appendix/colors[/]");
@@ -1400,53 +1113,53 @@ namespace AIDA
             }
         }
 
-        public static Tool[] DetermineAvailableTools()
+        public static Function[] DetermineAvailableFunctions()
         {
-            List<Tool> ToReturn = new List<Tool>();
+            List<Function> ToReturn = new List<Function>();
 
             //Add tool: save text file
-            Tool tool_savetxtfile = new Tool("save_txt_file", "Save a text file to the user's computer.");
-            tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_name", "The name of the file, WITHOUT the '.txt' file extension at the end."));
-            tool_savetxtfile.Parameters.Add(new ToolInputParameter("file_content", "The content of the .txt file (raw text)."));
+            Function tool_savetxtfile = new Function("save_txt_file", "Save a text file to the user's computer.");
+            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("file_name", "The name of the file, WITHOUT the '.txt' file extension at the end."));
+            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("file_content", "The content of the .txt file (raw text)."));
             ToReturn.Add(tool_savetxtfile);
 
             //Add tool: read file
-            Tool tool_readfile = new Tool("read_file", "Read the contents of a file of any type (txt, pdf, word document, etc.) from the user's computer");
-            tool_readfile.Parameters.Add(new ToolInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
+            Function tool_readfile = new Function("read_file", "Read the contents of a file of any type (txt, pdf, word document, etc.) from the user's computer");
+            tool_readfile.Parameters.Add(new FunctionInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
             ToReturn.Add(tool_readfile);
 
             //Add tool: check current time
-            Tool tool_checkcurrenttime = new Tool("check_current_time", "Check the current date and time right now.");
+            Function tool_checkcurrenttime = new Function("check_current_time", "Check the current date and time right now.");
             ToReturn.Add(tool_checkcurrenttime);
 
             //Add tool: open web page
-            Tool tool_readwebpage = new Tool("read_webpage", "Read the contents of a particular web page.");
-            tool_readwebpage.Parameters.Add(new ToolInputParameter("url", "The specific URL of the webpage to read."));
+            Function tool_readwebpage = new Function("read_webpage", "Read the contents of a particular web page.");
+            tool_readwebpage.Parameters.Add(new FunctionInputParameter("url", "The specific URL of the webpage to read."));
             ToReturn.Add(tool_readwebpage);
 
             //Add tool: Open Folder
-            Tool tool_OpenFolder = new Tool("open_folder", "Open a folder (directory) to see its contents (files and child folders).");
-            tool_OpenFolder.Parameters.Add(new ToolInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
+            Function tool_OpenFolder = new Function("open_folder", "Open a folder (directory) to see its contents (files and child folders).");
+            tool_OpenFolder.Parameters.Add(new FunctionInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
             ToReturn.Add(tool_OpenFolder);
 
             //Add finance package?
             if (SETTINGS.FinancePackageEnabled)
             {
                 //Symbol to CIK
-                Tool tool_SymbolToCik = new Tool("get_cik", "Get the CIK (Central Index Key) for a company based on its stock symbol.");
-                tool_SymbolToCik.Parameters.Add(new ToolInputParameter("symbol", "Stock symbol, i.e. 'MSFT'."));
+                Function tool_SymbolToCik = new Function("get_cik", "Get the CIK (Central Index Key) for a company based on its stock symbol.");
+                tool_SymbolToCik.Parameters.Add(new FunctionInputParameter("symbol", "Stock symbol, i.e. 'MSFT'."));
                 ToReturn.Add(tool_SymbolToCik);
 
                 //Search available financial data
-                Tool tool_search_financial_data = new Tool("search_financial_data", "Search for available XBRL facts the company has reported before (i.e. 'AssetsCurrent', 'Liabilities', etc).");
-                tool_search_financial_data.Parameters.Add(new ToolInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
-                tool_search_financial_data.Parameters.Add(new ToolInputParameter("search_term", "The term to search for, i.e. 'revenue' or 'assets' or 'advertising'."));
+                Function tool_search_financial_data = new Function("search_financial_data", "Search for available XBRL facts the company has reported before (i.e. 'AssetsCurrent', 'Liabilities', etc).");
+                tool_search_financial_data.Parameters.Add(new FunctionInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
+                tool_search_financial_data.Parameters.Add(new FunctionInputParameter("search_term", "The term to search for, i.e. 'revenue' or 'assets' or 'advertising'."));
                 ToReturn.Add(tool_search_financial_data);
 
                 //Get financial data
-                Tool tool_get_financial_data = new Tool("get_financial_data", "Gather current and historical financial data for a particular company for a particular financial XBRL fact (i.e. 'Assets' or 'CurrentLiabilities').");
-                tool_get_financial_data.Parameters.Add(new ToolInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
-                tool_get_financial_data.Parameters.Add(new ToolInputParameter("fact", "The name (tag) of the specific XBRL fact you are requesting historical financial data for (i.e. 'Assets' or 'CurrentLiabilities' or 'RevenueNet')"));
+                Function tool_get_financial_data = new Function("get_financial_data", "Gather current and historical financial data for a particular company for a particular financial XBRL fact (i.e. 'Assets' or 'CurrentLiabilities').");
+                tool_get_financial_data.Parameters.Add(new FunctionInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
+                tool_get_financial_data.Parameters.Add(new FunctionInputParameter("fact", "The name (tag) of the specific XBRL fact you are requesting historical financial data for (i.e. 'Assets' or 'CurrentLiabilities' or 'RevenueNet')"));
                 ToReturn.Add(tool_get_financial_data);
             }
 
@@ -1454,9 +1167,9 @@ namespace AIDA
             if (SETTINGS.WeatherPackageEnabled)
             {
                 //Add tool: check weather
-                Tool tool_weather = new Tool("check_weather", "Check the weather for the current location.");
-                tool_weather.Parameters.Add(new ToolInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
-                tool_weather.Parameters.Add(new ToolInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
+                Function tool_weather = new Function("check_weather", "Check the weather for the current location.");
+                tool_weather.Parameters.Add(new FunctionInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
+                tool_weather.Parameters.Add(new FunctionInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
                 ToReturn.Add(tool_weather);
             }
 
