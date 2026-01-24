@@ -62,12 +62,6 @@ namespace AIDA
             //Retrieve settings
             SETTINGS = AIDASettings.Open();
 
-            //If settings has no credentials, show warning message
-            if (SETTINGS.FoundryConnection == null || SETTINGS.ModelName == null)
-            {
-                AnsiConsole.MarkupLine("[red]:warning: Warning - foundry resource info or model not specified! Use command '[bold]settings[/]' to update before proceeding.[/]");
-            }
-
             //Plug in SEC info in case it is used later
             IdentificationManager.Instance.AppName = "AIDA";
             IdentificationManager.Instance.AppVersion = "1.0";
@@ -986,22 +980,28 @@ namespace AIDA
                 //Config directory
                 AnsiConsole.MarkupLine("Config directory: [bold]" + ConfigDirectory + "[/]");
 
-                //Foundry info
-                if (SETTINGS.FoundryConnection != null)
+                //Foundry URL
+                if (SETTINGS.FoundryUrl != null)
                 {
-                    AnsiConsole.MarkupLine("Foundry Resource: " + SETTINGS.FoundryConnection.Endpoint);
-                    if (SETTINGS.FoundryConnection.ApiKey != null)
-                    {
-                        AnsiConsole.MarkupLine("Auth Type: API Key");
-                    }
-                    else if (SETTINGS.FoundryConnection.AccessToken != null)
-                    {
-                        AnsiConsole.MarkupLine("Auth Type: Access Token");
-                    }
-                    else
-                    {
-                        AnsiConsole.MarkupLine("Auth Type: (unknown)");
-                    }
+                    AnsiConsole.MarkupLine("Foundry Resource: " + SETTINGS.FoundryUrl);
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine("Foundry Resource: [italic]none[/]");
+                }
+
+                //Foundry Auth
+                if (SETTINGS.ApiKey != null)
+                {
+                    AnsiConsole.MarkupLine("Auth Type: API Key");
+                }
+                else if (SETTINGS.TenantID != null && SETTINGS.ClientID != null && SETTINGS.ClientSecret != null)
+                {
+                    AnsiConsole.MarkupLine("Auth Type: Access Token");
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine("Auth Type: (unknown)");
                 }
 
                 //Model name
@@ -1032,8 +1032,7 @@ namespace AIDA
                 if (SettingToDoAnswer == "Update Foundry Connection Info")
                 {
                     //Get foundry URL
-                    string url = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
-                    FoundryResource fr = new FoundryResource(url);
+                    SETTINGS.FoundryUrl = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
     
                     //Ask how they want to authenticate
                     SelectionPrompt<string> FoundryAuthOptions = new SelectionPrompt<string>();
@@ -1045,32 +1044,31 @@ namespace AIDA
                     //Handle auth
                     if (FoundryAuthSelection == "API Key")
                     {
-                        fr.ApiKey = AnsiConsole.Ask<string>("What is the API key?");
+                        SETTINGS.ApiKey = AnsiConsole.Ask<string>("What is the API key?");
                     }
                     else if (FoundryAuthSelection == "Entra ID")
                     {
-                        EntraAuthenticationHandler auth = new EntraAuthenticationHandler();
-                        auth.TenantID = AnsiConsole.Ask<string>("Tenant ID?");
-                        auth.ClientID = AnsiConsole.Ask<string>("Client ID?");
-                        auth.ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
+                        SETTINGS.TenantID = AnsiConsole.Ask<string>("Tenant ID?");
+                        SETTINGS.ClientID = AnsiConsole.Ask<string>("Client ID?");
+                        SETTINGS.ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
 
-                        //Authenticate
+                        //Authenticate now
                         Console.Write("Authenticating... ");
+                        EntraAuthenticationHandler auth = new EntraAuthenticationHandler();
+                        auth.TenantID = SETTINGS.TenantID;
+                        auth.ClientID = SETTINGS.ClientID;
+                        auth.ClientSecret = SETTINGS.ClientSecret;
                         try
                         {
-                            TokenCredential cred = await auth.AuthenticateAsync();
+                            SETTINGS.AuthenticatedTokenCredentials = await auth.AuthenticateAsync();
                             AnsiConsole.MarkupLine("[green]success![/]");
-                            Console.WriteLine("Expires: " + cred.Expires.ToString());
-                            fr.AccessToken = cred.AccessToken;
+                            Console.WriteLine("Expires: " + SETTINGS.AuthenticatedTokenCredentials.Expires.ToString());
                         }
                         catch (Exception ex)
                         {
                             AnsiConsole.MarkupLine("[red]Authentication failed! Msg: " + ex.Message + "[/]");
                         }
                     }
-
-                    //Update the foundry resource info
-                    SETTINGS.FoundryConnection = fr;
                 }
                 else if (SettingToDoAnswer == "Update Model")
                 {

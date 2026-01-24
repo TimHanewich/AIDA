@@ -8,8 +8,19 @@ namespace AIDA
 {
     public class AIDASettings
     {
-        //AI Model relevant stuff
-        public FoundryResource? FoundryConnection {get; set;} //only a single foundry connection allowed
+        //Foundry URL
+        public string? FoundryUrl {get; set;}
+
+        //Foundry credentials - API Key (if they choose to use this)
+        public string? ApiKey {get; set;}
+
+        //Foundry Credentials - Entra ID Auth (if they choose to use this)
+        public string? TenantID {get; set;}
+        public string? ClientID {get; set;}
+        public string? ClientSecret {get; set;}
+        public TokenCredential? AuthenticatedTokenCredentials {get; set;} //previous authentication info (may be expired)
+
+        //AI Model we are using within foundry
         public string? ModelName {get; set;} //the name of the model or deployment to be used, i.e. "gpt-5.2"
 
         //Formatting settings
@@ -21,11 +32,40 @@ namespace AIDA
 
         public AIDASettings()
         {
-            FoundryConnection = null;
+            FoundryUrl = null;
+            ApiKey = null;
+            TenantID = null;
+            ClientID = null;
+            ClientSecret = null;
             ModelName = null;
             AssistantMessageColor = "navyblue";
             FinancePackageEnabled = false;
             WeatherPackageEnabled = false;
+        }
+
+        public FoundryResource PrepareFoundryResource()
+        {
+            if (FoundryUrl == null)
+            {
+                throw new Exception("Unable to prepare foundry resource: the URL was null!");
+            }
+
+            FoundryResource ToReturn = new FoundryResource(FoundryUrl);
+            
+            //if they did API Key method
+            if (ApiKey != null)
+            {
+                ToReturn.ApiKey = ApiKey;
+            }
+            else //assume entra ID auth insteads
+            {
+                if (AuthenticatedTokenCredentials != null)
+                {
+                    ToReturn.AccessToken = AuthenticatedTokenCredentials.AccessToken;
+                }
+            }
+
+            return ToReturn;
         }
 
         private static string SavePath
