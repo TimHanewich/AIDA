@@ -61,12 +61,16 @@ namespace AIDA
         {
             get
             {
-                foreach (ModelConnection mc in ModelConnections)
+                // foreach (ModelConnection mc in ModelConnections)
+                // {
+                //     if (mc.Active)
+                //     {
+                //         return mc;
+                //     }
+                // }
+                if (ModelConnections.Count > 0)
                 {
-                    if (mc.Active)
-                    {
-                        return mc;
-                    }
+                    return ModelConnections[0];
                 }
                 return null;
             }
