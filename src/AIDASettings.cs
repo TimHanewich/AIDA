@@ -2,20 +2,28 @@ using System;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using TimHanewich.Foundry;
 
 namespace AIDA
 {
     public class AIDASettings
     {
-        public List<ModelConnection> ModelConnections { get; set; }
+        //AI Model relevant stuff
+        public FoundryResource? FoundryConnection {get; set;} //only a single foundry connection allowed
+        public string? ModelName {get; set;} //the name of the model or deployment to be used, i.e. "gpt-5.2"
+
+        //Formatting settings
         public string AssistantMessageColor { get; set; } //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
+
+        //Packages enabled or disabled
         public bool FinancePackageEnabled { get; set; } //enables SEC.EDGAR
         public bool WeatherPackageEnabled { get; set; } //enabled check current weather
 
         public AIDASettings()
         {
+            FoundryConnection = null;
+            ModelName = null;
             AssistantMessageColor = "navyblue";
-            ModelConnections = new List<ModelConnection>();
             FinancePackageEnabled = false;
             WeatherPackageEnabled = false;
         }
@@ -54,26 +62,5 @@ namespace AIDA
                 return ToReturn;
             }
         }
-
-        [JsonIgnore]
-        public ModelConnection? ActiveModelConnection
-        {
-            get
-            {
-                // foreach (ModelConnection mc in ModelConnections)
-                // {
-                //     if (mc.Active)
-                //     {
-                //         return mc;
-                //     }
-                // }
-                if (ModelConnections.Count > 0)
-                {
-                    return ModelConnections[0];
-                }
-                return null;
-            }
-        }
-
     }
 }
