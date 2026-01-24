@@ -1068,6 +1068,9 @@ namespace AIDA
                             AnsiConsole.MarkupLine("[red]Authentication failed! Msg: " + ex.Message + "[/]");
                         }
                     }
+
+                    //Update the foundry resource info
+                    SETTINGS.FoundryConnection = fr;
                 }
                 else if (SettingToDoAnswer == "Update Model")
                 {
