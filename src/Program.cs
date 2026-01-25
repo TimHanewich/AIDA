@@ -256,6 +256,7 @@ namespace AIDA
                 try
                 {
                     outputs = await AGENT.PromptAsync();
+                    Console.WriteLine();
                 }
                 catch (Exception ex)
                 {
