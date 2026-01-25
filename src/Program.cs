@@ -226,6 +226,9 @@ namespace AIDA
                                 AGENT.FoundryConnection.AccessToken = SETTINGS.AuthenticatedTokenCredentials.AccessToken; //Plug it in
                                 SETTINGS.Save(); //save it to settings so it is hard saved
                             }
+
+                            //Line break
+                            Console.WriteLine();
                         }
                     }
                 }
