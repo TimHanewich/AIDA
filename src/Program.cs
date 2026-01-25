@@ -1045,6 +1045,14 @@ namespace AIDA
                     if (FoundryAuthSelection == "API Key")
                     {
                         SETTINGS.ApiKey = AnsiConsole.Ask<string>("What is the API key?");
+
+                        //Clear out any existing entra ID tokens
+                        SETTINGS.AuthenticatedTokenCredentials = null;
+
+                        //Clear out the Entra ID info becuase now we wil use API key
+                        SETTINGS.TenantID = null;
+                        SETTINGS.ClientID = null;
+                        SETTINGS.ClientSecret = null;
                     }
                     else if (FoundryAuthSelection == "Entra ID")
                     {
@@ -1054,6 +1062,9 @@ namespace AIDA
                         
                         //Clear out any existing entra ID tokens
                         SETTINGS.AuthenticatedTokenCredentials = null;
+
+                        //Clear out any API key because now we will use Entra ID
+                        SETTINGS.ApiKey = null;
                     }
                 }
                 else if (SettingToDoAnswer == "Update Model")
