@@ -177,6 +177,65 @@ namespace AIDA
             //Prompt
             Prompt:
 
+                //Configure the agent's foundry connection
+                if (SETTINGS.FoundryUrl != null)
+                {
+                    AGENT.FoundryConnection = new FoundryResource(SETTINGS.FoundryUrl);
+                    
+                    //If we are using API key auth, plug that in
+                    if (SETTINGS.ApiKey != null)
+                    {
+                        AGENT.FoundryConnection.ApiKey = SETTINGS.ApiKey;
+                    }
+                    else if (SETTINGS.TenantID != null && SETTINGS.ClientID != null && SETTINGS.ClientSecret != null) // if instead we are using entra ID auth
+                    {
+                        //Do we have a non-expired token right now?
+                        bool NeedNewToken = true;
+                        if (SETTINGS.AuthenticatedTokenCredentials != null)
+                        {
+                            if (SETTINGS.AuthenticatedTokenCredentials.Expires >= DateTime.Now) // if it is NOT expired yet
+                            {
+                                AGENT.FoundryConnection.AccessToken = SETTINGS.AuthenticatedTokenCredentials.AccessToken;
+                                NeedNewToken = false;
+                            }
+                        }
+
+                        //If we need a new token, get it
+                        if (NeedNewToken)
+                        {
+                            //Authenticate now
+                            AnsiConsole.Markup("Requesting new access token... ");
+                            EntraAuthenticationHandler auth = new EntraAuthenticationHandler();
+                            auth.TenantID = SETTINGS.TenantID;
+                            auth.ClientID = SETTINGS.ClientID;
+                            auth.ClientSecret = SETTINGS.ClientSecret;
+                            try
+                            {
+                                SETTINGS.AuthenticatedTokenCredentials = await auth.AuthenticateAsync();
+                                AnsiConsole.MarkupLine("[green]success![/]");
+                            }
+                            catch (Exception ex)
+                            {
+                               AnsiConsole.MarkupLine("[red]Authentication failed! Msg: " + ex.Message + "[/]");
+                            }
+
+                            //If it was successful
+                            if (SETTINGS.AuthenticatedTokenCredentials != null)
+                            {
+                                Console.WriteLine("Expires: " + SETTINGS.AuthenticatedTokenCredentials.Expires.ToString());
+                                AGENT.FoundryConnection.AccessToken = SETTINGS.AuthenticatedTokenCredentials.AccessToken; //Plug it in
+                                SETTINGS.Save(); //save it to settings so it is hard saved
+                            }
+                        }
+                    }
+                }
+
+                //Configure the agent's model
+                if (SETTINGS.ModelName != null)
+                {
+                    AGENT.ModelName = SETTINGS.ModelName;
+                }
+
                 #region "Plug in tools"
 
                 //CLEAR TOOLS (so we don't re-add them)
