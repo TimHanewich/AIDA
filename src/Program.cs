@@ -659,6 +659,14 @@ namespace AIDA
                         //Confirm completion of tool call
                         AnsiConsole.MarkupLine("[gray][italic]complete[/][/]");
                     }
+                    else if (ex is WebSearchCallQuery wscq)
+                    {
+                        AnsiConsole.MarkupLine("[gray][italic]searched '" + wscq.Query + "'[/][/]");
+                    }
+                    else if (ex is WebSearchCallOpenPage)
+                    {
+                        AnsiConsole.MarkupLine("[gray][italic]opened web page[/][/]");
+                    }
                 }
 
                 //If there was at least one function call we just fulfilled, do not go back to user imput yet
