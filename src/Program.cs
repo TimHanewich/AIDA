@@ -958,7 +958,7 @@ namespace AIDA
             }
         }
 
-        public static async Task SettingsMenu()
+        public static void SettingsMenu()
         {
 
             //Loop until selected out
@@ -1051,23 +1051,9 @@ namespace AIDA
                         SETTINGS.TenantID = AnsiConsole.Ask<string>("Tenant ID?");
                         SETTINGS.ClientID = AnsiConsole.Ask<string>("Client ID?");
                         SETTINGS.ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
-
-                        //Authenticate now
-                        Console.Write("Authenticating... ");
-                        EntraAuthenticationHandler auth = new EntraAuthenticationHandler();
-                        auth.TenantID = SETTINGS.TenantID;
-                        auth.ClientID = SETTINGS.ClientID;
-                        auth.ClientSecret = SETTINGS.ClientSecret;
-                        try
-                        {
-                            SETTINGS.AuthenticatedTokenCredentials = await auth.AuthenticateAsync();
-                            AnsiConsole.MarkupLine("[green]success![/]");
-                            Console.WriteLine("Expires: " + SETTINGS.AuthenticatedTokenCredentials.Expires.ToString());
-                        }
-                        catch (Exception ex)
-                        {
-                            AnsiConsole.MarkupLine("[red]Authentication failed! Msg: " + ex.Message + "[/]");
-                        }
+                        
+                        //Clear out any existing entra ID tokens
+                        SETTINGS.AuthenticatedTokenCredentials = null;
                     }
                 }
                 else if (SettingToDoAnswer == "Update Model")
