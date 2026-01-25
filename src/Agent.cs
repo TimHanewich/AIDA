@@ -17,6 +17,7 @@ namespace AIDA
 
         //Call configuration
         public string ModelName {get; set;}
+        public bool WebSearchEnabled {get; set;}
         public List<Function> Functions {get; set;}
         public List<Exchange> Inputs;
         public int CumulativeInputTokens
@@ -58,6 +59,12 @@ namespace AIDA
             rr.PreviousResponseID = PreviousResponseID; //null is fine too!
             rr.Tools.AddRange(Functions); //Add in all the custom functions
             rr.Inputs.AddRange(Inputs);
+
+            //Enable web search?
+            if (WebSearchEnabled)
+            {
+                rr.Tools.Add(new WebSearchTool());
+            }
 
             //Call!
             Response r;

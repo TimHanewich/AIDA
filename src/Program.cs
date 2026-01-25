@@ -239,7 +239,7 @@ namespace AIDA
                     AGENT.ModelName = SETTINGS.ModelName;
                 }
 
-                #region "Plug in tools"
+                #region "Plug in tools & functions"
 
                 //CLEAR TOOLS (so we don't re-add them)
                 //The clearing and re-adding process will happen each time so they can update the tools available on the fly
@@ -247,6 +247,9 @@ namespace AIDA
 
                 //Add them back
                 AGENT.Functions = DetermineAvailableFunctions().ToList();
+
+                //Built-in tools: web search
+                AGENT.WebSearchEnabled = SETTINGS.WebSearchEnabled;
 
                 #endregion
 
@@ -1194,6 +1197,10 @@ namespace AIDA
                     if (PackagesToEnable.Contains("Web Search (built in)"))
                     {
                         SETTINGS.WebSearchEnabled = true;
+                    }
+                    else
+                    {
+                        SETTINGS.WebSearchEnabled = false;
                     }
 
                     //Enable/Disable: Finance
