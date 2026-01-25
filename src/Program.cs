@@ -1070,7 +1070,7 @@ namespace AIDA
                 else if (SettingToDoAnswer == "Update Model")
                 {
                     string model_name = AnsiConsole.Ask<string>("Model name?");
-                    AGENT.ModelName = model_name;
+                    SETTINGS.ModelName = model_name;
                     AnsiConsole.MarkupLine("Model updated to '" + model_name + "'");
                 }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
