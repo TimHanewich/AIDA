@@ -26,7 +26,8 @@ namespace AIDA
         //Formatting settings
         public string AssistantMessageColor { get; set; } //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
 
-        //Packages enabled or disabled
+        //Tools enabled/disabled
+        public bool WebSearchEnabled {get; set;} //the built-in web search
         public bool FinancePackageEnabled { get; set; } //enables SEC.EDGAR
         public bool WeatherPackageEnabled { get; set; } //enabled check current weather
 
@@ -39,6 +40,7 @@ namespace AIDA
             ClientSecret = null;
             ModelName = null;
             AssistantMessageColor = "navyblue";
+            WebSearchEnabled = false;
             FinancePackageEnabled = false;
             WeatherPackageEnabled = false;
         }

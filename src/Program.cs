@@ -1097,7 +1097,7 @@ namespace AIDA
                 SettingToDo.AddChoice("Update Foundry Connection Info");
                 SettingToDo.AddChoice("Update Model");
                 SettingToDo.AddChoice("Change Assistant Message Color");
-                SettingToDo.AddChoice("Enable/Disable a tool package");
+                SettingToDo.AddChoice("Enable/Disable Tools");
                 SettingToDo.AddChoice("Save & Continue");
                 string SettingToDoAnswer = AnsiConsole.Prompt(SettingToDo);
 
@@ -1162,17 +1162,22 @@ namespace AIDA
                     AnsiConsole.Markup("[gray][italic]enter to continue... [/][/]");
                     Console.ReadLine();
                 }
-                else if (SettingToDoAnswer == "Enable/Disable a tool package")
+                else if (SettingToDoAnswer == "Enable/Disable Tools")
                 {
 
                     //Prepare packages question (multi selection prompt)
                     MultiSelectionPrompt<string> PackagesQuestion = new MultiSelectionPrompt<string>();
-                    PackagesQuestion.Title("What tool packages do you want enabled?");
+                    PackagesQuestion.Title("What tools do you want enabled?");
                     PackagesQuestion.NotRequired(); //selecting none is fine!
+                    PackagesQuestion.AddChoice("Web Search (built in)");
                     PackagesQuestion.AddChoice("Weather");
                     PackagesQuestion.AddChoice("Finance");
 
                     //Defaults
+                    if (SETTINGS.WebSearchEnabled)
+                    {
+                        PackagesQuestion.Select("Web Search (built in)");
+                    }
                     if (SETTINGS.FinancePackageEnabled)
                     {
                         PackagesQuestion.Select("Finance");
@@ -1184,6 +1189,12 @@ namespace AIDA
 
                     //Ask
                     List<string> PackagesToEnable = AnsiConsole.Prompt(PackagesQuestion);
+
+                    //Enable/Disable: Web Search
+                    if (PackagesToEnable.Contains("Web Search (built in)"))
+                    {
+                        SETTINGS.WebSearchEnabled = true;
+                    }
 
                     //Enable/Disable: Finance
                     if (PackagesToEnable.Contains("Finance"))
