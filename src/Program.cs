@@ -658,6 +658,16 @@ namespace AIDA
                     }
                 }
 
+                //If there was at least one function call we just fulfilled, do not go back to user imput yet
+                //Now that we got the result of the function call, we need to go re-prompt it with the results
+                foreach (Exchange ex in outputs)
+                {
+                    if (ex is FunctionCall)
+                    {
+                        goto Prompt;
+                    }
+                }
+
 
             } //END INFINITE CHAT
 
