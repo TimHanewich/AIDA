@@ -216,7 +216,7 @@ namespace AIDA
                             }
                             catch (Exception ex)
                             {
-                               AnsiConsole.MarkupLine("[red]Authentication failed! Msg: " + ex.Message + "[/]");
+                               AnsiConsole.MarkupLine("[red]Authentication failed! Msg: " + Markup.Escape(ex.Message) + "[/]");
                             }
 
                             //If it was successful
