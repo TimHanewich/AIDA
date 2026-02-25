@@ -193,7 +193,7 @@ namespace AIDA
                         bool NeedNewToken = true;
                         if (SETTINGS.AuthenticatedTokenCredentials != null)
                         {
-                            if (SETTINGS.AuthenticatedTokenCredentials.Expires >= DateTime.Now) // if it is NOT expired yet
+                            if (SETTINGS.AuthenticatedTokenCredentials.Expires >= DateTime.UtcNow) // if it is NOT expired yet
                             {
                                 AGENT.FoundryConnection.AccessToken = SETTINGS.AuthenticatedTokenCredentials.AccessToken;
                                 NeedNewToken = false;
@@ -222,7 +222,8 @@ namespace AIDA
                             //If it was successful
                             if (SETTINGS.AuthenticatedTokenCredentials != null)
                             {
-                                Console.WriteLine("Expires: " + SETTINGS.AuthenticatedTokenCredentials.Expires.ToString());
+                                TimeSpan UntilExpiration = SETTINGS.AuthenticatedTokenCredentials.Expires - DateTime.UtcNow;
+                                Console.WriteLine("Expires: " + SETTINGS.AuthenticatedTokenCredentials.Expires.ToString() + " (in " + UntilExpiration.TotalHours.ToString("#,##0.0") + " hours)");
                                 AGENT.FoundryConnection.AccessToken = SETTINGS.AuthenticatedTokenCredentials.AccessToken; //Plug it in
                                 SETTINGS.Save(); //save it to settings so it is hard saved
                             }
