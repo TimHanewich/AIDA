@@ -19,6 +19,11 @@
 
     <!--exe icon-->
     <ApplicationIcon>icon.ico</ApplicationIcon>
+
+    <!--Publish as self contained-->
+    <PublishSelfContained>true</PublishSelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
 </Project>
