@@ -427,29 +427,34 @@ namespace AIDA
                             else //AI provided both
                             {
 
-                                //Get directory path
-                                string? dir_path = Path.GetDirectoryName(path);
-                                if (dir_path == null)
+                                try
                                 {
-                                    tool_call_response_payload = "Internal failure while renaming: unable to determine directory path";
+                                    //Get directory path
+                                    string? dir_path = Path.GetDirectoryName(path);
+                                    if (dir_path == null)
+                                    {
+                                        tool_call_response_payload = "Internal failure while renaming: unable to determine directory path";
+                                    }
+                                    else
+                                    {
+                                        //Get extension
+                                        string extension = Path.GetExtension(path);
+
+                                        //Get new abs path (target)
+                                        string NewAbsPath = Path.Combine(dir_path, new_name + extension);
+
+                                        //Perform rename
+                                        File.Move(path, NewAbsPath);
+
+                                        //Mention it being successful
+                                        tool_call_response_payload = "Renaming successful! File '" + path + "' renamed to '" + NewAbsPath + "'";
+                                    }
                                 }
-                                else
+                                catch (Exception ex2)
                                 {
-                                    //Get extension
-                                    string extension = Path.GetExtension(path);
-
-                                    //Get new abs path (target)
-                                    string NewAbsPath = Path.Combine(dir_path, new_name + extension);
-
-                                    //Perform rename
-                                    File.Move(path, NewAbsPath);
-
-                                    //Mention it being successful
-                                    tool_call_response_payload = "Renaming successful! File '" + path + "' renamed to '" + NewAbsPath + "'";
+                                    tool_call_response_payload = "Renaming of file failed. Exception message: " + ex2.Message;
                                 }
-                            }
-
-                            
+                            }   
                         }
                         else if (fc.FunctionName == "get_cik")
                         {
