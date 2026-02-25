@@ -223,7 +223,7 @@ namespace AIDA
                             if (SETTINGS.AuthenticatedTokenCredentials != null)
                             {
                                 TimeSpan UntilExpiration = SETTINGS.AuthenticatedTokenCredentials.Expires - DateTime.UtcNow;
-                                Console.WriteLine("Expires: " + SETTINGS.AuthenticatedTokenCredentials.Expires.ToString() + " (in " + UntilExpiration.TotalHours.ToString("#,##0.0") + " hours)");
+                                Console.WriteLine("Expires: " + SETTINGS.AuthenticatedTokenCredentials.Expires.ToLocalTime().ToString() + " (in " + UntilExpiration.TotalHours.ToString("#,##0.0") + " hours)");
                                 AGENT.FoundryConnection.AccessToken = SETTINGS.AuthenticatedTokenCredentials.AccessToken; //Plug it in
                                 SETTINGS.Save(); //save it to settings so it is hard saved
                             }
