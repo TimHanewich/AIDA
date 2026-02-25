@@ -391,6 +391,66 @@ namespace AIDA
                                 tool_call_response_payload = OpenFolder(folder_path);
                             }
                         }
+                        else if (fc.FunctionName == "rename_file")
+                        {
+                            //Define input params the AI must provide
+                            string? path = null;
+                            string? new_name = null;
+
+                            //Get the 'path' parameter
+                            JProperty? prop_path = fc.Arguments.Property("path");
+                            if (prop_path != null)
+                            {
+                                path = prop_path.Value.ToString();
+                            }
+
+                            //Get the 'new_name' parameter
+                            JProperty? prop_new_name = fc.Arguments.Property("new_name");
+                            if (prop_new_name != null)
+                            {
+                                new_name = prop_new_name.Value.ToString();
+                            }
+
+                            //Check
+                            if (path == null && new_name == null)
+                            {
+                                tool_call_response_payload = "Renaming of file unsuccessful. You must provide both the 'path' and 'new_name' parameters.";
+                            }
+                            else if (path == null)
+                            {
+                                tool_call_response_payload = "Renaming of file unsuccessful. You did not provide the 'path' parameter.";
+                            }
+                            else if (new_name == null)
+                            {
+                                tool_call_response_payload = "Renaming of file unsuccessful. You did not provide the 'new_name' parameter.";
+                            }
+                            else //AI provided both
+                            {
+
+                                //Get directory path
+                                string? dir_path = Path.GetDirectoryName(path);
+                                if (dir_path == null)
+                                {
+                                    tool_call_response_payload = "Internal failure while renaming: unable to determine directory path";
+                                }
+                                else
+                                {
+                                    //Get extension
+                                    string extension = Path.GetExtension(path);
+
+                                    //Get new abs path (target)
+                                    string NewAbsPath = Path.Combine(dir_path, new_name + extension);
+
+                                    //Perform rename
+                                    File.Move(path, NewAbsPath);
+
+                                    //Mention it being successful
+                                    tool_call_response_payload = "Renaming successful! File '" + path + "' renamed to '" + NewAbsPath + "'";
+                                }
+                            }
+
+                            
+                        }
                         else if (fc.FunctionName == "get_cik")
                         {
 
@@ -1278,6 +1338,12 @@ namespace AIDA
             Function tool_OpenFolder = new Function("open_folder", "Open a folder (directory) to see its contents (files and child folders).");
             tool_OpenFolder.Parameters.Add(new FunctionInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
             ToReturn.Add(tool_OpenFolder);
+
+            //Add tool: rename file
+            Function tool_RenameFile = new Function("rename_file", "Rename a specific file on the user's drive.");
+            tool_RenameFile.Parameters.Add(new FunctionInputParameter("path", "The current absolute path of the file."));
+            tool_RenameFile.Parameters.Add(new FunctionInputParameter("new_name", "The new name of the file, NOT including the extension."));
+            ToReturn.Add(tool_RenameFile);
 
             //Add finance package?
             if (SETTINGS.FinancePackageEnabled)
