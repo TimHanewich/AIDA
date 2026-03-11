@@ -162,5 +162,63 @@ namespace AIDA
                 throw new Exception("Creation of task returned code " + resp.StatusCode.ToString() + ". Msg: " + content);
             }
         }
+    
+        public async Task<JArray> GetMyRecentTasksAsync()
+        {
+            //First run whoami
+            string user_id = await WhoAmIAsync();
+
+            //Construct URL
+            string url = URL_TASKS + "?$filter= _ownerid_value eq '" + user_id + "'&$top=50&$orderby=scheduledstart desc&$expand=regardingobjectid_account($select=name,accountid),regardingobjectid_opportunity($select=name,opportunityid)";
+
+            //Call
+            HttpResponseMessage resp = await HttpGetAsync(url);
+            string content = await resp.Content.ReadAsStringAsync();
+            if (resp.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                throw new Exception("Call for your recent tasks returned code " + resp.StatusCode.ToString() + "! Msg: " + content);   
+            }
+
+            JObject root = JObject.Parse(content);
+            JArray tasks = (JArray)root["value"];
+            JArray result = new JArray();
+
+            foreach (JObject task in tasks)
+            {
+                JObject summary = new JObject
+                {
+                    ["subject"]        = task["subject"],
+                    ["description"]    = task["description"],
+                    ["scheduledstart"] = task["scheduledstart"]
+                };
+
+                JObject account     = task["regardingobjectid_account"] as JObject;
+                JObject opportunity = task["regardingobjectid_opportunity"] as JObject;
+
+                if (account != null && account.HasValues)
+                {
+                    summary["regarding"] = new JObject
+                    {
+                        ["type"] = "account",
+                        ["name"] = account["name"],
+                        ["id"]   = account["accountid"]
+                    };
+                }
+                else if (opportunity != null && opportunity.HasValues)
+                {
+                    summary["regarding"] = new JObject
+                    {
+                        ["type"] = "opportunity",
+                        ["name"] = opportunity["name"],
+                        ["id"]   = opportunity["opportunityid"]
+                    };
+                }
+
+                result.Add(summary);
+            }
+
+            return result;
+
+        }
     }
 }
