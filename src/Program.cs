@@ -46,9 +46,9 @@ namespace AIDA
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             //Does config directory exist? if not, make it
-            if (System.IO.Directory.Exists(Tools.ConfigDirectoryPath) == false)
+            if (System.IO.Directory.Exists(AIDATools.ConfigDirectoryPath) == false)
             {
-                System.IO.Directory.CreateDirectory(Tools.ConfigDirectoryPath);
+                System.IO.Directory.CreateDirectory(AIDATools.ConfigDirectoryPath);
             }
 
             //Retrieve settings
@@ -65,7 +65,7 @@ namespace AIDA
             #endregion
 
             //Add system message
-            AGENT.Inputs.Add(new Message(Role.developer, Tools.GetSystemPrompt()));
+            AGENT.Inputs.Add(new Message(Role.developer, AIDATools.GetSystemPrompt()));
 
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
@@ -148,7 +148,7 @@ namespace AIDA
                 else if (input.ToLower() == "clear")
                 {
                     AGENT.ClearHistory();
-                    AGENT.Inputs.Add(new Message(Role.user, Tools.GetSystemPrompt())); //add the system message back (need that!)
+                    AGENT.Inputs.Add(new Message(Role.user, AIDATools.GetSystemPrompt())); //add the system message back (need that!)
                     AnsiConsole.MarkupLine("[blue][bold]Chat history cleared.[/][/]");
                     Console.WriteLine();
                     goto Input;
@@ -1111,7 +1111,7 @@ namespace AIDA
                 }
 
                 //Config directory
-                AnsiConsole.MarkupLine("Config directory: [bold]" + Tools.ConfigDirectoryPath + "[/]");
+                AnsiConsole.MarkupLine("Config directory: [bold]" + AIDATools.ConfigDirectoryPath + "[/]");
 
                 //Foundry URL
                 if (SETTINGS.FoundryUrl != null)

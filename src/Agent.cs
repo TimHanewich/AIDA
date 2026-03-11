@@ -57,13 +57,13 @@ namespace AIDA
             ResponseRequest rr = new ResponseRequest();
             rr.Model = ModelName;
             rr.PreviousResponseID = PreviousResponseID; //null is fine too!
-            rr.Tools.AddRange(Functions); //Add in all the custom functions
+            rr.AIDATools.AddRange(Functions); //Add in all the custom functions
             rr.Inputs.AddRange(Inputs);
 
             //Enable web search?
             if (WebSearchEnabled)
             {
-                rr.Tools.Add(new WebSearchTool());
+                rr.AIDATools.Add(new WebSearchTool());
             }
 
             //Call!
