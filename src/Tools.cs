@@ -28,6 +28,17 @@ namespace AIDA
                 string custom_prompt = System.IO.File.ReadAllText(prompt_path);
                 SystemMessage.Add(custom_prompt);
             }
+            else //if it is NOT a prompt.md... make one!
+            {
+                try
+                {
+                    File.Create(prompt_path).Close();
+                }
+                catch
+                {
+                    
+                }
+            }
 
             //Construct as one.
             string sysmsg = "";
