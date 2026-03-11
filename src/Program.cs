@@ -703,7 +703,7 @@ namespace AIDA
                                 string name = prop_name.Value.ToString();
                                 AnsiConsole.Markup("[gray][italic]searching '" + name + "'... [/][/]");
                                 JArray accounts = await msxi.SearchAccountsAsync(name);
-                                AnsiConsole.Markup("[gray][italic]" + accounts.Count.ToString() + " found[/][/]");
+                                AnsiConsole.Markup("[gray][italic]" + accounts.Count.ToString() + " found [/][/]");
                                 tool_call_response_payload = accounts.ToString(Formatting.None);
                             }
                         }
@@ -719,13 +719,38 @@ namespace AIDA
 
                                 AnsiConsole.Markup("[gray][italic]" + "Searching account '" + accountid + "' for '" + name + "'... [/][/]");
                                 JArray opps = await msxi.SearchOpportunitiesAsync(accountid, name);
-                                AnsiConsole.Markup("[gray][italic]" + opps.Count.ToString() + " found[/][/]");
+                                AnsiConsole.Markup("[gray][italic]" + opps.Count.ToString() + " found [/][/]");
                                 tool_call_response_payload = opps.ToString(Formatting.None);
                             }
                         }
                         else if (fc.FunctionName == "msx_log_task")
                         {
-                            
+                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            JProperty? prop_title = fc.Arguments.Property("title");
+                            JProperty? prop_description = fc.Arguments.Property("description");
+                            JProperty? prop_timestamp = fc.Arguments.Property("timestamp");
+                            JProperty? prop_accountid = fc.Arguments.Property("accountid");
+                            JProperty? prop_opportunityid = fc.Arguments.Property("opportunityid");
+                            if (prop_title != null && prop_description != null && prop_timestamp != null)
+                            {
+                                string title = prop_title.Value.ToString();
+                                string description = prop_description.Value.ToString();
+                                DateTime timestamp = DateTime.Parse(prop_timestamp.Value.ToString());
+
+                                //Console.WriteLine(fc.Arguments.ToString());
+                                //Console.ReadLine();
+
+                                if (prop_accountid != null && prop_accountid.Value.ToString() != "")
+                                {
+                                    await msxi.CreateTaskAsync(title, description, timestamp, tiedto_account: prop_accountid.Value.ToString());
+                                    tool_call_response_payload = "Created task tied to account '" + prop_accountid.Value.ToString() + "' successfully.";
+                                }
+                                else if (prop_opportunityid != null && prop_opportunityid.Value.ToString() != "")
+                                {
+                                    await msxi.CreateTaskAsync(title, description, timestamp, tiedto_opportunity: prop_opportunityid.Value.ToString());
+                                    tool_call_response_payload = "Created task tied to opportunity '" + prop_opportunityid.Value.ToString() + "' successfully.";
+                                }
+                            }
                         }
                         else
                         {
