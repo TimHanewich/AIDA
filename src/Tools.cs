@@ -2,7 +2,7 @@ using System;
 
 namespace AIDA
 {
-    public class AIDATools
+    public class Tools
     {
         public static string ConfigDirectoryPath
         {
