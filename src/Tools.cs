@@ -38,7 +38,7 @@ namespace AIDA
             get
             {
                 string ConfigDir = ConfigDirectoryPath;
-                string msx_path = Path.Combine(ConfigDir, "msx.md");
+                string msx_path = Path.Combine(ConfigDir, "msx.txt");
                 if (System.IO.File.Exists(msx_path) == false) //if it doesnt exist, try to create a blank one
                 {
                    try
