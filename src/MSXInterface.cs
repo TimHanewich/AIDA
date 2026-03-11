@@ -47,6 +47,25 @@ namespace AIDA
             return msg;
         }
 
+        //Returns the GUID string of your systemuser
+        public async Task<string> WhoAmIAsync()
+        {
+            string url = URL_ROOT + "WhoAmI()";
+            HttpResponseMessage resp = await HttpGetAsync(url);
+            string content = await resp.Content.ReadAsStringAsync();
+            if (resp.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                throw new Exception("WhoAmI returned code " + resp.StatusCode.ToString() + "! Msg: " + content);   
+            }
+            JObject whoAmI = JObject.Parse(content);
+            JProperty? prop_UserId = whoAmI.Property("UserId");
+            if (prop_UserId != null)
+            {
+                return prop_UserId.Value.ToString();
+            }
+            throw new Exception("Unable to find UserId in WhoAmI response.");
+        }
+
         public async Task<JArray> SearchAccountsAsync(string search_term)
         {
             string url = URL_ACCOUNTS + "?$filter=contains(name, '" + search_term + "')";
