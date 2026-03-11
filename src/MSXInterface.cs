@@ -19,6 +19,10 @@ namespace AIDA
 
         public MSXInterface(string cookie)
         {
+            if (cookie == string.Empty)
+            {
+                throw new Exception("Cookie cannot be blank!");
+            }
             COOKIE = cookie;
 
             URL_ROOT = "https://microsoftsales.crm.dynamics.com/api/data/v9.2/";
