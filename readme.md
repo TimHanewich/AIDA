@@ -28,12 +28,12 @@ If you modify AIDA and want to build it for yourself, here are the dotnet SDK co
 
 For windows:
 ```
-dotnet publish AIDA.csproj -c Release --self-contained false
+dotnet publish AIDA.csproj -c Release --self-contained true
 ```
 
 For linux:
 ```
-dotnet publish AIDA.csproj -c Release -r linux-x64 --self-contained false
+dotnet publish AIDA.csproj -c Release -r linux-x64 --self-contained true
 ```
 
 ## Other Resources
