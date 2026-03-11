@@ -12,6 +12,27 @@ namespace AIDA
             }
         }
 
+        public static string CustomPromptPath
+        {
+            get
+            {
+                string ConfigDir = ConfigDirectoryPath;
+                string prompt_path = Path.Combine(ConfigDir, "prompt.md");
+                if (System.IO.File.Exists(prompt_path) == false) //if it doesnt exist, try to create a blank one
+                {
+                   try
+                    {
+                        File.Create(prompt_path).Close();
+                    }
+                    catch
+                    {
+                        
+                    } 
+                }
+                return prompt_path;
+            }
+        }
+
         public static string GetSystemPrompt()
         {
             List<string> SystemMessage = new List<string>();
@@ -21,22 +42,12 @@ namespace AIDA
             SystemMessage.Add("Do not use emojis.");
 
             //Is there a custom prompt in prompt.md?
-            string ConfigDir = ConfigDirectoryPath;
-            string prompt_path = Path.Combine(ConfigDir, "prompt.md");
-            if (System.IO.File.Exists(prompt_path))
+            if (System.IO.File.Exists(CustomPromptPath))
             {
-                string custom_prompt = System.IO.File.ReadAllText(prompt_path);
-                SystemMessage.Add(custom_prompt);
-            }
-            else //if it is NOT a prompt.md... make one!
-            {
-                try
+                string custom_prompt = System.IO.File.ReadAllText(CustomPromptPath);
+                if (custom_prompt != string.Empty)
                 {
-                    File.Create(prompt_path).Close();
-                }
-                catch
-                {
-                    
+                    SystemMessage.Add(custom_prompt);
                 }
             }
 
