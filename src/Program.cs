@@ -1336,6 +1336,30 @@ namespace AIDA
             tool_RenameFile.Parameters.Add(new FunctionInputParameter("new_name", "The new name of the file, NOT including the extension."));
             ToReturn.Add(tool_RenameFile);
 
+            //MSX: Search Accounts
+            Function tool_MsxSearchAccounts = new Function("msx_search_accounts", "Search through the managed accounts in MSX.");
+            tool_MsxSearchAccounts.Parameters.Add(new FunctionInputParameter("name", "The account name to search for."));
+            ToReturn.Add(tool_MsxSearchAccounts);
+
+            //MSX: Search opportunities
+            Function tool_MsxSearchOpportunities = new Function("msx_search_opportunities", "Search through the open opportunities in MSX for a particular account.");
+            tool_MsxSearchOpportunities.Parameters.Add(new FunctionInputParameter("accountid", "The unique ID of the account to search opportunities for."));
+            tool_MsxSearchOpportunities.Parameters.Add(new FunctionInputParameter("name", "The opportunity name (title) to search for."));
+            ToReturn.Add(tool_MsxSearchOpportunities);
+
+            //MSX: log task
+            Function tool_MsxLogTask = new Function("msx_log_task", "Log a completed task, tied to a particular account or opportunity in MSX.");
+            tool_MsxLogTask.Parameters.Add(new FunctionInputParameter("title", "The title of the task"));
+            tool_MsxLogTask.Parameters.Add(new FunctionInputParameter("description", "The description of what was done and accomplished as part of this effort."));
+            tool_MsxLogTask.Parameters.Add(new FunctionInputParameter("timestamp", "The date and time the task was completed, in ISO 8601 format, like '2026-03-06T15:10:28Z'"));
+            FunctionInputParameter fic_accountid = new FunctionInputParameter("accountid", "If tying this task to an account in MSX, the unique account ID");
+            FunctionInputParameter fic_opportunityid = new FunctionInputParameter("opportunityid", "If tying this task to an opportunity in MSX, the unique opportunity ID");
+            fic_accountid.Required = false;
+            fic_opportunityid.Required = false;
+            tool_MsxLogTask.Parameters.Add(fic_accountid);
+            tool_MsxLogTask.Parameters.Add(fic_opportunityid);
+            ToReturn.Add(tool_MsxLogTask);
+
             //Add finance package?
             if (SETTINGS.FinancePackageEnabled)
             {
