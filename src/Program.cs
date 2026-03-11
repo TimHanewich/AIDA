@@ -740,15 +740,16 @@ namespace AIDA
                                 //Console.WriteLine(fc.Arguments.ToString());
                                 //Console.ReadLine();
 
-                                if (prop_accountid != null && prop_accountid.Value.ToString() != "")
-                                {
-                                    await msxi.CreateTaskAsync(title, description, timestamp, tiedto_account: prop_accountid.Value.ToString());
-                                    tool_call_response_payload = "Created task tied to account '" + prop_accountid.Value.ToString() + "' successfully.";
-                                }
-                                else if (prop_opportunityid != null && prop_opportunityid.Value.ToString() != "")
+                                //Check if opportunityid is added first because THAT is priority.
+                                if (prop_opportunityid != null && prop_opportunityid.Value.ToString() != "")
                                 {
                                     await msxi.CreateTaskAsync(title, description, timestamp, tiedto_opportunity: prop_opportunityid.Value.ToString());
                                     tool_call_response_payload = "Created task tied to opportunity '" + prop_opportunityid.Value.ToString() + "' successfully.";
+                                }
+                                else if (prop_accountid != null && prop_accountid.Value.ToString() != "")
+                                {
+                                    await msxi.CreateTaskAsync(title, description, timestamp, tiedto_account: prop_accountid.Value.ToString());
+                                    tool_call_response_payload = "Created task tied to account '" + prop_accountid.Value.ToString() + "' successfully.";
                                 }
                             }
                         }
