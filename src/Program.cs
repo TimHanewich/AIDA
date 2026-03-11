@@ -27,14 +27,6 @@ namespace AIDA
         public static AIDASettings SETTINGS { get; set; }
         public static Agent AGENT {get; set;}
 
-        public static string ConfigDirectory
-        {
-            get
-            {
-                return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIDA");
-            }
-        }
-
         #endregion
 
 
@@ -54,9 +46,9 @@ namespace AIDA
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             //Does config directory exist? if not, make it
-            if (System.IO.Directory.Exists(ConfigDirectory) == false)
+            if (System.IO.Directory.Exists(Tools.ConfigDirectoryPath) == false)
             {
-                System.IO.Directory.CreateDirectory(ConfigDirectory);
+                System.IO.Directory.CreateDirectory(Tools.ConfigDirectoryPath);
             }
 
             //Retrieve settings
@@ -1128,7 +1120,7 @@ namespace AIDA
                 }
 
                 //Config directory
-                AnsiConsole.MarkupLine("Config directory: [bold]" + ConfigDirectory + "[/]");
+                AnsiConsole.MarkupLine("Config directory: [bold]" + Tools.ConfigDirectoryPath + "[/]");
 
                 //Foundry URL
                 if (SETTINGS.FoundryUrl != null)
