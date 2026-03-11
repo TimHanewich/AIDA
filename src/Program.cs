@@ -753,6 +753,12 @@ namespace AIDA
                                 }
                             }
                         }
+                        else if (fc.FunctionName == "msx_my_recent_tasks")
+                        {
+                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            JArray RecentTaskData = await msxi.GetMyRecentTasksAsync();
+                            tool_call_response_payload = RecentTaskData.ToString();
+                        }
                         else
                         {
                             AnsiConsole.MarkupLine("[red]Model called tool '" + fc.FunctionName + "' but AIDA is not properly configured to handle that! Oops, sorry about that! We dropped the ball (not the AI). Please contact support.[/]");
@@ -1418,6 +1424,10 @@ namespace AIDA
             tool_MsxLogTask.Parameters.Add(fic_accountid);
             tool_MsxLogTask.Parameters.Add(fic_opportunityid);
             ToReturn.Add(tool_MsxLogTask);
+
+            //MSX: My Recent Tasks
+            Function tool_MsxMyRecentTasks = new Function("msx_my_recent_tasks", "Get a list of the user's recent tasks logged in MSX and what account/opportunities they were logged to.");
+            ToReturn.Add(tool_MsxMyRecentTasks);
 
             //Add finance package?
             if (SETTINGS.FinancePackageEnabled)
