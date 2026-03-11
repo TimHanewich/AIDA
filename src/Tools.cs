@@ -33,6 +33,38 @@ namespace AIDA
             }
         }
 
+        public static string MSXPath
+        {
+            get
+            {
+                string ConfigDir = ConfigDirectoryPath;
+                string msx_path = Path.Combine(ConfigDir, "msx.md");
+                if (System.IO.File.Exists(msx_path) == false) //if it doesnt exist, try to create a blank one
+                {
+                   try
+                    {
+                        File.Create(msx_path).Close();
+                    }
+                    catch
+                    {
+                        
+                    } 
+                }
+                return msx_path;
+            }
+        }
+
+        public static string GetMSXCookie()
+        {
+            string path = MSXPath;
+            if (System.IO.File.Exists(path))
+            {
+                string content = System.IO.File.ReadAllText(path);
+                return content;
+            }
+            return "";
+        }
+
         public static string GetSystemPrompt()
         {
             List<string> SystemMessage = new List<string>();
