@@ -694,6 +694,39 @@ namespace AIDA
                             }
 
                         }
+                        else if (fc.FunctionName == "msx_search_accounts")
+                        {
+                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            JProperty? prop_name = fc.Arguments.Property("name");
+                            if (prop_name != null)
+                            {
+                                string name = prop_name.Value.ToString();
+                                AnsiConsole.Markup("[gray][italic]searching '" + name + "'... [/][/]");
+                                JArray accounts = await msxi.SearchAccountsAsync(name);
+                                AnsiConsole.Markup("[gray][italic]" + accounts.Count.ToString() + " found[/][/]");
+                                tool_call_response_payload = accounts.ToString(Formatting.None);
+                            }
+                        }
+                        else if (fc.FunctionName == "msx_search_opportunities")
+                        {
+                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            JProperty? prop_accountid = fc.Arguments.Property("accountid");
+                            JProperty? prop_name = fc.Arguments.Property("name");
+                            if (prop_accountid != null && prop_name != null)
+                            {
+                                string accountid = prop_accountid.Value.ToString();
+                                string name = prop_name.Value.ToString();
+
+                                AnsiConsole.Markup("[gray][italic]" + "Searching account '" + accountid + "' for '" + name + "'... [/][/]");
+                                JArray opps = await msxi.SearchOpportunitiesAsync(accountid, name);
+                                AnsiConsole.Markup("[gray][italic]" + opps.Count.ToString() + " found[/][/]");
+                                tool_call_response_payload = opps.ToString(Formatting.None);
+                            }
+                        }
+                        else if (fc.FunctionName == "msx_log_task")
+                        {
+                            
+                        }
                         else
                         {
                             AnsiConsole.MarkupLine("[red]Model called tool '" + fc.FunctionName + "' but AIDA is not properly configured to handle that! Oops, sorry about that! We dropped the ball (not the AI). Please contact support.[/]");
