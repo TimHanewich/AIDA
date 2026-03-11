@@ -65,16 +65,7 @@ namespace AIDA
             #endregion
 
             //Add system message
-            List<string> SystemMessage = new List<string>();
-            SystemMessage.Add("You are AIDA, Artificial Intelligence Desktop Assistant. Your role is to be a friendly and helpful assistant. Speak in a playful, lighthearted, and fun manner.");
-            SystemMessage.Add("Do not use emojis.");
-            string sysmsg = "";
-            foreach (string s in SystemMessage)
-            {
-                sysmsg = sysmsg + s + "\n\n";
-            }
-            sysmsg = sysmsg.Substring(0, sysmsg.Length - 2);
-            AGENT.Inputs.Add(new Message(Role.developer, sysmsg));
+            AGENT.Inputs.Add(new Message(Role.developer, Tools.GetSystemPrompt()));
 
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
@@ -157,7 +148,7 @@ namespace AIDA
                 else if (input.ToLower() == "clear")
                 {
                     AGENT.ClearHistory();
-                    AGENT.Inputs.Add(new Message(Role.user, sysmsg)); //add the system message back (need that!)
+                    AGENT.Inputs.Add(new Message(Role.user, Tools.GetSystemPrompt())); //add the system message back (need that!)
                     AnsiConsole.MarkupLine("[blue][bold]Chat history cleared.[/][/]");
                     Console.WriteLine();
                     goto Input;
