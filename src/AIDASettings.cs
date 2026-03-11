@@ -74,7 +74,7 @@ namespace AIDA
         {
             get
             {
-                return Path.Combine(Program.ConfigDirectory, "settings.json");
+                return Path.Combine(Tools.ConfigDirectoryPath, "settings.json");
             }
         }
 
