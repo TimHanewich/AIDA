@@ -1113,6 +1113,9 @@ namespace AIDA
                 //Config directory
                 AnsiConsole.MarkupLine("Config directory: [bold]" + Tools.ConfigDirectoryPath + "[/]");
 
+                //Custom prompt path
+                AnsiConsole.MarkupLine("Custom prompt file: [bold]" + Tools.CustomPromptPath + "[/]");
+
                 //Foundry URL
                 if (SETTINGS.FoundryUrl != null)
                 {
