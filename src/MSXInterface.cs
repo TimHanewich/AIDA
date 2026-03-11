@@ -169,7 +169,7 @@ namespace AIDA
             string user_id = await WhoAmIAsync();
 
             //Construct URL
-            string url = URL_TASKS + "?$filter= _ownerid_value eq '" + user_id + "'&$top=50&$orderby=scheduledstart desc&$expand=regardingobjectid_account($select=name,accountid),regardingobjectid_opportunity($select=name,opportunityid)";
+            string url = URL_TASKS + "?$filter= _ownerid_value eq '" + user_id + "'&$top=150&$orderby=scheduledstart desc&$expand=regardingobjectid_account($select=name,accountid),regardingobjectid_opportunity($select=name,opportunityid)";
 
             //Call
             HttpResponseMessage resp = await HttpGetAsync(url);
