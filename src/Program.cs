@@ -149,7 +149,7 @@ namespace AIDA
                 {
                     AGENT.ClearHistory();
                     AGENT.Inputs.Add(new Message(Role.user, Tools.GetSystemPrompt())); //add the system message back (need that!)
-                    AnsiConsole.MarkupLine("[blue][bold]Chat history cleared.[/][/]");
+                    AnsiConsole.MarkupLine("[blue][bold]Chat history cleared. Latest prompt.md injected.[/][/]");
                     Console.WriteLine();
                     goto Input;
                 }
