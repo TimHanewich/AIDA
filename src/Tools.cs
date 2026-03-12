@@ -54,7 +54,7 @@ namespace AIDA
             }
         }
 
-        public static string GetSystemPrompt()
+        public static string GetSystemPrompt(AIDASettings current_settings)
         {
             List<string> SystemMessage = new List<string>();
 
@@ -62,8 +62,10 @@ namespace AIDA
             SystemMessage.Add("You are AIDA, Artificial Intelligence Desktop Assistant. Your role is to be a friendly and helpful assistant. Speak in a playful, lighthearted, and fun manner.");
             SystemMessage.Add("Do not use emojis.");
 
-            //MSX Info
-            string msx = @"You are an expert on interfacing with MSX, Microsoft's CRM system.
+            //MSX Info?
+            if (current_settings.MsxEnabled)
+            {
+                string msx = @"You are an expert on interfacing with MSX, Microsoft's CRM system.
 
 The basic table structure you should be aware of:
 systemuser = a list of all users (sellers) within MSX. The `fullname` property lists their name.
@@ -82,7 +84,8 @@ If the users says they worked on an opportunity/account not long ago, you can fi
 If you are asked to find opportunities that a user in MSX (a person) is working on, use the `msx_search_users` tool to search for that user first, find their user ID, and then use the `msx_get_user_opportunities` tool to find opportunities for that specific user using their user ID.
 
 ";
-            SystemMessage.Add(msx);
+                SystemMessage.Add(msx);
+            }
 
             //Is there a custom prompt in prompt.md?
             if (System.IO.File.Exists(CustomPromptPath))

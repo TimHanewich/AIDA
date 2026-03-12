@@ -65,7 +65,7 @@ namespace AIDA
             #endregion
 
             //Add system message
-            AGENT.Inputs.Add(new Message(Role.developer, Tools.GetSystemPrompt()));
+            AGENT.Inputs.Add(new Message(Role.developer, Tools.GetSystemPrompt(SETTINGS)));
 
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
@@ -148,7 +148,7 @@ namespace AIDA
                 else if (input.ToLower() == "clear")
                 {
                     AGENT.ClearHistory();
-                    AGENT.Inputs.Add(new Message(Role.user, Tools.GetSystemPrompt())); //add the system message back (need that!)
+                    AGENT.Inputs.Add(new Message(Role.user, Tools.GetSystemPrompt(SETTINGS))); //add the system message back (need that!)
                     AnsiConsole.MarkupLine("[blue][bold]Chat history cleared. Latest prompt.md injected.[/][/]");
                     Console.WriteLine();
                     goto Input;
