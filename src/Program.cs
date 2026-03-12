@@ -782,7 +782,7 @@ namespace AIDA
                             if (prop_systemuserid != null)
                             {
                                 string systemuserid = prop_systemuserid.Value.ToString();
-                                AnsiConsole.Markup("[gray][italic]getting opportunities of user '" + systemuserid + "'... [gray][italic]");
+                                AnsiConsole.Markup("[gray][italic]getting opportunities of user '" + systemuserid + "'... [/][/]");
                                 JArray opps = await msxi.GetAssociatedOpportunitiesAsync(systemuserid);
                                 tool_call_response_payload = opps.ToString();
                             }
