@@ -81,8 +81,6 @@ systemuser = a list of all users (sellers) within MSX. The `fullname` property l
 account = list of all accounts within MSX (customers).
 opportunity = a list of all logged opportunities with accounts within MSX, each tied to an account.
 task = a list of all tasks tied to an opportunity OR account (polymorphous) of activities a technical sales engineer has completed.
-team = a 'deal team' tied to a particular opportunity. The team that is working to close this opportunity.
-teammembership = a bridge table that associates a systemuser with a team (many to many).
 
 If you are asked to find opportunities that a user in MSX (a person) is working on, use the `msx_search_users` tool to search for that user first, find their user ID, and then use the `msx_get_user_opportunities` tool to find opportunities for that specific user using their user ID.
 ";
