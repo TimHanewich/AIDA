@@ -775,7 +775,7 @@ namespace AIDA
                             JArray RecentTaskData = await msxi.GetMyRecentTasksAsync();
                             tool_call_response_payload = RecentTaskData.ToString();
                         }
-                        else if (fc.FunctionName == "get_systemuser_opportunities")
+                        else if (fc.FunctionName == "msx_get_user_opportunities")
                         {
                             MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
                             JProperty? prop_systemuserid = fc.Arguments.Property("systemuserid");
