@@ -54,17 +54,6 @@ namespace AIDA
             }
         }
 
-        public static string GetMSXCookie()
-        {
-            string path = MSXPath;
-            if (System.IO.File.Exists(path))
-            {
-                string content = System.IO.File.ReadAllText(path);
-                return content;
-            }
-            return "";
-        }
-
         public static string GetSystemPrompt()
         {
             List<string> SystemMessage = new List<string>();
