@@ -84,6 +84,11 @@ task = a list of all tasks tied to an opportunity OR account (polymorphous) of a
 team = a 'deal team' tied to a particular opportunity. The team that is working to close this opportunity.
 teammembership = a bridge table that associates a systemuser with a team (many to many).
 
+More often than not, you will be asked by the user to log tasks in MSX against opportunities or accounts that the user has worked on. Your normal flow for doing this will be:
+1. Search for the account using the `msx_search_accounts` tool. Normally State Government accounts are named 'TX-State Government' for example. Continue searching until you find the right one.
+2. IF YOU ARE BEING ASKED TO LOG A TASK TO AN OPPORTUNITY: Once you find the account, use the `msx_search_opportunities` tool to search through open opportunities for that particular account based on a name (keyword). You can try a few searches to be sure.
+3. Once you find the right opportunity, use the `msx_log_task` tool to log a task to that opportunity. But keep in mind not every task will be logged to an opportunity, some will just be logged to an account. So there may not be a need for step #2 above.
+
 Often times the user will ask you to find someone's opportunities. This does not necessarily mean opportunities that they OWN, but rather that they are working on. Here is how to find that:
 1. Search for them in the systemuser table (fullname field). This will give you their unique ID.
 2. Find a list of all teammemberships that they are associated with.
