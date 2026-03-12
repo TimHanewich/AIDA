@@ -33,7 +33,7 @@ namespace AIDA
         public bool WebSearchEnabled {get; set;} //the built-in web search
         public bool FinancePackageEnabled { get; set; } //enables SEC.EDGAR
         public bool WeatherPackageEnabled { get; set; } //enabled check current weather
-        public bool MsxEnabled {get; set;} //interfacing with MSX
+        public bool MsxPackageEnabled {get; set;} //interfacing with MSX
 
         public AIDASettings()
         {
@@ -47,7 +47,7 @@ namespace AIDA
             WebSearchEnabled = false;
             FinancePackageEnabled = false;
             WeatherPackageEnabled = false;
-            MsxEnabled = false;
+            MsxPackageEnabled = false;
             msx_cookie = null;
         }
 
