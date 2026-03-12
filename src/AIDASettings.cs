@@ -26,10 +26,14 @@ namespace AIDA
         //Formatting settings
         public string AssistantMessageColor { get; set; } //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
 
+        //MSX Cookie
+        public string? msx_cookie {get; set;}
+
         //Tools enabled/disabled
         public bool WebSearchEnabled {get; set;} //the built-in web search
         public bool FinancePackageEnabled { get; set; } //enables SEC.EDGAR
         public bool WeatherPackageEnabled { get; set; } //enabled check current weather
+        public bool MsxEnabled {get; set;} //interfacing with MSX
 
         public AIDASettings()
         {
@@ -43,6 +47,8 @@ namespace AIDA
             WebSearchEnabled = false;
             FinancePackageEnabled = false;
             WeatherPackageEnabled = false;
+            MsxEnabled = false;
+            msx_cookie = null;
         }
 
         public FoundryResource PrepareFoundryResource()
