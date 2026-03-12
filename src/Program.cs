@@ -696,7 +696,7 @@ namespace AIDA
                         }
                         else if (fc.FunctionName == "msx_search_users")
                         {
-                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
                             JProperty? prop_fullname = fc.Arguments.Property("fullname");
                             if (prop_fullname != null)
                             {
@@ -712,7 +712,7 @@ namespace AIDA
                         }
                         else if (fc.FunctionName == "msx_search_accounts")
                         {
-                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
                             JProperty? prop_name = fc.Arguments.Property("name");
                             if (prop_name != null)
                             {
@@ -725,7 +725,7 @@ namespace AIDA
                         }
                         else if (fc.FunctionName == "msx_search_opportunities")
                         {
-                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
                             JProperty? prop_accountid = fc.Arguments.Property("accountid");
                             JProperty? prop_name = fc.Arguments.Property("name");
                             if (prop_accountid != null && prop_name != null)
@@ -741,7 +741,7 @@ namespace AIDA
                         }
                         else if (fc.FunctionName == "msx_log_task")
                         {
-                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
                             JProperty? prop_title = fc.Arguments.Property("title");
                             JProperty? prop_description = fc.Arguments.Property("description");
                             JProperty? prop_timestamp = fc.Arguments.Property("timestamp");
@@ -771,13 +771,13 @@ namespace AIDA
                         }
                         else if (fc.FunctionName == "msx_my_recent_tasks")
                         {
-                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
                             JArray RecentTaskData = await msxi.GetMyRecentTasksAsync();
                             tool_call_response_payload = RecentTaskData.ToString();
                         }
                         else if (fc.FunctionName == "msx_get_user_opportunities")
                         {
-                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
                             JProperty? prop_systemuserid = fc.Arguments.Property("systemuserid");
                             if (prop_systemuserid != null)
                             {
@@ -793,7 +793,7 @@ namespace AIDA
                         }
                         else if (fc.FunctionName == "msx_run_query")
                         {
-                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
                             JProperty? prop_query = fc.Arguments.Property("query");
                             if (prop_query != null)
                             {
