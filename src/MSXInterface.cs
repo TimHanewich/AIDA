@@ -220,5 +220,30 @@ namespace AIDA
             return result;
 
         }
+    
+        public async Task<JArray> RunQueryAsync(string odata_query)
+        {
+            //Example odata_query:
+            //teammemberships?$top=1&$filter=teamid eq 2f9a06fd-d4d7-ee11-907a-6045bdd3fda3
+
+            //Make HTTP Call
+            string url = URL_ROOT + odata_query;
+            HttpResponseMessage resp = await HttpGetAsync(url);
+            string content = await resp.Content.ReadAsStringAsync();
+            if (resp.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                throw new Exception("OData query to MSX '" + odata_query + "' returned code " + resp.StatusCode.ToString() + ". Msg: " + content);
+            }
+
+            //Get "value"
+            JObject root = JObject.Parse(content);
+            JProperty? prop_value = root.Property("value");
+            if (prop_value != null)
+            {
+                JArray value = (JArray)prop_value.Value;
+                return value;
+            }
+            throw new Exception("Unable to find returned data property 'value' in OData response to query '" + odata_query + "'");
+        }
     }
 }
