@@ -1491,7 +1491,7 @@ namespace AIDA
             ToReturn.Add(tool_MsxMyRecentTasks);
 
             //MSX: Get someone's opportunities
-            Function tool_MsxGetSystemUsersOpportunities = new Function("msx_get_systemuser_opportunities", "Get a list of all the opportunities a systemuser is part of the deal team for in MSX.");
+            Function tool_MsxGetSystemUsersOpportunities = new Function("msx_get_user_opportunities", "Get a list of all the opportunities a systemuser is part of the deal team for in MSX.");
             tool_MsxGetSystemUsersOpportunities.Parameters.Add(new FunctionInputParameter("systemuserid", "The unique ID of the systemuser."));
             ToReturn.Add(tool_MsxGetSystemUsersOpportunities);
 
