@@ -759,6 +759,22 @@ namespace AIDA
                             JArray RecentTaskData = await msxi.GetMyRecentTasksAsync();
                             tool_call_response_payload = RecentTaskData.ToString();
                         }
+                        else if (fc.FunctionName == "msx_run_query")
+                        {
+                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            JProperty? prop_query = fc.Arguments.Property("query");
+                            if (prop_query != null)
+                            {
+                                string query = prop_query.Value.ToString();
+                                AnsiConsole.Markup("[gray][italic]running query '" + query + "'... [/][/]");
+                                JArray results = await msxi.RunQueryAsync(query);
+                                tool_call_response_payload = results.ToString();
+                            }
+                            else
+                            {
+                                tool_call_response_payload = "You must provide a query to run with the `query` parameter.";
+                            }
+                        }
                         else
                         {
                             AnsiConsole.MarkupLine("[red]Model called tool '" + fc.FunctionName + "' but AIDA is not properly configured to handle that! Oops, sorry about that! We dropped the ball (not the AI). Please contact support.[/]");
@@ -1428,6 +1444,11 @@ namespace AIDA
             //MSX: My Recent Tasks
             Function tool_MsxMyRecentTasks = new Function("msx_my_recent_tasks", "Get a list of the user's recent tasks logged in MSX and what account/opportunities they were logged to.");
             ToReturn.Add(tool_MsxMyRecentTasks);
+
+            //MSX: Run OData query (any query!)
+            Function tool_MsxRunQuery = new Function("msx_run_query", "Run any OData query on MSX, a D365 Sales system.");
+            tool_MsxRunQuery.Parameters.Add(new FunctionInputParameter("query", "The OData query to run, for example 'accounts?$top=5&$select=name'"));
+            ToReturn.Add(tool_MsxRunQuery);
 
             //Add finance package?
             if (SETTINGS.FinancePackageEnabled)
