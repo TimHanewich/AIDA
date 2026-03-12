@@ -759,6 +759,22 @@ namespace AIDA
                             JArray RecentTaskData = await msxi.GetMyRecentTasksAsync();
                             tool_call_response_payload = RecentTaskData.ToString();
                         }
+                        else if (fc.FunctionName == "get_systemuser_opportunities")
+                        {
+                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            JProperty? prop_systemuserid = fc.Arguments.Property("systemuserid");
+                            if (prop_systemuserid != null)
+                            {
+                                string systemuserid = prop_systemuserid.Value.ToString();
+                                AnsiConsole.Markup("[gray][italic]getting opportunities of user '" + systemuserid + "'... [gray][italic]");
+                                JArray opps = await msxi.GetAssociatedOpportunitiesAsync(systemuserid);
+                                tool_call_response_payload = opps.ToString();
+                            }
+                            else
+                            {
+                                tool_call_response_payload = "You must provide systemuserid parameter.";
+                            }
+                        }
                         else if (fc.FunctionName == "msx_run_query")
                         {
                             MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
@@ -1452,6 +1468,11 @@ namespace AIDA
             //MSX: My Recent Tasks
             Function tool_MsxMyRecentTasks = new Function("msx_my_recent_tasks", "Get a list of the user's recent tasks logged in MSX and what account/opportunities they were logged to.");
             ToReturn.Add(tool_MsxMyRecentTasks);
+
+            //MSX: Get someone's opportunities
+            Function tool_MsxGetSystemUsersOpportunities = new Function("msx_get_systemuser_opportunities", "Get a list of all the opportunities a systemuser is part of the deal team for in MSX.");
+            tool_MsxGetSystemUsersOpportunities.Parameters.Add(new FunctionInputParameter("systemuserid", "The unique ID of the systemuser."));
+            ToReturn.Add(tool_MsxGetSystemUsersOpportunities);
 
             //MSX: Run OData query (any query!)
             Function tool_MsxRunQuery = new Function("msx_run_query", "Run any OData query on MSX, a D365 Sales system.");
