@@ -63,7 +63,7 @@ namespace AIDA
             SystemMessage.Add("Do not use emojis.");
 
             //MSX Info?
-            if (current_settings.MsxEnabled)
+            if (current_settings.MsxPackageEnabled)
             {
                 string msx = @"You are an expert on interfacing with MSX, Microsoft's CRM system.
 
