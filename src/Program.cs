@@ -766,6 +766,7 @@ namespace AIDA
                             if (prop_query != null)
                             {
                                 string query = prop_query.Value.ToString();
+                                query = query.Replace("\n", ""); //strip out new lines for sake of printing
                                 AnsiConsole.Markup("[gray][italic]running query '" + query + "'... [/][/]");
                                 JArray results = await msxi.RunQueryAsync(query);
                                 tool_call_response_payload = results.ToString();
