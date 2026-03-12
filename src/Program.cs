@@ -768,8 +768,15 @@ namespace AIDA
                                 string query = prop_query.Value.ToString();
                                 query = query.Replace("\n", ""); //strip out new lines for sake of printing
                                 AnsiConsole.Markup("[gray][italic]running query '" + query + "'... [/][/]");
-                                JArray results = await msxi.RunQueryAsync(query);
-                                tool_call_response_payload = results.ToString();
+                                try
+                                {
+                                    JArray results = await msxi.RunQueryAsync(query);
+                                    tool_call_response_payload = results.ToString();
+                                }
+                                catch (Exception ex2)
+                                {
+                                    tool_call_response_payload = "That query failed! Msg: " + ex2.Message;
+                                }
                             }
                             else
                             {
