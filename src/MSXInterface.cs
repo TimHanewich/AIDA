@@ -241,14 +241,17 @@ namespace AIDA
             {
                 JObject summary = new JObject
                 {
-                    ["opportunityId"]   = opp["opportunityid"],
+                    ["opportunityid"]   = opp["opportunityid"],
                     ["name"]            = opp["name"],
                     ["description"]     = opp["description"],
-                    ["estimatedValue"]  = opp["estimatedvalue"],
-                    ["closeDate"]       = opp["estimatedclosedate"],
-                    ["accountName"]     = opp[$"{alias}.name"],
-                    ["accountId"]       = opp[$"{alias}.accountid"]
+                    ["value"]           = opp["estimatedvalue"],
+                    ["closeDate"]       = opp["estimatedclosedate"]
                 };
+
+                JObject AccountInfo = new JObject();
+                AccountInfo.Add("id", opp[$"{alias}.accountid"]);
+                AccountInfo.Add("name", opp[$"{alias}.name"]);
+                summary.Add("account", AccountInfo);
 
                 ToReturn.Add(summary);
             }
