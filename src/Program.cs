@@ -1363,6 +1363,7 @@ namespace AIDA
                     PackagesQuestion.AddChoice("Web Search (built in)");
                     PackagesQuestion.AddChoice("Weather");
                     PackagesQuestion.AddChoice("Finance");
+                    PackagesQuestion.AddChoice("MSX");
 
                     //Defaults
                     if (SETTINGS.WebSearchEnabled)
@@ -1376,6 +1377,10 @@ namespace AIDA
                     if (SETTINGS.WeatherPackageEnabled)
                     {
                         PackagesQuestion.Select("Weather");
+                    }
+                    if (SETTINGS.MsxPackageEnabled)
+                    {
+                        PackagesQuestion.Select("MSX");
                     }
 
                     //Ask
@@ -1409,6 +1414,16 @@ namespace AIDA
                     else
                     {
                         SETTINGS.WeatherPackageEnabled = false;
+                    }
+
+                    //Enable/Disable: MSX
+                    if (PackagesToEnable.Contains("MSX"))
+                    {
+                        SETTINGS.MsxPackageEnabled = true;
+                    }
+                    else
+                    {
+                        SETTINGS.MsxPackageEnabled = false;
                     }
 
                     //Confirm
