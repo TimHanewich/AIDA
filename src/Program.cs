@@ -694,6 +694,22 @@ namespace AIDA
                             }
 
                         }
+                        else if (fc.FunctionName == "msx_search_users")
+                        {
+                            MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
+                            JProperty? prop_fullname = fc.Arguments.Property("fullname");
+                            if (prop_fullname != null)
+                            {
+                                string fullname = prop_fullname.Value.ToString();
+                                AnsiConsole.Markup("[gray][italic]searching for user '" + fullname + "'... [/][/]");
+                                JArray results = await msxi.SearchUsersAsync(fullname);
+                                tool_call_response_payload = results.ToString();
+                            }
+                            else
+                            {
+                                tool_call_response_payload = "You must provide property 'fullname'!";
+                            }
+                        }
                         else if (fc.FunctionName == "msx_search_accounts")
                         {
                             MSXInterface msxi = new MSXInterface(Tools.GetMSXCookie());
@@ -1440,6 +1456,11 @@ namespace AIDA
             tool_RenameFile.Parameters.Add(new FunctionInputParameter("path", "The current absolute path of the file."));
             tool_RenameFile.Parameters.Add(new FunctionInputParameter("new_name", "The new name of the file, NOT including the extension."));
             ToReturn.Add(tool_RenameFile);
+
+            //MSX: Search Users
+            Function tool_MsxSearchUsers = new Function("msx_search_users", "Search through the users (systemuser) in MSX.");
+            tool_MsxSearchUsers.Parameters.Add(new FunctionInputParameter("fullname", "The full name (first and last) of the user to search for."));
+            ToReturn.Add(tool_MsxSearchUsers);
 
             //MSX: Search Accounts
             Function tool_MsxSearchAccounts = new Function("msx_search_accounts", "Search through the managed accounts in MSX.");
