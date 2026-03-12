@@ -1280,6 +1280,7 @@ namespace AIDA
                 SettingToDo.Title("What do you want to do?");
                 SettingToDo.AddChoice("Update Foundry Connection Info");
                 SettingToDo.AddChoice("Update Model");
+                SettingToDo.AddChoice("Update MSX Cookie");
                 SettingToDo.AddChoice("Change Assistant Message Color");
                 SettingToDo.AddChoice("Enable/Disable Tools");
                 SettingToDo.AddChoice("Save & Continue");
@@ -1329,6 +1330,12 @@ namespace AIDA
                     string model_name = AnsiConsole.Ask<string>("Model name?");
                     SETTINGS.ModelName = model_name;
                     AnsiConsole.MarkupLine("Model updated to '" + model_name + "'");
+                }
+                else if (SettingToDoAnswer == "Update MSX Cookie")
+                {
+                    string newcookie = AnsiConsole.Ask<string>("New cookie? > ");
+                    SETTINGS.msx_cookie = newcookie;
+                    AnsiConsole.MarkupLine("MSX Cookie updated.");
                 }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
                 {
