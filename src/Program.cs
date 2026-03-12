@@ -1498,7 +1498,7 @@ namespace AIDA
             //MSX: Run OData query (any query!)
             Function tool_MsxRunQuery = new Function("msx_run_query", "Run any OData query on MSX, a D365 Sales system.");
             tool_MsxRunQuery.Parameters.Add(new FunctionInputParameter("query", "The OData query to run, for example 'accounts?$top=5&$select=name'"));
-            ToReturn.Add(tool_MsxRunQuery);
+            //ToReturn.Add(tool_MsxRunQuery); //DISABLING THIS TOOL!!!!
 
             //Add finance package?
             if (SETTINGS.FinancePackageEnabled)
