@@ -231,10 +231,29 @@ namespace AIDA
 
             string QUERY = "opportunities?fetchXml=" + Uri.EscapeDataString(fetchxml);
 
-            //Get
+            //Get raw
             JArray data = await RunQueryAsync(QUERY);
 
-            return data;
+            //Strip out
+            string alias = "a_76946cd0245c4349bbb98a1ed211155a";
+            JArray ToReturn = new JArray();
+            foreach (JObject opp in data)
+            {
+                JObject summary = new JObject
+                {
+                    ["opportunityId"]   = opp["opportunityid"],
+                    ["name"]            = opp["name"],
+                    ["description"]     = opp["description"],
+                    ["estimatedValue"]  = opp["estimatedvalue"],
+                    ["closeDate"]       = opp["estimatedclosedate"],
+                    ["accountName"]     = opp[$"{alias}.name"],
+                    ["accountId"]       = opp[$"{alias}.accountid"]
+                };
+
+                ToReturn.Add(summary);
+            }
+
+            return ToReturn;
         }
         
         public async Task<JArray> RunQueryAsync(string odata_query)
