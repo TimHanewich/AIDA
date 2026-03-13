@@ -696,25 +696,34 @@ namespace AIDA
                         }
                         else if (fc.FunctionName == "msx_search_users")
                         {
-                            MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
-                            JProperty? prop_fullname = fc.Arguments.Property("fullname");
-                            if (prop_fullname != null)
+                            if (SETTINGS.msx_cookie != null)
                             {
-                                string fullname = prop_fullname.Value.ToString();
-                                AnsiConsole.Markup("[gray][italic]searching for user '" + fullname + "'... [/][/]");
-                                try
+                                MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
+                                JProperty? prop_fullname = fc.Arguments.Property("fullname");
+                                if (prop_fullname != null)
                                 {
-                                    JArray results = await msxi.SearchUsersAsync(fullname);
-                                    tool_call_response_payload = results.ToString();
+                                    string fullname = prop_fullname.Value.ToString();
+                                    AnsiConsole.Markup("[gray][italic]searching for user '" + fullname + "'... [/][/]");
+                                    try
+                                    {
+                                        JArray results = await msxi.SearchUsersAsync(fullname);
+                                        tool_call_response_payload = results.ToString();
+                                    }
+                                    catch (Exception ex2)
+                                    {
+                                        tool_call_response_payload = ex2.Message;
+                                    }
                                 }
-                                catch (Exception ex2)
+                                else
                                 {
-                                    tool_call_response_payload = ex2.Message;
+                                    tool_call_response_payload = "You must provide property 'fullname'!";
                                 }
                             }
                             else
                             {
-                                tool_call_response_payload = "You must provide property 'fullname'!";
+                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools.";
+                                AnsiConsole.Markup("[red]" + errmsg + "[/]");
+                                tool_call_response_payload = errmsg;
                             }
                         }
                         else if (fc.FunctionName == "msx_search_accounts")
