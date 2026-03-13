@@ -721,7 +721,7 @@ namespace AIDA
                             }
                             else
                             {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools.";
+                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
                                 AnsiConsole.Markup("[red]" + errmsg + "[/]");
                                 tool_call_response_payload = errmsg;
                             }
@@ -750,7 +750,7 @@ namespace AIDA
                             }
                             else
                             {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools.";
+                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
                                 AnsiConsole.Markup("[red]" + errmsg + "[/]");
                                 tool_call_response_payload = errmsg;
                             }
@@ -782,7 +782,7 @@ namespace AIDA
                             }
                             else
                             {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools.";
+                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
                                 AnsiConsole.Markup("[red]" + errmsg + "[/]");
                                 tool_call_response_payload = errmsg;
                             }
@@ -835,7 +835,7 @@ namespace AIDA
                             }
                             else
                             {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools.";
+                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
                                 AnsiConsole.Markup("[red]" + errmsg + "[/]");
                                 tool_call_response_payload = errmsg;
                             }
@@ -857,7 +857,7 @@ namespace AIDA
                             }
                             else
                             {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools.";
+                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
                                 AnsiConsole.Markup("[red]" + errmsg + "[/]");
                                 tool_call_response_payload = errmsg;
                             }
@@ -889,7 +889,7 @@ namespace AIDA
                             }
                             else
                             {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools.";
+                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
                                 AnsiConsole.Markup("[red]" + errmsg + "[/]");
                                 tool_call_response_payload = errmsg;
                             }
@@ -922,7 +922,7 @@ namespace AIDA
                             }
                             else
                             {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools.";
+                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
                                 AnsiConsole.Markup("[red]" + errmsg + "[/]");
                                 tool_call_response_payload = errmsg;
                             }
