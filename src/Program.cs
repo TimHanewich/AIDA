@@ -702,8 +702,15 @@ namespace AIDA
                             {
                                 string fullname = prop_fullname.Value.ToString();
                                 AnsiConsole.Markup("[gray][italic]searching for user '" + fullname + "'... [/][/]");
-                                JArray results = await msxi.SearchUsersAsync(fullname);
-                                tool_call_response_payload = results.ToString();
+                                try
+                                {
+                                    JArray results = await msxi.SearchUsersAsync(fullname);
+                                    tool_call_response_payload = results.ToString();
+                                }
+                                catch (Exception ex2)
+                                {
+                                    tool_call_response_payload = ex2.Message;
+                                }
                             }
                             else
                             {
@@ -718,9 +725,16 @@ namespace AIDA
                             {
                                 string name = prop_name.Value.ToString();
                                 AnsiConsole.Markup("[gray][italic]searching '" + name + "'... [/][/]");
-                                JArray accounts = await msxi.SearchAccountsAsync(name);
-                                AnsiConsole.Markup("[gray][italic]" + accounts.Count.ToString() + " found [/][/]");
-                                tool_call_response_payload = accounts.ToString(Formatting.None);
+                                try
+                                {
+                                    JArray accounts = await msxi.SearchAccountsAsync(name);
+                                    AnsiConsole.Markup("[gray][italic]" + accounts.Count.ToString() + " found [/][/]");
+                                    tool_call_response_payload = accounts.ToString(Formatting.None);
+                                }
+                                catch (Exception ex2)
+                                {
+                                    tool_call_response_payload = ex2.Message;
+                                }
                             }
                         }
                         else if (fc.FunctionName == "msx_search_opportunities")
