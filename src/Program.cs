@@ -748,9 +748,16 @@ namespace AIDA
                                 string name = prop_name.Value.ToString();
 
                                 AnsiConsole.Markup("[gray][italic]" + "Searching account '" + accountid + "' for '" + name + "'... [/][/]");
-                                JArray opps = await msxi.SearchOpportunitiesAsync(accountid, name);
-                                AnsiConsole.Markup("[gray][italic]" + opps.Count.ToString() + " found [/][/]");
-                                tool_call_response_payload = opps.ToString(Formatting.None);
+                                try
+                                {
+                                    JArray opps = await msxi.SearchOpportunitiesAsync(accountid, name);
+                                    AnsiConsole.Markup("[gray][italic]" + opps.Count.ToString() + " found [/][/]");
+                                    tool_call_response_payload = opps.ToString(Formatting.None);
+                                }
+                                catch (Exception ex2)
+                                {
+                                    tool_call_response_payload = ex2.Message;
+                                }
                             }
                         }
                         else if (fc.FunctionName == "msx_log_task")
@@ -773,21 +780,42 @@ namespace AIDA
                                 //Check if opportunityid is added first because THAT is priority.
                                 if (prop_opportunityid != null && prop_opportunityid.Value.ToString() != "")
                                 {
-                                    await msxi.CreateTaskAsync(title, description, timestamp, tiedto_opportunity: prop_opportunityid.Value.ToString());
-                                    tool_call_response_payload = "Created task tied to opportunity '" + prop_opportunityid.Value.ToString() + "' successfully.";
+                                    try
+                                    {
+                                        await msxi.CreateTaskAsync(title, description, timestamp, tiedto_opportunity: prop_opportunityid.Value.ToString());
+                                        tool_call_response_payload = "Created task tied to opportunity '" + prop_opportunityid.Value.ToString() + "' successfully.";
+                                    }
+                                    catch (Exception ex2)
+                                    {
+                                        tool_call_response_payload = ex2.Message;
+                                    }
                                 }
                                 else if (prop_accountid != null && prop_accountid.Value.ToString() != "")
                                 {
-                                    await msxi.CreateTaskAsync(title, description, timestamp, tiedto_account: prop_accountid.Value.ToString());
-                                    tool_call_response_payload = "Created task tied to account '" + prop_accountid.Value.ToString() + "' successfully.";
+                                    try
+                                    {
+                                        await msxi.CreateTaskAsync(title, description, timestamp, tiedto_account: prop_accountid.Value.ToString());
+                                        tool_call_response_payload = "Created task tied to account '" + prop_accountid.Value.ToString() + "' successfully.";
+                                    }
+                                    catch (Exception ex2)
+                                    {
+                                        tool_call_response_payload = ex2.Message;
+                                    }
                                 }
                             }
                         }
                         else if (fc.FunctionName == "msx_my_recent_tasks")
                         {
                             MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
-                            JArray RecentTaskData = await msxi.GetMyRecentTasksAsync();
-                            tool_call_response_payload = RecentTaskData.ToString();
+                            try
+                            {
+                                JArray RecentTaskData = await msxi.GetMyRecentTasksAsync();
+                                tool_call_response_payload = RecentTaskData.ToString();
+                            }
+                            catch (Exception ex2)
+                            {
+                                tool_call_response_payload = ex2.Message;
+                            }
                         }
                         else if (fc.FunctionName == "msx_get_user_opportunities")
                         {
@@ -797,8 +825,15 @@ namespace AIDA
                             {
                                 string systemuserid = prop_systemuserid.Value.ToString();
                                 AnsiConsole.Markup("[gray][italic]getting opportunities of user '" + systemuserid + "'... [/][/]");
-                                JArray opps = await msxi.GetAssociatedOpportunitiesAsync(systemuserid);
-                                tool_call_response_payload = opps.ToString();
+                                try
+                                {
+                                    JArray opps = await msxi.GetAssociatedOpportunitiesAsync(systemuserid);
+                                    tool_call_response_payload = opps.ToString();
+                                }
+                                catch (Exception ex2)
+                                {
+                                    tool_call_response_payload = ex2.Message;
+                                }
                             }
                             else
                             {
