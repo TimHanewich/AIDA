@@ -2,6 +2,8 @@ using System;
 using CliWrap;
 using CliWrap.Buffered;
 using System.Runtime.InteropServices;
+using Spectre.Console;
+using TimHanewich.Foundry;
 
 namespace AIDA
 {
@@ -188,7 +190,53 @@ Output Handling: Both success and error messages are returned. If a command fail
             return ToReturn;
         }
 
+        public static async Task FoundryAuthAsync(AIDASettings current_settings)
+        {
+            //If it is set up for API-Key auth, void out
+            if (current_settings.ApiKey != null)
+            {
+                AnsiConsole.MarkupLine("[yello]Authentication to Foundry not needed - API key access is selected (not Service Principal).[/]");
+                return;
+            }
+            else if (current_settings.TenantID == null || current_settings.ClientID == null || current_settings.ClientSecret == null)
+            {
+                AnsiConsole.MarkupLine("[red]Cannot authenticate to Foundry without a TenantID, ClientID, and ClientSecret! You must provide those.[/]");
+                return;   
+            }
 
+            //Clear out old auth
+            AnsiConsole.Markup("Clearing out token... ");
+            current_settings.AuthenticatedTokenCredentials = null;
+            AnsiConsole.MarkupLine("cleared.");
+
+
+            //Authenticate now
+            AnsiConsole.MarkupLine("Going to attempt to request access token for tenant '" + current_settings.TenantID + "' and client '" + current_settings.ClientID + "' with secret of " + current_settings.ClientSecret.Length.ToString() + " characters.");
+            AnsiConsole.Markup("Requesting new access token... ");
+            EntraAuthenticationHandler auth = new EntraAuthenticationHandler();
+            auth.TenantID = current_settings.TenantID;
+            auth.ClientID = current_settings.ClientID;
+            auth.ClientSecret = current_settings.ClientSecret;
+            try
+            {
+                current_settings.AuthenticatedTokenCredentials = await auth.AuthenticateAsync();
+                AnsiConsole.MarkupLine("[green]success![/]");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine("[red]Authentication failed! Msg: " + Markup.Escape(ex.Message) + "[/]");
+            }
+
+            //If it was successful
+            if (current_settings.AuthenticatedTokenCredentials != null)
+            {
+                TimeSpan UntilExpiration = current_settings.AuthenticatedTokenCredentials.Expires - DateTime.UtcNow;
+                AnsiConsole.MarkupLine("[gray][italic]expires: " + current_settings.AuthenticatedTokenCredentials.Expires.ToLocalTime().ToString() + " (in " + UntilExpiration.TotalHours.ToString("#,##0.0") + " hours)[/][/]");
+            }
+
+            //Line break
+            Console.WriteLine();
+        }
 
 
 
