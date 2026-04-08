@@ -399,7 +399,6 @@ namespace AIDA
                             {
                                 AnsiConsole.Markup("[gray][italic]running shell '" + cmd + "'... [/][/]");
                                 string response = await Tools.ExecuteShellAsync(cmd);
-                                AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
                                 tool_call_response_payload = response;
                             }
                             else
