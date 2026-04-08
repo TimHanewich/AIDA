@@ -340,7 +340,7 @@ namespace AIDA
                         {
                             tool_call_response_payload = "The current date and time is " + DateTime.Now.ToString();
                         }
-                        else if (fc.FunctionName == "read_webpage")
+                        else if (fc.FunctionName == "web_fetch")
                         {
                             //Get URL
                             string? url = null;
