@@ -406,6 +406,49 @@ namespace AIDA
                                 tool_call_response_payload = "You must provide the 'command' parameter! It wasn't provided.";
                             }
                         }
+                        else if (fc.FunctionName == "view_image")
+                        {
+                            //Get path
+                            string path = "";
+                            JProperty? prop_path = fc.Arguments.Property("path");
+                            if (prop_path != null)
+                            {
+                                path = prop_path.Value.ToString();
+                            }
+
+                            //Handle
+                            if (path != "")
+                            {
+                                if (System.IO.File.Exists(path)) // it is a file on-device
+                                {
+                                    //Try loading the image 
+                                    try
+                                    {
+                                        InputImage ii = InputImage.FromFile(path);
+                                        Message img_msg = new Message();
+                                        img_msg.Role = Role.user;
+                                        img_msg.Images.Add(ii);
+                                        AGENT.Inputs.Add(img_msg); //add it as a message to go in next time.
+                                    }
+                                    catch (Exception ex2)
+                                    {
+                                        tool_call_response_payload = "Loading of image at '" + path + "' failed: " + ex2.Message;
+                                    }
+                                }
+                                else //may be a URL
+                                {
+                                    InputImage ii = InputImage.FromURL(path);
+                                    Message img_msg = new Message();
+                                    img_msg.Role = Role.user;
+                                    img_msg.Images.Add(ii);
+                                    AGENT.Inputs.Add(img_msg); //add it as a message to go in next time.
+                                } 
+                            }
+                            else
+                            {
+                                tool_call_response_payload = "'path' parameter was empty!";
+                            }
+                        }
                         else
                         {
                             AnsiConsole.MarkupLine("[red]Model called tool '" + fc.FunctionName + "' but AIDA is not properly configured to handle that! Oops, sorry about that! We dropped the ball (not the AI). Please contact support.[/]");
@@ -967,7 +1010,7 @@ namespace AIDA
             Function tool_ViewImage = new Function("view_image", "View an image that is either on the user's device or available at a URL.");
             tool_ViewImage.Parameters.Add(new FunctionInputParameter("path", "Either the path to the image file on the user's device OR the URL of where the image can be accessed online."));
             ToReturn.Add(tool_ViewImage);
-            
+
             //Is shell enabled?
             if (SETTINGS.ShellEnabled)
             {
