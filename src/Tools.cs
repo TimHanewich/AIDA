@@ -130,7 +130,7 @@ Output Handling: Both success and error messages are returned. If a command fail
                 string custom_prompt = System.IO.File.ReadAllText(CustomPromptPath);
                 if (custom_prompt != string.Empty)
                 {
-                    SystemMessage.Add(custom_prompt);
+                    SystemMessage.Add("## Additional Information" + "\n" + custom_prompt);
                 }
             }
 
