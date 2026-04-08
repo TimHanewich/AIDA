@@ -108,6 +108,7 @@ namespace AIDA
                     AnsiConsole.MarkupLine("[bold]tokens[/] - check token consumption for this session.");
                     AnsiConsole.MarkupLine("[bold]settings[/] - Open AIDA's settings menu");
                     AnsiConsole.MarkupLine("[bold]tools[/] - list all tools AIDA has available to it.");
+                    AnsiConsole.MarkupLine("[bold]auth[/] - authenticate into Foundry if using Service Principal.");
                     Console.WriteLine();
                     goto Input;
                 }
@@ -151,6 +152,12 @@ namespace AIDA
                     AGENT.Inputs.Add(new Message(Role.user, Tools.GetSystemPrompt(SETTINGS))); //add the system message back (need that!)
                     AnsiConsole.MarkupLine("[blue][bold]Chat history cleared. Latest prompt.md injected.[/][/]");
                     Console.WriteLine();
+                    goto Input;
+                }
+                else if (input.ToLower() == "auth")
+                {
+                    AnsiConsole.MarkupLine("Attempting Microsoft Foundry Authentication... ");
+                    await Tools.FoundryAuthAsync(SETTINGS);
                     goto Input;
                 }
 
