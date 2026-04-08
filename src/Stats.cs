@@ -1,6 +1,7 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 using TimHanewich.Foundry;
 using TimHanewich.Foundry.OpenAI.Responses;
 
@@ -74,6 +75,50 @@ namespace AIDA
             ce.InputTokens = resp.InputTokensConsumed;
             ce.OutputTokens = resp.OutputTokensConsumed;
             AddConsumptionEvent(ce);
+        }
+
+        public void PrintReport()
+        {
+            //Prepare a list of last 7 days
+            List<DateTime> Last7Days = new List<DateTime>();
+            for (int i = 0; i < 7; i++)
+            {
+                Last7Days.Add(DateTime.Today.AddDays(i * -1));
+            }
+
+            AnsiConsole.MarkupLine("[blue][underline]Stat Report[/][/]");
+
+            foreach (DateTime day in Last7Days)
+            {
+
+                //Tally up tokens
+                int InputThisDay = 0;
+                int OutputThisDay = 0;
+                foreach (ConsumptionEvent ce in ConsumptionEvents)
+                {
+                    DateTimeOffset consumptionTS = DateTimeOffset.FromUnixTimeSeconds(ce.Timestamp);
+                    if (consumptionTS.Year == day.Year && consumptionTS.Month == day.Month && consumptionTS.Day == day.Day)
+                    {
+                        InputThisDay = InputThisDay + ce.InputTokens;
+                        OutputThisDay = OutputThisDay + ce.OutputTokens;
+                    }
+                }
+
+                //Print
+                AnsiConsole.MarkupLine("[bold]" + day.Month.ToString() + "/" + day.Day.ToString() + "/" + day.Year.ToString() + "[/]: " + InputThisDay.ToString("#,##0") + " input tokens, " + OutputThisDay.ToString("#,##0") + " output tokens");
+            }
+
+            Console.WriteLine();
+            AnsiConsole.WriteLine("[underline]CUMULATIVE CONSUMPTION[/]");
+            int CumInput = 0;
+            int CumOutput = 0;
+            foreach (ConsumptionEvent ce in ConsumptionEvents)
+            {
+                CumInput = CumInput + ce.InputTokens;
+                CumOutput = CumOutput + ce.OutputTokens;
+            }
+            AnsiConsole.MarkupLine("Input Tokens: " + CumInput.ToString("#,##0"));
+            AnsiConsole.MarkupLine("Output Tokens: " + CumOutput.ToString("#,##0"));
         }
     }
 }
