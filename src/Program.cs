@@ -927,6 +927,29 @@ namespace AIDA
                                 tool_call_response_payload = errmsg;
                             }
                         }
+                        else if (fc.FunctionName == "shell")
+                        {
+                            //Get command
+                            string? cmd = null;
+                            JProperty? prop_command = fc.Arguments.Property("command");
+                            if (prop_command != null)
+                            {
+                                cmd = prop_command.Value.ToString();
+                            }
+
+                            //Handle
+                            if (cmd != null)
+                            {
+                                AnsiConsole.Markup("[gray][italic]running shell '" + cmd + "'... [/][/]");
+                                string response = await Tools.ExecuteShellAsync(cmd);
+                                AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
+                                tool_call_response_payload = response;
+                            }
+                            else
+                            {
+                                tool_call_response_payload = "You must provide the 'command' parameter! It wasn't provided.";
+                            }
+                        }
                         else
                         {
                             AnsiConsole.MarkupLine("[red]Model called tool '" + fc.FunctionName + "' but AIDA is not properly configured to handle that! Oops, sorry about that! We dropped the ball (not the AI). Please contact support.[/]");
@@ -1669,6 +1692,14 @@ namespace AIDA
                 Function tool_MsxRunQuery = new Function("msx_run_query", "Run any OData query on MSX, a D365 Sales system.");
                 tool_MsxRunQuery.Parameters.Add(new FunctionInputParameter("query", "The OData query to run, for example 'accounts?$top=5&$select=name'"));
                 //ToReturn.Add(tool_MsxRunQuery); //DISABLING THIS TOOL!!!!
+            }
+
+            //Is shell enabled?
+            if (SETTINGS.ShellEnabled)
+            {
+                Function tool_shell = new Function("shell", "Executes a single shell command on the host machine (Windows/cmd.exe or Linux/bash) and returns the combined standard output and standard error. Use this for file system operations, running compilers, or checking system status.");
+                tool_shell.Parameters.Add(new FunctionInputParameter("command", "The shell command to execute."));
+                ToReturn.Add(tool_shell);
             }
 
             return ToReturn.ToArray();

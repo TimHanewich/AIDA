@@ -34,6 +34,7 @@ namespace AIDA
         public bool FinancePackageEnabled { get; set; } //enables SEC.EDGAR
         public bool WeatherPackageEnabled { get; set; } //enabled check current weather
         public bool MsxPackageEnabled {get; set;} //interfacing with MSX
+        public bool ShellEnabled {get; set;} //are shell commands (terminal) enabled
 
         public AIDASettings()
         {
