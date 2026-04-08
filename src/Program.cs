@@ -198,8 +198,7 @@ namespace AIDA
                             //If it was successful
                             if (SETTINGS.AuthenticatedTokenCredentials != null)
                             {
-                                AGENT.FoundryConnection.AccessToken = SETTINGS.AuthenticatedTokenCredentials.AccessToken; //Plug it in
-                                SETTINGS.Save(); //save it to settings so it is hard saved
+                                AGENT.FoundryConnection.AccessToken = SETTINGS.AuthenticatedTokenCredentials.AccessToken; //Plug in the latest token to the agent for it to use
                             }
 
                             //Line break
