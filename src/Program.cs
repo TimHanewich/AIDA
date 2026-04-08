@@ -448,7 +448,7 @@ namespace AIDA
                                 } 
 
                                 //Fill in response
-                                tool_call_response_payload = "Image at '" + path + "' has been added by the user.";
+                                tool_call_response_payload = "Image at '" + path + "' has been added by the user."; //we say 'by the user' here because the message that is under is a 'user' role message ('developer' role can't be used to provide images)
                             }
                             else
                             {
