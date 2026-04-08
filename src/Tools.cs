@@ -90,6 +90,38 @@ If you are asked to find opportunities that a user in MSX (a person) is working 
                 SystemMessage.Add(msx);
             }
 
+            //Shell tool?
+            if (current_settings.ShellEnabled)
+            {
+
+                string ShellSystemPrompt = @"
+## Using the `shell` tool
+You have a tool available to you called `shell`. This will execute a shell command on the host machine (cmd.exe for Windows or bash for Linux) and will return whatever it returns back (either standard output or standard error).
+
+You can use this tool as needed to accomplish the goal that the user has given you. 
+
+Non-Interactive Only: You cannot run interactive commands. Any command that requires user input (e.g., apt-get without -y, or ssh prompts) will hang and fail. Always use 'silent' or 'assume-yes' flags.
+
+State Persistence: Each tool call is a fresh shell instance. Commands like cd will not persist across different tool calls. To run multiple commands in the same context, join them with &&.
+
+Output Handling: Both success and error messages are returned. If a command fails, analyze the error output to troubleshoot and attempt a corrected command.
+                
+";
+
+                //Add platform
+                if (OnWindows())
+                {
+                    ShellSystemPrompt = ShellSystemPrompt + "The environment you are working in is Windows, so use cmd.exe friendly commands.";
+                }
+                else if (OnLinux())
+                {
+                    ShellSystemPrompt = ShellSystemPrompt + "The environment you are working in is Linux, so use bash friendly commands.";
+                }
+
+                //Add
+                SystemMessage.Add(ShellSystemPrompt);
+            }
+            
             //Is there a custom prompt in prompt.md?
             if (System.IO.File.Exists(CustomPromptPath))
             {
