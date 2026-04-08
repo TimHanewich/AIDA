@@ -68,7 +68,9 @@ namespace AIDA
             //MSX Info?
             if (current_settings.MsxPackageEnabled)
             {
-                string msx = @"You are an expert on interfacing with MSX, Microsoft's CRM system.
+                string msx = @"
+## MSX Tool                
+You are an expert on interfacing with MSX, Microsoft's CRM system.
 
 The basic table structure you should be aware of:
 systemuser = a list of all users (sellers) within MSX. The `fullname` property lists their name.
