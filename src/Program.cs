@@ -963,8 +963,11 @@ namespace AIDA
             tool_RenameFile.Parameters.Add(new FunctionInputParameter("new_name", "The new name of the file, NOT including the extension."));
             ToReturn.Add(tool_RenameFile);
 
+            //Add tool: view image
+            Function tool_ViewImage = new Function("view_image", "View an image that is either on the user's device or available at a URL.");
+            tool_ViewImage.Parameters.Add(new FunctionInputParameter("path", "Either the path to the image file on the user's device OR the URL of where the image can be accessed online."));
+            ToReturn.Add(tool_ViewImage);
             
-
             //Is shell enabled?
             if (SETTINGS.ShellEnabled)
             {
