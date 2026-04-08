@@ -28,7 +28,6 @@ namespace AIDA
 
         //Tools enabled/disabled
         public bool WebSearchEnabled {get; set;} //the built-in web search
-        public bool FinancePackageEnabled { get; set; } //enables SEC.EDGAR
         public bool ShellEnabled {get; set;} //are shell commands (terminal) enabled
 
         public AIDASettings()
@@ -41,7 +40,6 @@ namespace AIDA
             ModelName = null;
             AssistantMessageColor = "navyblue";
             WebSearchEnabled = false;
-            FinancePackageEnabled = false;
         }
 
         public FoundryResource PrepareFoundryResource()

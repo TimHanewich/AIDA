@@ -12,9 +12,6 @@ using System.Reflection;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 using System.IO.Compression;
-using SecuritiesExchangeCommission.Edgar;
-using SecuritiesExchangeCommission.Edgar.Data;
-using AIDA.Finance;
 using TimHanewich.Foundry;
 using TimHanewich.Foundry.OpenAI.Responses;
 
@@ -53,11 +50,6 @@ namespace AIDA
 
             //Retrieve settings
             SETTINGS = AIDASettings.Open();
-
-            //Plug in SEC info in case it is used later
-            IdentificationManager.Instance.AppName = "AIDA";
-            IdentificationManager.Instance.AppVersion = "1.0";
-            IdentificationManager.Instance.Email = "admin@gmail.com";
 
             //Set up main AGENT
             AGENT = new Agent();
@@ -391,261 +383,6 @@ namespace AIDA
                                     tool_call_response_payload = "Renaming of file failed. Exception message: " + ex2.Message;
                                 }
                             }   
-                        }
-                        else if (fc.FunctionName == "get_cik")
-                        {
-
-                            //Get symbol
-                            string? symbol = null;
-                            JProperty? prop_symbol = fc.Arguments.Property("symbol");
-                            if (prop_symbol != null)
-                            {
-                                symbol = prop_symbol.Value.ToString();
-                            }
-
-                            //Handle
-                            if (symbol != null)
-                            {
-                                //Print status
-                                AnsiConsole.Markup("[gray][italic]getting CIK for '" + symbol.Trim().ToUpper() + "'... [/][/]");
-
-                                try
-                                {
-                                    string cik = await SecToolkit.GetCompanyCikFromTradingSymbolAsync(symbol);
-                                    tool_call_response_payload = cik;
-                                }
-                                catch (Exception bex)
-                                {
-                                    tool_call_response_payload = "Attempt to find CIK from trading symbol failed. Exception message: " + bex.Message;
-                                }
-                            }
-                            else
-                            {
-                                tool_call_response_payload = "To use the this tool you must provide the symbol parameter!";
-                            }
-
-                        }
-                        else if (fc.FunctionName == "search_financial_data")
-                        {
-                            //Get CIK
-                            int? CIK = null;
-                            JProperty? prop_CIK = fc.Arguments.Property("CIK");
-                            if (prop_CIK != null)
-                            {
-                                CIK = Convert.ToInt32(prop_CIK.Value.ToString());
-                            }
-
-                            //Get search term
-                            string? search_term = null;
-                            JProperty? prop_search_term = fc.Arguments.Property("search_term");
-                            if (prop_search_term != null)
-                            {
-                                search_term = prop_search_term.Value.ToString();
-                            }
-
-                            //Perform the query
-                            if (CIK != null && search_term != null)
-                            {
-
-                                //Print status
-                                AnsiConsole.Markup("[gray][italic] searching '" + CIK.Value.ToString() + "' for '" + search_term + "' facts... [/][/]");
-
-                                //Perform query (get the company's facts)
-                                CompanyFactsQuery? cfq = null;
-                                try
-                                {
-                                    cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
-                                }
-                                catch (Exception bex)
-                                {
-                                    tool_call_response_payload = "Unable to perform Company Facts Query via SEC API: " + bex.Message;
-                                }
-
-                                //If we successfully got data
-                                if (cfq != null)
-                                {
-                                    //Pull facts via keyword search
-                                    List<Fact> SearchResultFacts = new List<Fact>();
-                                    foreach (Fact f in cfq.Facts)
-                                    {
-                                        if (f.Tag.ToLower().Contains(search_term.ToLower()) || f.Label.ToLower().Contains(search_term.ToLower()) || f.Description.ToLower().Contains(search_term.ToLower())) //If it matches the search results
-                                        {
-                                            SearchResultFacts.Add(f);
-                                        }
-                                    }
-
-                                    //Prepare string
-                                    string ToGive = "Financial facts available for " + CIK.Value.ToString() + " that match your search: ";
-                                    foreach (Fact f in SearchResultFacts)
-                                    {
-                                        //Figure out last reported date
-                                        DateTime MostRecentReported = DateTime.Now.AddYears(-999);
-                                        foreach (FactDataPoint fdp in f.DataPoints)
-                                        {
-                                            if (fdp.End > MostRecentReported)
-                                            {
-                                                MostRecentReported = fdp.End;
-                                            }
-                                        }
-
-                                        ToGive = ToGive + "\n" + "- " + f.Tag + ": " + f.Description + " (last reported " + MostRecentReported.ToShortDateString() + ")";
-                                    }
-
-                                    tool_call_response_payload = ToGive;
-                                }
-                            }
-                            else
-                            {
-                                tool_call_response_payload = "To use this tool you must provide the CIK and search term parameter!";
-                            }
-
-                        }
-                        else if (fc.FunctionName == "get_financial_data")
-                        {
-                            //Get parameter: CIK
-                            int? CIK = null;
-                            JProperty? prop_CIK = fc.Arguments.Property("CIK");
-                            if (prop_CIK != null)
-                            {
-                                CIK = Convert.ToInt32(prop_CIK.Value.ToString());
-                            }
-
-                            //Get fact
-                            string? fact = null;
-                            JProperty? prop_fact = fc.Arguments.Property("fact");
-                            if (prop_fact != null)
-                            {
-                                fact = prop_fact.Value.ToString();
-                            }
-
-                            //Query
-                            if (CIK.HasValue && fact != null)
-                            {
-                                //Print more info
-                                AnsiConsole.Markup("[gray][italic]retrieving '" + fact + "' data for '" + CIK.Value.ToString() + "'... [/][/]");
-
-                                //Query the data
-                                CompanyFactsQuery? cfq = null;
-                                try
-                                {
-                                    cfq = await SECBandwidthManager.CompanyFactsQueryAsync(CIK.Value);
-                                }
-                                catch (Exception bex)
-                                {
-                                    tool_call_response_payload = "Unable to perform Company Facts Query via SEC API: " + bex.Message;
-                                }
-
-                                //If we got it, continue
-                                if (cfq != null)
-                                {
-                                    //Find the fact
-                                    Fact? DesiredFact = null;
-                                    foreach (Fact f in cfq.Facts)
-                                    {
-                                        if (f.Tag == fact)
-                                        {
-                                            DesiredFact = f;
-                                        }
-                                    }
-
-                                    //If we found it, provide it
-                                    if (DesiredFact != null)
-                                    {
-
-                                        //Build a list of ones we will collect
-                                        List<FactDataPoint> AllFDPs = new List<FactDataPoint>();
-                                        AllFDPs.AddRange(DesiredFact.DataPoints);
-
-                                        //Sort from NEWEST to OLDEST
-                                        //We do this because, if there are multiple reports of the same time period, the most recent one is correct as it is probably the amdneded/updated value
-                                        List<FactDataPoint> AllFDPsNewestToOldest = new List<FactDataPoint>();
-                                        while (AllFDPs.Count > 0)
-                                        {
-                                            FactDataPoint winner = AllFDPs[0];
-                                            foreach (FactDataPoint fdp in AllFDPs)
-                                            {
-                                                if (fdp.End > winner.End)
-                                                {
-                                                    winner = fdp;
-                                                }
-                                            }
-                                            AllFDPsNewestToOldest.Add(winner);
-                                            AllFDPs.Remove(winner);
-                                        }
-
-                                        //Build a list of UNIQUE data points (don't allow on same day)
-                                        List<FactDataPoint> UniqueFDPs = new List<FactDataPoint>();
-                                        foreach (FactDataPoint fdp in AllFDPsNewestToOldest)
-                                        {
-
-                                            //Check if unique list already has this...
-                                            bool AlreadyHasIt = false;
-                                            foreach (FactDataPoint havealready in UniqueFDPs)
-                                            {
-                                                if (havealready.End == fdp.End)
-                                                {
-                                                    AlreadyHasIt = true;
-                                                }
-                                            }
-
-                                            //If we do not already have this day, add it
-                                            if (AlreadyHasIt == false)
-                                            {
-                                                UniqueFDPs.Add(fdp);
-                                            }
-                                        }
-
-                                        //Stitch together what we will give to the AI
-                                        string ToGive = "Historical data for fact '" + DesiredFact.Tag + "' for company '" + cfq.EntityName + "' (CIK " + cfq.CIK.ToString() + "):";
-                                        foreach (FactDataPoint fdp in UniqueFDPs)
-                                        {
-
-                                            //Determine how to express period
-                                            string PeriodPart = "";
-                                            if (fdp.Start.HasValue) //if it is for a period
-                                            {
-                                                //Determine Year/Quarter End
-                                                string YearQuarterEnd = "";
-                                                if (fdp.Period == FiscalPeriod.FiscalYear)
-                                                {
-                                                    YearQuarterEnd = "Year End";
-                                                }
-                                                else
-                                                {
-                                                    YearQuarterEnd = "Quarter End";
-                                                }
-
-                                                //Figure out date part
-                                                string DatePart = fdp.End.ToShortDateString();
-
-                                                PeriodPart = YearQuarterEnd + " " + DatePart;
-                                            }
-                                            else //If it is just a snap in time, just do the date
-                                            {
-                                                PeriodPart = fdp.End.ToShortDateString();
-                                            }
-
-                                            //The value
-                                            string ValuePart = fdp.Value.ToString("#,##0");
-
-                                            //Add it
-                                            ToGive = ToGive + "\n" + "- " + PeriodPart + ": " + ValuePart;
-                                        }
-
-                                        //Give it to the AI
-                                        tool_call_response_payload = ToGive;
-                                    }
-                                    else
-                                    {
-                                        tool_call_response_payload = "Fact '" + fact + "' not found for company '" + cfq.EntityName + "' (CIK " + cfq.CIK.ToString() + ")";
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                tool_call_response_payload = "To use this tool you must provide the CIK and fact parameter!";
-                            }
-
                         }
                         else if (fc.FunctionName == "shell")
                         {
@@ -1151,17 +888,12 @@ namespace AIDA
                     PackagesQuestion.Title("What tools do you want enabled?");
                     PackagesQuestion.NotRequired(); //selecting none is fine!
                     PackagesQuestion.AddChoice("Web Search (built in)");
-                    PackagesQuestion.AddChoice("Finance");
                     PackagesQuestion.AddChoice("Shell");
 
                     //Defaults
                     if (SETTINGS.WebSearchEnabled)
                     {
                         PackagesQuestion.Select("Web Search (built in)");
-                    }
-                    if (SETTINGS.FinancePackageEnabled)
-                    {
-                        PackagesQuestion.Select("Finance");
                     }
                     if (SETTINGS.ShellEnabled)
                     {
@@ -1179,16 +911,6 @@ namespace AIDA
                     else
                     {
                         SETTINGS.WebSearchEnabled = false;
-                    }
-
-                    //Enable/Disable: Finance
-                    if (PackagesToEnable.Contains("Finance"))
-                    {
-                        SETTINGS.FinancePackageEnabled = true;
-                    }
-                    else
-                    {
-                        SETTINGS.FinancePackageEnabled = false;
                     }
 
                     //Enable/Disable: Shell
@@ -1243,27 +965,6 @@ namespace AIDA
             ToReturn.Add(tool_RenameFile);
 
             
-
-            //Add finance package?
-            if (SETTINGS.FinancePackageEnabled)
-            {
-                //Symbol to CIK
-                Function tool_SymbolToCik = new Function("get_cik", "Get the CIK (Central Index Key) for a company based on its stock symbol.");
-                tool_SymbolToCik.Parameters.Add(new FunctionInputParameter("symbol", "Stock symbol, i.e. 'MSFT'."));
-                ToReturn.Add(tool_SymbolToCik);
-
-                //Search available financial data
-                Function tool_search_financial_data = new Function("search_financial_data", "Search for available XBRL facts the company has reported before (i.e. 'AssetsCurrent', 'Liabilities', etc).");
-                tool_search_financial_data.Parameters.Add(new FunctionInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
-                tool_search_financial_data.Parameters.Add(new FunctionInputParameter("search_term", "The term to search for, i.e. 'revenue' or 'assets' or 'advertising'."));
-                ToReturn.Add(tool_search_financial_data);
-
-                //Get financial data
-                Function tool_get_financial_data = new Function("get_financial_data", "Gather current and historical financial data for a particular company for a particular financial XBRL fact (i.e. 'Assets' or 'CurrentLiabilities').");
-                tool_get_financial_data.Parameters.Add(new FunctionInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
-                tool_get_financial_data.Parameters.Add(new FunctionInputParameter("fact", "The name (tag) of the specific XBRL fact you are requesting historical financial data for (i.e. 'Assets' or 'CurrentLiabilities' or 'RevenueNet')"));
-                ToReturn.Add(tool_get_financial_data);
-            }
 
             //Is shell enabled?
             if (SETTINGS.ShellEnabled)
