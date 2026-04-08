@@ -448,7 +448,7 @@ namespace AIDA
                                 } 
 
                                 //Fill in response
-                                tool_call_response_payload = "Image at '" + path + "' has been added as another message.";
+                                tool_call_response_payload = "Image at '" + path + "' has been added by the user.";
                             }
                             else
                             {
