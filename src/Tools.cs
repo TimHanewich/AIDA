@@ -102,6 +102,10 @@ Output Handling: Both success and error messages are returned. If a command fail
             
         public static async Task<string> ExecuteShellAsync(string command)
         {
+            //Create CancellationTokenSource with 60-second timeout
+            TimeSpan timeout = TimeSpan.FromMinutes(2);
+            CancellationTokenSource cts = new CancellationTokenSource(timeout);
+
             //Set up command
             Command cmd;
             if (OnWindows())
@@ -123,8 +127,16 @@ Output Handling: Both success and error messages are returned. If a command fail
             cmd = cmd.WithValidation(CommandResultValidation.None); //do not throw an exception if there is an issue
 
             //Execute
-            BufferedCommandResult bcr = await cmd.ExecuteBufferedAsync();
-
+            BufferedCommandResult bcr;
+            try
+            {
+                bcr = await cmd.ExecuteBufferedAsync(cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return "Timeout: the process was killed because it exceeded " + timeout.TotalSeconds.ToString("#,##0") + " seconds.";
+            }
+            
             //Collect results
             string ToReturn = string.Empty;
             if (bcr.StandardOutput != "" && bcr.StandardError != "")
