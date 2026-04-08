@@ -4,19 +4,21 @@
 **AIDA**, short for **AI** **D**esktop **A**ssistant is a lightweight, console-based client for interfacing with a large language model.
 
 AIDA has built-in tools (function-calling) that give it several capabilities:
-- **Save File** - save a .txt file to the local computer.
-- **Open Folder** - read the contents of a folder (files and sub-folders within it)
-- **Read File** - read the contents of a file on the local computer.
-- **Read Webpage** - read the content on a webpage (by a specific URL)
-- **Check Weather** - check the weather for any location in the world.
+- **Save File** - save a file to the local computer in the current directory.
+- **Read File** - read the contents of a file of any type (txt, pdf, word document, etc.) from the local computer.
+- **Read Webpage** - make an HTTP GET call to retrieve the contents of a URL endpoint (webpage or document).
+- **Check Current Time** - check the current date and time.
+- **Rename File** - rename a specific file on the local computer.
+- **View Image** - view an image from a local path or URL.
+- **Shell** - execute a shell command on the host machine (enabled via settings).
 
-In addition to the above capabilities, you can run several commands to manage the interfacing with the LLM (run command `help` to list these): 
-- `tokens` - check the token consumption (input/output) for the current chat session
-- `clear` - clear the chat history
-- `tools` - list the tools (function calling) available to AIDA
-- `save` - save the current chat history to a local file
-- `load` - load chat history from a local file
-- `settings` - update endpoint settings, color and theme, etc.
+In addition to the above capabilities, you can run several commands to manage the interfacing with the LLM (run command `/help` to list these): 
+- `/tokens` - check the token consumption (input/output) for the current chat session.
+- `/clear` - clear the chat history.
+- `/tools` - list the tools (function calling) available to AIDA.
+- `/settings` - open AIDA's settings menu.
+- `/auth` - authenticate into Foundry if using Service Principal.
+- `/stats` - view usage statistics.
 
 ## How to run AIDA
 AIDA is super lightweight and easy to run on Windows and Linux!
