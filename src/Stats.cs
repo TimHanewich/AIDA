@@ -79,6 +79,22 @@ namespace AIDA
 
         public void PrintReport()
         {
+            //Header
+            AnsiConsole.MarkupLine("[bold][underline][blue]AIDA STAT REPORT[/][/][/]");
+
+            //Cumulative
+            Console.WriteLine();
+            AnsiConsole.MarkupLine("[underline]CUMULATIVE CONSUMPTION[/]");
+            int CumInput = 0;
+            int CumOutput = 0;
+            foreach (ConsumptionEvent ce in ConsumptionEvents)
+            {
+                CumInput = CumInput + ce.InputTokens;
+                CumOutput = CumOutput + ce.OutputTokens;
+            }
+            AnsiConsole.MarkupLine("Input Tokens: " + CumInput.ToString("#,##0"));
+            AnsiConsole.MarkupLine("Output Tokens: " + CumOutput.ToString("#,##0"));
+
             //Prepare a list of last 7 days
             List<DateTime> Last7Days = new List<DateTime>();
             for (int i = 0; i < 7; i++)
@@ -86,8 +102,9 @@ namespace AIDA
                 Last7Days.Add(DateTime.Today.AddDays(i * -1));
             }
 
-            AnsiConsole.MarkupLine("[blue][underline]Stat Report[/][/]");
-
+            //pull data per day
+            Console.WriteLine();
+            AnsiConsole.MarkupLine("[underline]Consumption Breakdown, Last 7 Days[/]");
             foreach (DateTime day in Last7Days)
             {
 
@@ -108,17 +125,8 @@ namespace AIDA
                 AnsiConsole.MarkupLine("[bold]" + day.Month.ToString() + "/" + day.Day.ToString() + "/" + day.Year.ToString() + "[/]: " + InputThisDay.ToString("#,##0") + " input tokens, " + OutputThisDay.ToString("#,##0") + " output tokens");
             }
 
+            //Last break
             Console.WriteLine();
-            AnsiConsole.WriteLine("[underline]CUMULATIVE CONSUMPTION[/]");
-            int CumInput = 0;
-            int CumOutput = 0;
-            foreach (ConsumptionEvent ce in ConsumptionEvents)
-            {
-                CumInput = CumInput + ce.InputTokens;
-                CumOutput = CumOutput + ce.OutputTokens;
-            }
-            AnsiConsole.MarkupLine("Input Tokens: " + CumInput.ToString("#,##0"));
-            AnsiConsole.MarkupLine("Output Tokens: " + CumOutput.ToString("#,##0"));
         }
     }
 }

@@ -160,6 +160,12 @@ namespace AIDA
                     await Tools.FoundryAuthAsync(SETTINGS);
                     goto Input;
                 }
+                else if (input.ToLower() == "stats")
+                {
+                    Stats s = Stats.Load();
+                    s.PrintReport();
+                    goto Input;
+                }
 
                 //It did not trigger a special command, so add it to the history, it will be passed to the AI!
                 AGENT.Inputs.Add(new Message(Role.user, input));
