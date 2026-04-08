@@ -71,13 +71,16 @@ namespace AIDA
             try
             {
                 r = await FoundryConnection.CreateResponseAsync(rr);
-                
-                
             }
             catch (Exception ex)
             {
                 throw new Exception("Requesting response from Foundry failed! Msg: " + ex.Message);
             }
+
+            //Store in cumulative stats
+            Stats s = Stats.Load();
+            s.AddConsumptionEvent(r);
+            s.Save();
 
             //Handle that response
             PreviousResponseID = r.Id;
