@@ -270,37 +270,7 @@ namespace AIDA
                         string tool_call_response_payload = "";
 
                         //Call to the tool and save the response from that tool
-                        if (fc.FunctionName == "check_weather")
-                        {
-
-                            //Get latitude
-                            float? latitude = null;
-                            JProperty? prop_latitude = fc.Arguments.Property("latitude");
-                            if (prop_latitude != null)
-                            {
-                                latitude = Convert.ToSingle(prop_latitude.Value.ToString());
-                            }
-
-                            //Get longitude
-                            float? longitude = null;
-                            JProperty? prop_longitude = fc.Arguments.Property("longitude");
-                            if (prop_longitude != null)
-                            {
-                                longitude = Convert.ToSingle(prop_longitude.Value.ToString());
-                            }
-
-                            //Are either not there?
-                            if (latitude == null || longitude == null)
-                            {
-                                tool_call_response_payload = "You did not provide the latitude and longtiude correctly! You must provide the lat & long of the location you want to check the weather for."; //mesasge for the AI (I hope the AI will know what the lat and long is)
-                            }
-                            else
-                            {
-                                AnsiConsole.Markup("[gray][italic]Checking weather for " + latitude.Value.ToString() + ", " + longitude.Value.ToString() + "... [/][/]");
-                                tool_call_response_payload = await CheckWeather(latitude.Value, longitude.Value);
-                            }
-                        }
-                        else if (fc.FunctionName == "save_file")
+                        if (fc.FunctionName == "save_file")
                         {
                             //Get file name
                             string file_name = "dummy.txt";
@@ -745,19 +715,6 @@ namespace AIDA
 
         #region "TOOLS FOR THE AI"
 
-        public static async Task<string> CheckWeather(float latitude, float longitude)
-        {
-            string url = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude.ToString() + "&longitude=" + longitude.ToString() + "&current=temperature_2m,relative_humidity_2m,precipitation,rain,apparent_temperature,is_day,showers,snowfall,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&temperature_unit=fahrenheit";
-            HttpClient hc = new HttpClient();
-            HttpResponseMessage resp = await hc.GetAsync(url);
-            string content = await resp.Content.ReadAsStringAsync();
-            if (resp.StatusCode != HttpStatusCode.OK)
-            {
-                throw new Exception("Request to open-meteo.com returned code '" + resp.StatusCode.ToString() + "'. Msg: " + content);
-            }
-            return content; //Just return the entire body
-        }
-
         public static string SaveFile(string file_name, string file_content)
         {
             string DestinationDirectory = Directory.GetCurrentDirectory();
@@ -1194,7 +1151,6 @@ namespace AIDA
                     PackagesQuestion.Title("What tools do you want enabled?");
                     PackagesQuestion.NotRequired(); //selecting none is fine!
                     PackagesQuestion.AddChoice("Web Search (built in)");
-                    PackagesQuestion.AddChoice("Weather");
                     PackagesQuestion.AddChoice("Finance");
                     PackagesQuestion.AddChoice("Shell");
 
@@ -1206,10 +1162,6 @@ namespace AIDA
                     if (SETTINGS.FinancePackageEnabled)
                     {
                         PackagesQuestion.Select("Finance");
-                    }
-                    if (SETTINGS.WeatherPackageEnabled)
-                    {
-                        PackagesQuestion.Select("Weather");
                     }
                     if (SETTINGS.ShellEnabled)
                     {
@@ -1237,16 +1189,6 @@ namespace AIDA
                     else
                     {
                         SETTINGS.FinancePackageEnabled = false;
-                    }
-
-                    //Enable/Disable: Weather
-                    if (PackagesToEnable.Contains("Weather"))
-                    {
-                        SETTINGS.WeatherPackageEnabled = true;
-                    }
-                    else
-                    {
-                        SETTINGS.WeatherPackageEnabled = false;
                     }
 
                     //Enable/Disable: Shell
@@ -1321,16 +1263,6 @@ namespace AIDA
                 tool_get_financial_data.Parameters.Add(new FunctionInputParameter("CIK", "The company's central index key (CIK), i.e. '1655210'", "number"));
                 tool_get_financial_data.Parameters.Add(new FunctionInputParameter("fact", "The name (tag) of the specific XBRL fact you are requesting historical financial data for (i.e. 'Assets' or 'CurrentLiabilities' or 'RevenueNet')"));
                 ToReturn.Add(tool_get_financial_data);
-            }
-
-            //Weather package?
-            if (SETTINGS.WeatherPackageEnabled)
-            {
-                //Add tool: check weather
-                Function tool_weather = new Function("check_weather", "Check the weather for the current location.");
-                tool_weather.Parameters.Add(new FunctionInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
-                tool_weather.Parameters.Add(new FunctionInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
-                ToReturn.Add(tool_weather);
             }
 
             //Is shell enabled?
