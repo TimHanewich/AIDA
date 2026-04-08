@@ -186,27 +186,11 @@ namespace AIDA
                         //If we need a new token, get it
                         if (NeedNewToken)
                         {
-                            //Authenticate now
-                            AnsiConsole.Markup("Requesting new access token... ");
-                            EntraAuthenticationHandler auth = new EntraAuthenticationHandler();
-                            auth.TenantID = SETTINGS.TenantID;
-                            auth.ClientID = SETTINGS.ClientID;
-                            auth.ClientSecret = SETTINGS.ClientSecret;
-                            try
-                            {
-                                SETTINGS.AuthenticatedTokenCredentials = await auth.AuthenticateAsync();
-                                AnsiConsole.MarkupLine("[green]success![/]");
-                            }
-                            catch (Exception ex)
-                            {
-                               AnsiConsole.MarkupLine("[red]Authentication failed! Msg: " + Markup.Escape(ex.Message) + "[/]");
-                            }
+                            await Tools.FoundryAuthAsync(SETTINGS);
 
                             //If it was successful
                             if (SETTINGS.AuthenticatedTokenCredentials != null)
                             {
-                                TimeSpan UntilExpiration = SETTINGS.AuthenticatedTokenCredentials.Expires - DateTime.UtcNow;
-                                AnsiConsole.MarkupLine("[gray][italic]expires: " + SETTINGS.AuthenticatedTokenCredentials.Expires.ToLocalTime().ToString() + " (in " + UntilExpiration.TotalHours.ToString("#,##0.0") + " hours)[/][/]");
                                 AGENT.FoundryConnection.AccessToken = SETTINGS.AuthenticatedTokenCredentials.AccessToken; //Plug it in
                                 SETTINGS.Save(); //save it to settings so it is hard saved
                             }
