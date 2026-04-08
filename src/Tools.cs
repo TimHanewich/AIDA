@@ -232,6 +232,11 @@ Output Handling: Both success and error messages are returned. If a command fail
             {
                 TimeSpan UntilExpiration = current_settings.AuthenticatedTokenCredentials.Expires - DateTime.UtcNow;
                 AnsiConsole.MarkupLine("[gray][italic]expires: " + current_settings.AuthenticatedTokenCredentials.Expires.ToLocalTime().ToString() + " (in " + UntilExpiration.TotalHours.ToString("#,##0.0") + " hours)[/][/]");
+
+                //Save
+                AnsiConsole.Markup("Saving... ");
+                current_settings.Save();
+                AnsiConsole.MarkupLine("saved.");
             }
 
             //Line break
