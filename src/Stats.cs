@@ -9,9 +9,10 @@ namespace AIDA
 {
     public class ConsumptionEvent
     {
-        public long Timestamp {get; set;}
-        public int InputTokens {get; set;}
-        public int OutputTokens {get; set;}
+        public long Timestamp {get; set;}          //Unix timestamp, in seconds
+        public string? Model {get; set;}           //the name of the model that served it
+        public int InputTokens {get; set;}         //Input tokens consumed in this 1 response request
+        public int OutputTokens {get; set;}        //Output tokens consumed in this 1 response request
     }
 
     public class Stats
@@ -71,6 +72,7 @@ namespace AIDA
         public void AddConsumptionEvent(Response resp)
         {
             ConsumptionEvent ce = new ConsumptionEvent();
+            ce.Model = resp.Model;
             ce.Timestamp = resp.CreatedAt.ToUnixTimeSeconds();
             ce.InputTokens = resp.InputTokensConsumed;
             ce.OutputTokens = resp.OutputTokensConsumed;
