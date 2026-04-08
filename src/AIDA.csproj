@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="CliWrap" Version="3.10.1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.74" />
     <PackageReference Include="PdfPig" Version="0.1.9" />
     <PackageReference Include="SecuritiesExchangeCommission.Edgar" Version="7.0.0" />
