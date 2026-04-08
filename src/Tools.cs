@@ -1,4 +1,7 @@
 using System;
+using CliWrap;
+using CliWrap.Buffered;
+using System.Runtime.InteropServices;
 
 namespace AIDA
 {
@@ -106,6 +109,66 @@ If you are asked to find opportunities that a user in MSX (a person) is working 
             sysmsg = sysmsg.Substring(0, sysmsg.Length - 2);
 
             return sysmsg;
+        }
+    
+        
+        public static async Task<string> ExecuteShellAsync(string command)
+        {
+            //Set up command
+            Command cmd;
+            if (OnWindows())
+            {
+                cmd = Cli.Wrap("cmd.exe");
+                cmd = cmd.WithArguments("/c " + command);
+            }
+            else if (OnLinux())
+            {
+                cmd = Cli.Wrap("/bin/bash");
+                cmd = cmd.WithArguments("-c \"" + command + "\"");
+            }
+            else
+            {
+                throw new Exception("Unable to execute shell script... Unable to determine if on Windows or Linux.");
+            }
+            
+            //Do not fail if there is an issue
+            cmd = cmd.WithValidation(CommandResultValidation.None); //do not throw an exception if there is an issue
+
+            //Execute
+            BufferedCommandResult bcr = await cmd.ExecuteBufferedAsync();
+
+            //Collect results
+            string ToReturn = string.Empty;
+            if (bcr.StandardOutput != "" && bcr.StandardError != "")
+            {
+                ToReturn = "OUTPUT:" + "\n" + bcr.StandardError + "\n\n" + "ERRORS:" + "\n" + bcr.StandardError;
+            }
+            else if (bcr.StandardOutput != "")
+            {
+                ToReturn = bcr.StandardOutput;
+            }
+            else if (bcr.StandardError != "")
+            {
+                ToReturn = bcr.StandardError;
+            }
+
+            return ToReturn;
+        }
+
+
+
+
+
+        //Are we on windows?
+        public static bool OnWindows()
+        {
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        }
+
+        //Are we on linux?
+        public static bool OnLinux()
+        {
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         }
     }
 }
