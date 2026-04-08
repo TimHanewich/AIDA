@@ -360,20 +360,6 @@ namespace AIDA
                                 tool_call_response_payload = "Unable to read webpage because the 'url' parameter was not successfully provided by the AI.";
                             }
                         }
-                        else if (fc.FunctionName == "open_folder")
-                        {
-                            //Get the folder_path variable
-                            JProperty? prop_folder_path = fc.Arguments.Property("folder_path");
-                            if (prop_folder_path == null)
-                            {
-                                tool_call_response_payload = "You did not provide the folder path correctly! Provide it as the 'folder_path' property."; //message back to the AI.
-                            }
-                            else
-                            {
-                                string folder_path = prop_folder_path.Value.ToString();
-                                tool_call_response_payload = OpenFolder(folder_path);
-                            }
-                        }
                         else if (fc.FunctionName == "rename_file")
                         {
                             //Define input params the AI must provide
@@ -1091,51 +1077,6 @@ namespace AIDA
             }
         }
 
-        public static string OpenFolder(string path)
-        {
-            //Print message
-            string FolderName = System.IO.Path.GetFileName(path);
-            string FullPath = System.IO.Path.GetFullPath(path);
-            AnsiConsole.Markup("[gray][italic]opening folder '" + Markup.Escape(FullPath) + "'... [/][/]");
-
-            //Is it a real directory?
-            if (System.IO.Directory.Exists(path) == false)
-            {
-                return "'" + path + "' is not a directory!";
-            }
-
-            //Get the stuff in it
-            string[] folders = System.IO.Directory.GetDirectories(path);
-            string[] files = System.IO.Directory.GetFiles(path);
-
-            //Put them in a variable
-            string ToReturn = "The directory '" + path + "' contains the following:" + "\n";
-
-            //Files
-            ToReturn = ToReturn + "\n" + "Files:" + "\n";
-            foreach (string file in files)
-            {
-                string? name = System.IO.Path.GetFileName(file);
-                if (name != null)
-                {
-                    ToReturn = ToReturn + "\"" + name + "\"" + "\n";
-                }
-            }
-
-            //Folders
-            ToReturn = ToReturn + "\n" + "Child directories (folders):" + "\n";
-            foreach (string folder in folders)
-            {
-                string? name = System.IO.Path.GetFileName(folder);
-                if (name != null)
-                {
-                    ToReturn = ToReturn + "\"" + name + "\"" + "\n";
-                }
-            }
-
-            return ToReturn;
-        }
-
         #endregion
 
         #region "UTILITIES"
@@ -1610,11 +1551,6 @@ namespace AIDA
             Function tool_readwebpage = new Function("read_webpage", "Read the contents of a particular web page.");
             tool_readwebpage.Parameters.Add(new FunctionInputParameter("url", "The specific URL of the webpage to read."));
             ToReturn.Add(tool_readwebpage);
-
-            //Add tool: Open Folder
-            Function tool_OpenFolder = new Function("open_folder", "Open a folder (directory) to see its contents (files and child folders).");
-            tool_OpenFolder.Parameters.Add(new FunctionInputParameter("folder_path", "Path of the folder, i.e. 'C:\\Users\\timh\\Downloads\\MyFolder' or '/home/tim/Downloads/MyFolder/'"));
-            ToReturn.Add(tool_OpenFolder);
 
             //Add tool: rename file
             Function tool_RenameFile = new Function("rename_file", "Rename a specific file on the user's drive.");
