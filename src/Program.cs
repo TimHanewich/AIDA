@@ -100,19 +100,20 @@ namespace AIDA
                 }
 
                 //Handle special inputs
-                if (input.ToLower() == "help")
+                if (input.ToLower() == "/help")
                 {
                     AnsiConsole.MarkupLine("Here are the commands you can use:");
                     Console.WriteLine();
-                    AnsiConsole.MarkupLine("[bold]clear[/] - clear the chat history.");
-                    AnsiConsole.MarkupLine("[bold]tokens[/] - check token consumption for this session.");
-                    AnsiConsole.MarkupLine("[bold]settings[/] - Open AIDA's settings menu");
-                    AnsiConsole.MarkupLine("[bold]tools[/] - list all tools AIDA has available to it.");
-                    AnsiConsole.MarkupLine("[bold]auth[/] - authenticate into Foundry if using Service Principal.");
+                    AnsiConsole.MarkupLine("[bold]/clear[/] - clear the chat history.");
+                    AnsiConsole.MarkupLine("[bold]/tokens[/] - check token consumption for this session.");
+                    AnsiConsole.MarkupLine("[bold]/settings[/] - Open AIDA's settings menu");
+                    AnsiConsole.MarkupLine("[bold]/tools[/] - list all tools AIDA has available to it.");
+                    AnsiConsole.MarkupLine("[bold]/auth[/] - authenticate into Foundry if using Service Principal.");
+                    AnsiConsole.MarkupLine("[bold]/stats[/] - view usage statistics.");
                     Console.WriteLine();
                     goto Input;
                 }
-                if (input.ToLower() == "tokens")
+                if (input.ToLower() == "/tokens")
                 {
 
                     //Print tokens
@@ -124,7 +125,7 @@ namespace AIDA
                     Console.WriteLine();
                     goto Input;
                 }
-                else if (input.ToLower() == "settings") //Where the config files are
+                else if (input.ToLower() == "/settings") //Where the config files are
                 {
 
                     //Present settings menu and allow them to change things
@@ -136,7 +137,7 @@ namespace AIDA
                     Console.WriteLine();
                     goto Input;
                 }
-                else if (input.ToLower() == "tools")
+                else if (input.ToLower() == "/tools")
                 {
                     AnsiConsole.MarkupLine("[underline]AIDA's Available Tools[/]");
                     foreach (Function f in DetermineAvailableFunctions())
@@ -146,7 +147,7 @@ namespace AIDA
                     Console.WriteLine();
                     goto Input;
                 }
-                else if (input.ToLower() == "clear")
+                else if (input.ToLower() == "/clear")
                 {
                     AGENT.ClearHistory();
                     AGENT.Inputs.Add(new Message(Role.user, Tools.GetSystemPrompt(SETTINGS))); //add the system message back (need that!)
@@ -154,13 +155,13 @@ namespace AIDA
                     Console.WriteLine();
                     goto Input;
                 }
-                else if (input.ToLower() == "auth")
+                else if (input.ToLower() == "/auth")
                 {
                     AnsiConsole.MarkupLine("Attempting Microsoft Foundry Authentication... ");
                     await Tools.FoundryAuthAsync(SETTINGS);
                     goto Input;
                 }
-                else if (input.ToLower() == "stats")
+                else if (input.ToLower() == "/stats")
                 {
                     Stats s = Stats.Load();
                     s.PrintReport();
