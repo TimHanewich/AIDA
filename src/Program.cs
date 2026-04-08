@@ -1499,6 +1499,7 @@ namespace AIDA
                     PackagesQuestion.AddChoice("Weather");
                     PackagesQuestion.AddChoice("Finance");
                     PackagesQuestion.AddChoice("MSX");
+                    PackagesQuestion.AddChoice("Shell");
 
                     //Defaults
                     if (SETTINGS.WebSearchEnabled)
@@ -1516,6 +1517,10 @@ namespace AIDA
                     if (SETTINGS.MsxPackageEnabled)
                     {
                         PackagesQuestion.Select("MSX");
+                    }
+                    if (SETTINGS.ShellEnabled)
+                    {
+                        PackagesQuestion.Select("Shell");
                     }
 
                     //Ask
@@ -1560,6 +1565,9 @@ namespace AIDA
                     {
                         SETTINGS.MsxPackageEnabled = false;
                     }
+
+                    //Enable/Disable: Shell
+                    SETTINGS.ShellEnabled = PackagesToEnable.Contains("Shell");
 
                     //Confirm
                     AnsiConsole.MarkupLine("[green][bold]" + PackagesToEnable.Count.ToString() + " packages enabled[/][/]");
