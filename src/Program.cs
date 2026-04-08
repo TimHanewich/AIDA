@@ -419,6 +419,7 @@ namespace AIDA
                             //Handle
                             if (path != "")
                             {
+                                AnsiConsole.Markup("[gray][italic]adding image at '" + path + "'... [/][/]");
                                 if (System.IO.File.Exists(path)) // it is a file on-device
                                 {
                                     //Try loading the image 
