@@ -110,8 +110,7 @@ If you are asked to find opportunities that a user in MSX (a person) is working 
 
             return sysmsg;
         }
-    
-        
+            
         public static async Task<string> ExecuteShellAsync(string command)
         {
             //Set up command
