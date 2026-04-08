@@ -397,7 +397,7 @@ namespace AIDA
                             //Handle
                             if (cmd != null)
                             {
-                                AnsiConsole.Markup("[gray][italic]running shell '" + cmd + "'... [/][/]");
+                                AnsiConsole.Markup("[gray][italic]running shell '" + Markup.Escape(cmd) + "'... [/][/]");
                                 string response = await Tools.ExecuteShellAsync(cmd);
                                 tool_call_response_payload = response;
                             }
@@ -425,9 +425,10 @@ namespace AIDA
                                     //Try loading the image 
                                     try
                                     {
-                                        InputImage ii = InputImage.FromFile(path);
                                         Message img_msg = new Message();
                                         img_msg.Role = Role.user;
+                                        img_msg.Text = "This is the image at '" + path + "':";
+                                        InputImage ii = InputImage.FromFile(path);
                                         img_msg.Images.Add(ii);
                                         AGENT.Inputs.Add(img_msg); //add it as a message to go in next time.
                                     }
@@ -438,12 +439,16 @@ namespace AIDA
                                 }
                                 else //may be a URL
                                 {
-                                    InputImage ii = InputImage.FromURL(path);
                                     Message img_msg = new Message();
                                     img_msg.Role = Role.user;
+                                    img_msg.Text = "This is the image at '" + path + "':";
+                                    InputImage ii = InputImage.FromURL(path);
                                     img_msg.Images.Add(ii);
                                     AGENT.Inputs.Add(img_msg); //add it as a message to go in next time.
                                 } 
+
+                                //Fill in response
+                                tool_call_response_payload = "Image at '" + path + "' has been added as another message.";
                             }
                             else
                             {
