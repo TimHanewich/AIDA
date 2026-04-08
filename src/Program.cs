@@ -310,7 +310,7 @@ namespace AIDA
                             JProperty? prop_file_name = fc.Arguments.Property("file_name");
                             if (prop_file_name != null)
                             {
-                                file_name = prop_file_name.Value.ToString() + ".txt";
+                                file_name = prop_file_name.Value.ToString();
                             }
 
                             //Get file content
