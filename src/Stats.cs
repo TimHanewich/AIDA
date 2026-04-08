@@ -7,6 +7,7 @@ using TimHanewich.Foundry.OpenAI.Responses;
 
 namespace AIDA
 {
+    //View a "ConsumptionEvent" as an individual Response that was provided by the API (one ResponseRequest, one Request... so one "unit" of consumption)
     public class ConsumptionEvent
     {
         public long Timestamp {get; set;}          //Unix timestamp, in seconds
