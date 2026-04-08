@@ -303,7 +303,7 @@ namespace AIDA
                                 tool_call_response_payload = await CheckWeather(latitude.Value, longitude.Value);
                             }
                         }
-                        else if (fc.FunctionName == "save_txt_file")
+                        else if (fc.FunctionName == "save_file")
                         {
                             //Get file name
                             string file_name = "dummy.txt";
@@ -1010,10 +1010,10 @@ namespace AIDA
 
         public static string SaveFile(string file_name, string file_content)
         {
-            string DestinationDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+            string DestinationDirectory = Directory.GetCurrentDirectory();
             string DestinationPath = System.IO.Path.Combine(DestinationDirectory, file_name);
             System.IO.File.WriteAllText(DestinationPath, file_content);
-            return "File successfully saved to '" + DestinationPath + "'. Explicitly tell the user where the file was saved in confirming it was saved (tell the full file path).";
+            return "File successfully saved to '" + DestinationPath + "'.";
         }
 
         public static async Task<string> ReadWebpage(string url)
@@ -1591,10 +1591,10 @@ namespace AIDA
         {
             List<Function> ToReturn = new List<Function>();
 
-            //Add tool: save text file
-            Function tool_savetxtfile = new Function("save_txt_file", "Save a text file to the user's computer.");
-            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("file_name", "The name of the file, WITHOUT the '.txt' file extension at the end."));
-            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("file_content", "The content of the .txt file (raw text)."));
+            //Add tool: save file
+            Function tool_savetxtfile = new Function("save_file", "Save a file to the user's computer in the current directory.");
+            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("file_name", "The name of the file, like `myfile.txt` or `report.md`."));
+            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("file_content", "The content of the file."));
             ToReturn.Add(tool_savetxtfile);
 
             //Add tool: read file
