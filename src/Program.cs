@@ -1548,7 +1548,7 @@ namespace AIDA
             ToReturn.Add(tool_checkcurrenttime);
 
             //Add tool: open web page
-            Function tool_readwebpage = new Function("web_fetch", "Make HTTP GET call to retrieve the contents of a URL endpoint (i.e. a webpage or document).");
+            Function tool_readwebpage = new Function("web_fetch", "Make HTTP GET call to retrieve the contents of a URL endpoint (i.e. a webpage or document). Use this tool if the user asks you to read a webpage or retrieve something specific.");
             tool_readwebpage.Parameters.Add(new FunctionInputParameter("url", "The specific URL to GET."));
             ToReturn.Add(tool_readwebpage);
 
