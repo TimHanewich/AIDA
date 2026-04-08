@@ -677,239 +677,6 @@ namespace AIDA
                             }
 
                         }
-                        else if (fc.FunctionName == "msx_search_users")
-                        {
-                            if (SETTINGS.msx_cookie != null)
-                            {
-                                MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
-                                JProperty? prop_fullname = fc.Arguments.Property("fullname");
-                                if (prop_fullname != null)
-                                {
-                                    string fullname = prop_fullname.Value.ToString();
-                                    AnsiConsole.Markup("[gray][italic]searching for user '" + fullname + "'... [/][/]");
-                                    try
-                                    {
-                                        JArray results = await msxi.SearchUsersAsync(fullname);
-                                        tool_call_response_payload = results.ToString();
-                                    }
-                                    catch (Exception ex2)
-                                    {
-                                        tool_call_response_payload = ex2.Message;
-                                    }
-                                }
-                                else
-                                {
-                                    tool_call_response_payload = "You must provide property 'fullname'!";
-                                }
-                            }
-                            else
-                            {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
-                                AnsiConsole.Markup("[red]" + errmsg + "[/]");
-                                tool_call_response_payload = errmsg;
-                            }
-                        }
-                        else if (fc.FunctionName == "msx_search_accounts")
-                        {
-                            if (SETTINGS.msx_cookie != null)
-                            {
-                                MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
-                                JProperty? prop_name = fc.Arguments.Property("name");
-                                if (prop_name != null)
-                                {
-                                    string name = prop_name.Value.ToString();
-                                    AnsiConsole.Markup("[gray][italic]searching '" + name + "'... [/][/]");
-                                    try
-                                    {
-                                        JArray accounts = await msxi.SearchAccountsAsync(name);
-                                        AnsiConsole.Markup("[gray][italic]" + accounts.Count.ToString() + " found [/][/]");
-                                        tool_call_response_payload = accounts.ToString(Formatting.None);
-                                    }
-                                    catch (Exception ex2)
-                                    {
-                                        tool_call_response_payload = ex2.Message;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
-                                AnsiConsole.Markup("[red]" + errmsg + "[/]");
-                                tool_call_response_payload = errmsg;
-                            }
-                        }
-                        else if (fc.FunctionName == "msx_search_opportunities")
-                        {
-                            if (SETTINGS.msx_cookie != null)
-                            {
-                                MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
-                                JProperty? prop_accountid = fc.Arguments.Property("accountid");
-                                JProperty? prop_name = fc.Arguments.Property("name");
-                                if (prop_accountid != null && prop_name != null)
-                                {
-                                    string accountid = prop_accountid.Value.ToString();
-                                    string name = prop_name.Value.ToString();
-
-                                    AnsiConsole.Markup("[gray][italic]" + "Searching account '" + accountid + "' for '" + name + "'... [/][/]");
-                                    try
-                                    {
-                                        JArray opps = await msxi.SearchOpportunitiesAsync(accountid, name);
-                                        AnsiConsole.Markup("[gray][italic]" + opps.Count.ToString() + " found [/][/]");
-                                        tool_call_response_payload = opps.ToString(Formatting.None);
-                                    }
-                                    catch (Exception ex2)
-                                    {
-                                        tool_call_response_payload = ex2.Message;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
-                                AnsiConsole.Markup("[red]" + errmsg + "[/]");
-                                tool_call_response_payload = errmsg;
-                            }
-                        }
-                        else if (fc.FunctionName == "msx_log_task")
-                        {
-                            if (SETTINGS.msx_cookie != null)
-                            {
-                                MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
-                                JProperty? prop_title = fc.Arguments.Property("title");
-                                JProperty? prop_description = fc.Arguments.Property("description");
-                                JProperty? prop_timestamp = fc.Arguments.Property("timestamp");
-                                JProperty? prop_accountid = fc.Arguments.Property("accountid");
-                                JProperty? prop_opportunityid = fc.Arguments.Property("opportunityid");
-                                if (prop_title != null && prop_description != null && prop_timestamp != null)
-                                {
-                                    string title = prop_title.Value.ToString();
-                                    string description = prop_description.Value.ToString();
-                                    DateTime timestamp = DateTime.Parse(prop_timestamp.Value.ToString());
-
-                                    //Console.WriteLine(fc.Arguments.ToString());
-                                    //Console.ReadLine();
-
-                                    //Check if opportunityid is added first because THAT is priority.
-                                    if (prop_opportunityid != null && prop_opportunityid.Value.ToString() != "")
-                                    {
-                                        try
-                                        {
-                                            await msxi.CreateTaskAsync(title, description, timestamp, tiedto_opportunity: prop_opportunityid.Value.ToString());
-                                            tool_call_response_payload = "Created task tied to opportunity '" + prop_opportunityid.Value.ToString() + "' successfully.";
-                                        }
-                                        catch (Exception ex2)
-                                        {
-                                            tool_call_response_payload = ex2.Message;
-                                        }
-                                    }
-                                    else if (prop_accountid != null && prop_accountid.Value.ToString() != "")
-                                    {
-                                        try
-                                        {
-                                            await msxi.CreateTaskAsync(title, description, timestamp, tiedto_account: prop_accountid.Value.ToString());
-                                            tool_call_response_payload = "Created task tied to account '" + prop_accountid.Value.ToString() + "' successfully.";
-                                        }
-                                        catch (Exception ex2)
-                                        {
-                                            tool_call_response_payload = ex2.Message;
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
-                                AnsiConsole.Markup("[red]" + errmsg + "[/]");
-                                tool_call_response_payload = errmsg;
-                            }
-                        }
-                        else if (fc.FunctionName == "msx_my_recent_tasks")
-                        {
-                            if (SETTINGS.msx_cookie != null)
-                            {
-                                MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
-                                try
-                                {
-                                    JArray RecentTaskData = await msxi.GetMyRecentTasksAsync();
-                                    tool_call_response_payload = RecentTaskData.ToString();
-                                }
-                                catch (Exception ex2)
-                                {
-                                    tool_call_response_payload = ex2.Message;
-                                }
-                            }
-                            else
-                            {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
-                                AnsiConsole.Markup("[red]" + errmsg + "[/]");
-                                tool_call_response_payload = errmsg;
-                            }
-                        }
-                        else if (fc.FunctionName == "msx_get_user_opportunities")
-                        {
-                            if (SETTINGS.msx_cookie != null)
-                            {
-                                MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
-                                JProperty? prop_systemuserid = fc.Arguments.Property("systemuserid");
-                                if (prop_systemuserid != null)
-                                {
-                                    string systemuserid = prop_systemuserid.Value.ToString();
-                                    AnsiConsole.Markup("[gray][italic]getting opportunities of user '" + systemuserid + "'... [/][/]");
-                                    try
-                                    {
-                                        JArray opps = await msxi.GetAssociatedOpportunitiesAsync(systemuserid);
-                                        tool_call_response_payload = opps.ToString();
-                                    }
-                                    catch (Exception ex2)
-                                    {
-                                        tool_call_response_payload = ex2.Message;
-                                    }
-                                }
-                                else
-                                {
-                                    tool_call_response_payload = "You must provide systemuserid parameter.";
-                                }
-                            }
-                            else
-                            {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
-                                AnsiConsole.Markup("[red]" + errmsg + "[/]");
-                                tool_call_response_payload = errmsg;
-                            }
-                        }
-                        else if (fc.FunctionName == "msx_run_query")
-                        {
-                            if (SETTINGS.msx_cookie != null)
-                            {
-                                MSXInterface msxi = new MSXInterface(SETTINGS.msx_cookie);
-                                JProperty? prop_query = fc.Arguments.Property("query");
-                                if (prop_query != null)
-                                {
-                                    string query = prop_query.Value.ToString();
-                                    query = query.Replace("\n", ""); //strip out new lines for sake of printing
-                                    AnsiConsole.Markup("[gray][italic]running query '" + query + "'... [/][/]");
-                                    try
-                                    {
-                                        JArray results = await msxi.RunQueryAsync(query);
-                                        tool_call_response_payload = results.ToString();
-                                    }
-                                    catch (Exception ex2)
-                                    {
-                                        tool_call_response_payload = "That query failed! Msg: " + ex2.Message;
-                                    }
-                                }
-                                else
-                                {
-                                    tool_call_response_payload = "You must provide a query to run with the `query` parameter.";
-                                }
-                            }
-                            else
-                            {
-                                string errmsg = "MSX Cookie not specifified - please update in settings before using MSX tools. ";
-                                AnsiConsole.Markup("[red]" + errmsg + "[/]");
-                                tool_call_response_payload = errmsg;
-                            }
-                        }
                         else if (fc.FunctionName == "shell")
                         {
                             //Get command
@@ -1353,7 +1120,6 @@ namespace AIDA
                 SettingToDo.Title("What do you want to do?");
                 SettingToDo.AddChoice("Update Foundry Connection Info");
                 SettingToDo.AddChoice("Update Model");
-                SettingToDo.AddChoice("Update MSX Cookie");
                 SettingToDo.AddChoice("Change Assistant Message Color");
                 SettingToDo.AddChoice("Enable/Disable Tools");
                 SettingToDo.AddChoice("Save & Continue");
@@ -1404,12 +1170,6 @@ namespace AIDA
                     SETTINGS.ModelName = model_name;
                     AnsiConsole.MarkupLine("Model updated to '" + model_name + "'");
                 }
-                else if (SettingToDoAnswer == "Update MSX Cookie")
-                {
-                    string newcookie = AnsiConsole.Ask<string>("New cookie? > ");
-                    SETTINGS.msx_cookie = newcookie;
-                    AnsiConsole.MarkupLine("MSX Cookie updated.");
-                }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
                 {
                     AnsiConsole.MarkupLine("Visit here to see the available colors: [bold]https://spectreconsole.net/appendix/colors[/]");
@@ -1436,7 +1196,6 @@ namespace AIDA
                     PackagesQuestion.AddChoice("Web Search (built in)");
                     PackagesQuestion.AddChoice("Weather");
                     PackagesQuestion.AddChoice("Finance");
-                    PackagesQuestion.AddChoice("MSX");
                     PackagesQuestion.AddChoice("Shell");
 
                     //Defaults
@@ -1451,10 +1210,6 @@ namespace AIDA
                     if (SETTINGS.WeatherPackageEnabled)
                     {
                         PackagesQuestion.Select("Weather");
-                    }
-                    if (SETTINGS.MsxPackageEnabled)
-                    {
-                        PackagesQuestion.Select("MSX");
                     }
                     if (SETTINGS.ShellEnabled)
                     {
@@ -1492,16 +1247,6 @@ namespace AIDA
                     else
                     {
                         SETTINGS.WeatherPackageEnabled = false;
-                    }
-
-                    //Enable/Disable: MSX
-                    if (PackagesToEnable.Contains("MSX"))
-                    {
-                        SETTINGS.MsxPackageEnabled = true;
-                    }
-                    else
-                    {
-                        SETTINGS.MsxPackageEnabled = false;
                     }
 
                     //Enable/Disable: Shell
@@ -1586,53 +1331,6 @@ namespace AIDA
                 tool_weather.Parameters.Add(new FunctionInputParameter("latitude", "Latitude of the location you want to check location of, as a floating point number.", "number"));
                 tool_weather.Parameters.Add(new FunctionInputParameter("longitude", "Longitude of the location you want to check location of, as a floating point number.", "number"));
                 ToReturn.Add(tool_weather);
-            }
-
-            //if MSX package is enabled
-            if (SETTINGS.MsxPackageEnabled)
-            {
-                //MSX: Search Users
-                Function tool_MsxSearchUsers = new Function("msx_search_users", "Search through the users (systemuser) in MSX.");
-                tool_MsxSearchUsers.Parameters.Add(new FunctionInputParameter("fullname", "The full name (first and last) of the user to search for."));
-                ToReturn.Add(tool_MsxSearchUsers);
-
-                //MSX: Search Accounts
-                Function tool_MsxSearchAccounts = new Function("msx_search_accounts", "Search through the managed accounts in MSX.");
-                tool_MsxSearchAccounts.Parameters.Add(new FunctionInputParameter("name", "The account name to search for."));
-                ToReturn.Add(tool_MsxSearchAccounts);
-
-                //MSX: Search opportunities
-                Function tool_MsxSearchOpportunities = new Function("msx_search_opportunities", "Search through the open opportunities in MSX for a particular account.");
-                tool_MsxSearchOpportunities.Parameters.Add(new FunctionInputParameter("accountid", "The unique ID of the account to search opportunities for."));
-                tool_MsxSearchOpportunities.Parameters.Add(new FunctionInputParameter("name", "The opportunity name (title) to search for."));
-                ToReturn.Add(tool_MsxSearchOpportunities);
-
-                //MSX: log task
-                Function tool_MsxLogTask = new Function("msx_log_task", "Log a completed task, tied to a particular account or opportunity in MSX.");
-                tool_MsxLogTask.Parameters.Add(new FunctionInputParameter("title", "The title of the task"));
-                tool_MsxLogTask.Parameters.Add(new FunctionInputParameter("description", "The description of what was done and accomplished as part of this effort."));
-                tool_MsxLogTask.Parameters.Add(new FunctionInputParameter("timestamp", "The date and time the task was completed, in ISO 8601 format, like '2026-03-06T15:10:28Z'"));
-                FunctionInputParameter fic_accountid = new FunctionInputParameter("accountid", "If tying this task to an account in MSX, the unique account ID");
-                FunctionInputParameter fic_opportunityid = new FunctionInputParameter("opportunityid", "If tying this task to an opportunity in MSX, the unique opportunity ID");
-                fic_accountid.Required = false;
-                fic_opportunityid.Required = false;
-                tool_MsxLogTask.Parameters.Add(fic_accountid);
-                tool_MsxLogTask.Parameters.Add(fic_opportunityid);
-                ToReturn.Add(tool_MsxLogTask);
-
-                //MSX: My Recent Tasks
-                Function tool_MsxMyRecentTasks = new Function("msx_my_recent_tasks", "Get a list of the user's recent tasks logged in MSX and what account/opportunities they were logged to.");
-                ToReturn.Add(tool_MsxMyRecentTasks);
-
-                //MSX: Get someone's opportunities
-                Function tool_MsxGetSystemUsersOpportunities = new Function("msx_get_user_opportunities", "Get a list of all the opportunities a systemuser is part of the deal team for in MSX.");
-                tool_MsxGetSystemUsersOpportunities.Parameters.Add(new FunctionInputParameter("systemuserid", "The unique ID of the systemuser."));
-                ToReturn.Add(tool_MsxGetSystemUsersOpportunities);
-
-                //MSX: Run OData query (any query!)
-                Function tool_MsxRunQuery = new Function("msx_run_query", "Run any OData query on MSX, a D365 Sales system.");
-                tool_MsxRunQuery.Parameters.Add(new FunctionInputParameter("query", "The OData query to run, for example 'accounts?$top=5&$select=name'"));
-                //ToReturn.Add(tool_MsxRunQuery); //DISABLING THIS TOOL!!!!
             }
 
             //Is shell enabled?

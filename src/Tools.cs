@@ -38,27 +38,6 @@ namespace AIDA
             }
         }
 
-        public static string MSXPath
-        {
-            get
-            {
-                string ConfigDir = ConfigDirectoryPath;
-                string msx_path = Path.Combine(ConfigDir, "msx.txt");
-                if (System.IO.File.Exists(msx_path) == false) //if it doesnt exist, try to create a blank one
-                {
-                   try
-                    {
-                        File.Create(msx_path).Close();
-                    }
-                    catch
-                    {
-                        
-                    } 
-                }
-                return msx_path;
-            }
-        }
-
         public static string GetSystemPrompt(AIDASettings current_settings)
         {
             List<string> SystemMessage = new List<string>();
@@ -67,32 +46,6 @@ namespace AIDA
             SystemMessage.Add("You are AIDA, Artificial Intelligence Desktop Assistant. Your role is to be a friendly and helpful assistant. Speak in a playful, lighthearted, and fun manner.");
             SystemMessage.Add("Do not use emojis.");
 
-            //MSX Info?
-            if (current_settings.MsxPackageEnabled)
-            {
-                string msx = @"
-## MSX Tool                
-You are an expert on interfacing with MSX, Microsoft's CRM system.
-
-The basic table structure you should be aware of:
-systemuser = a list of all users (sellers) within MSX. The `fullname` property lists their name.
-account = list of all accounts within MSX (customers).
-opportunity = a list of all logged opportunities with accounts within MSX, each tied to an account.
-task = a list of all tasks tied to an opportunity OR account (polymorphous) of activities a technical sales engineer has completed.
-
-If you are asked to find an account (customer) within MSX, use the `msx_search_accounts` tool to search by providing the `name` parameter with the name of the account (i.e TX-State Government).
-
-If you then want to find opportunities tied to that account, use the `msx_search_opportunities` tool to search for opportunities by `name` for a particular account (by providing `accountid`).
-
-If the user asks you to log a task in MSX, the task must be tied a particular account or opportunity.
-
-If the users says they worked on an opportunity/account not long ago, you can find a list of their most recently logged tasks by using the `msx_my_recent_tasks` tool.
-
-If you are asked to find opportunities that a user in MSX (a person) is working on, use the `msx_search_users` tool to search for that user first, find their user ID, and then use the `msx_get_user_opportunities` tool to find opportunities for that specific user using their user ID.
-
-";
-                SystemMessage.Add(msx);
-            }
 
             //Shell tool?
             if (current_settings.ShellEnabled)
