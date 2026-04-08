@@ -103,7 +103,7 @@ Output Handling: Both success and error messages are returned. If a command fail
         public static async Task<string> ExecuteShellAsync(string command)
         {
             //Create CancellationTokenSource with 60-second timeout
-            TimeSpan timeout = TimeSpan.FromMinutes(2);
+            TimeSpan timeout = TimeSpan.FromMinutes(1);
             CancellationTokenSource cts = new CancellationTokenSource(timeout);
 
             //Set up command
