@@ -109,7 +109,7 @@ namespace AIDA
                 {
 
                     //Print tokens
-                    AnsiConsole.MarkupLine("[blue][underline]Cumulative Tokens so Far[/][/]");
+                    AnsiConsole.MarkupLine("[blue][underline]Tokens Consumed in This Sesssion so Far[/][/]");
                     AnsiConsole.MarkupLine("[blue]Prompt tokens: [bold]" + AGENT.CumulativeInputTokens.ToString("#,##0") + "[/][/]");
                     AnsiConsole.MarkupLine("[blue]Completion tokens: [bold]" + AGENT.CumulativeOutputTokens.ToString("#,##0") + "[/][/]");
                     Console.WriteLine();
