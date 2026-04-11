@@ -21,7 +21,6 @@ namespace AIDA
     {
         #region "GLOBAL VARIABLES"
 
-        public static AIDASettings SETTINGS { get; set; }
         public static Agent AGENT {get; set;}
 
         #endregion
@@ -48,21 +47,18 @@ namespace AIDA
                 System.IO.Directory.CreateDirectory(Tools.ConfigDirectoryPath);
             }
 
-            //Retrieve settings
-            SETTINGS = AIDASettings.Load();
-
             //Set up main AGENT
             AGENT = new Agent();
 
             #endregion
 
             //Add system message
-            AGENT.Inputs.Add(new Message(Role.developer, Tools.GetSystemPrompt(SETTINGS)));
+            AGENT.Inputs.Add(new Message(Role.developer, Tools.GetSystemPrompt(AIDASettings.Load())));
 
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
             AGENT.Inputs.Add(new Message(Role.assistant, opening_msg));
-            AnsiConsole.MarkupLine("[bold][" + SETTINGS.AssistantMessageColor + "]" + opening_msg + "[/][/]");
+            AnsiConsole.MarkupLine("[bold][" + AIDASettings.Load().AssistantMessageColor + "]" + opening_msg + "[/][/]");
 
             //Add link to project
             AnsiConsole.MarkupLine("[gray][italic]github.com/TimHanewich/AIDA[/][/]");
@@ -122,10 +118,6 @@ namespace AIDA
 
                     //Present settings menu and allow them to change things
                     SettingsMenu();
-
-                    //Now that it has changed, refresh settings
-                    SETTINGS = AIDASettings.Load();
-
                     Console.WriteLine();
                     goto Input;
                 }
@@ -142,7 +134,7 @@ namespace AIDA
                 else if (input.ToLower() == "/clear")
                 {
                     AGENT.ClearHistory();
-                    AGENT.Inputs.Add(new Message(Role.user, Tools.GetSystemPrompt(SETTINGS))); //add the system message back (need that!)
+                    AGENT.Inputs.Add(new Message(Role.user, Tools.GetSystemPrompt(AIDASettings.Load()))); //add the system message back (need that!)
                     AnsiConsole.MarkupLine("[blue][bold]Chat history cleared. Latest prompt.md injected.[/][/]");
                     Console.WriteLine();
                     goto Input;
@@ -150,7 +142,7 @@ namespace AIDA
                 else if (input.ToLower() == "/auth")
                 {
                     AnsiConsole.MarkupLine("Attempting Microsoft Foundry Authentication... ");
-                    await Tools.FoundryAuthAsync(SETTINGS);
+                    await Tools.FoundryAuthAsync(AIDASettings.Load());
                     goto Input;
                 }
                 else if (input.ToLower() == "/stats")
@@ -167,24 +159,24 @@ namespace AIDA
             Prompt:
 
                 //Configure the agent's foundry connection
-                if (SETTINGS.FoundryUrl != null)
+                if (AIDASettings.Load().FoundryUrl != null)
                 {
-                    AGENT.FoundryConnection = new FoundryResource(SETTINGS.FoundryUrl);
+                    AGENT.FoundryConnection = new FoundryResource(AIDASettings.Load().FoundryUrl);
                     
                     //If we are using API key auth, plug that in
-                    if (SETTINGS.ApiKey != null)
+                    if (AIDASettings.Load().ApiKey != null)
                     {
-                        AGENT.FoundryConnection.ApiKey = SETTINGS.ApiKey;
+                        AGENT.FoundryConnection.ApiKey = AIDASettings.Load().ApiKey;
                     }
-                    else if (SETTINGS.TenantID != null && SETTINGS.ClientID != null && SETTINGS.ClientSecret != null) // if instead we are using entra ID auth
+                    else if (AIDASettings.Load().TenantID != null && AIDASettings.Load().ClientID != null && AIDASettings.Load().ClientSecret != null) // if instead we are using entra ID auth
                     {
                         //Do we have a non-expired token right now?
                         bool NeedNewToken = true;
-                        if (SETTINGS.AuthenticatedTokenCredentials != null)
+                        if (AIDASettings.Load().AuthenticatedTokenCredentials != null)
                         {
-                            if (SETTINGS.AuthenticatedTokenCredentials.Expires >= DateTime.UtcNow) // if it is NOT expired yet
+                            if (AIDASettings.Load().AuthenticatedTokenCredentials.Expires >= DateTime.UtcNow) // if it is NOT expired yet
                             {
-                                AGENT.FoundryConnection.AccessToken = SETTINGS.AuthenticatedTokenCredentials.AccessToken;
+                                AGENT.FoundryConnection.AccessToken = AIDASettings.Load().AuthenticatedTokenCredentials.AccessToken;
                                 NeedNewToken = false;
                             }
                         }
@@ -192,12 +184,12 @@ namespace AIDA
                         //If we need a new token, get it
                         if (NeedNewToken)
                         {
-                            await Tools.FoundryAuthAsync(SETTINGS);
+                            await Tools.FoundryAuthAsync(AIDASettings.Load());
 
                             //If it was successful
-                            if (SETTINGS.AuthenticatedTokenCredentials != null)
+                            if (AIDASettings.Load().AuthenticatedTokenCredentials != null)
                             {
-                                AGENT.FoundryConnection.AccessToken = SETTINGS.AuthenticatedTokenCredentials.AccessToken; //Plug in the latest token to the agent for it to use
+                                AGENT.FoundryConnection.AccessToken = AIDASettings.Load().AuthenticatedTokenCredentials.AccessToken; //Plug in the latest token to the agent for it to use
                             }
 
                             //Line break
@@ -207,9 +199,9 @@ namespace AIDA
                 }
 
                 //Configure the agent's model
-                if (SETTINGS.ModelName != null)
+                if (AIDASettings.Load().ModelName != null)
                 {
-                    AGENT.ModelName = SETTINGS.ModelName;
+                    AGENT.ModelName = AIDASettings.Load().ModelName;
                 }
 
                 #region "Plug in tools & functions"
@@ -222,7 +214,7 @@ namespace AIDA
                 AGENT.Functions = DetermineAvailableFunctions().ToList();
 
                 //Built-in tools: web search
-                AGENT.WebSearchEnabled = SETTINGS.WebSearchEnabled;
+                AGENT.WebSearchEnabled = AIDASettings.Load().WebSearchEnabled;
 
                 #endregion
 
@@ -252,7 +244,7 @@ namespace AIDA
                     {
                         if (msg.Text != null)
                         {
-                            PrintAIMessage(msg.Text, SETTINGS.AssistantMessageColor);
+                            PrintAIMessage(msg.Text, AIDASettings.Load().AssistantMessageColor);
                             Console.WriteLine();
                         }
                     }
@@ -1002,7 +994,7 @@ namespace AIDA
 
                 //Print header
                 Console.WriteLine();
-                AnsiConsole.MarkupLine("[bold][underline]AIDA SETTINGS MENU[/][/]");
+                AnsiConsole.MarkupLine("[bold][underline]AIDA AIDASettings.Load() MENU[/][/]");
 
                 //AIDA version
                 Assembly ass = Assembly.GetExecutingAssembly();
@@ -1019,9 +1011,9 @@ namespace AIDA
                 AnsiConsole.MarkupLine("Custom prompt file: [bold]" + Tools.CustomPromptPath + "[/]");
 
                 //Foundry URL
-                if (SETTINGS.FoundryUrl != null)
+                if (AIDASettings.Load().FoundryUrl != null)
                 {
-                    AnsiConsole.MarkupLine("Foundry Resource: " + SETTINGS.FoundryUrl);
+                    AnsiConsole.MarkupLine("Foundry Resource: " + AIDASettings.Load().FoundryUrl);
                 }
                 else
                 {
@@ -1029,11 +1021,11 @@ namespace AIDA
                 }
 
                 //Foundry Auth
-                if (SETTINGS.ApiKey != null)
+                if (AIDASettings.Load().ApiKey != null)
                 {
                     AnsiConsole.MarkupLine("Auth Type: API Key");
                 }
-                else if (SETTINGS.TenantID != null && SETTINGS.ClientID != null && SETTINGS.ClientSecret != null)
+                else if (AIDASettings.Load().TenantID != null && AIDASettings.Load().ClientID != null && AIDASettings.Load().ClientSecret != null)
                 {
                     AnsiConsole.MarkupLine("Auth Type: Access Token");
                 }
@@ -1043,9 +1035,9 @@ namespace AIDA
                 }
 
                 //Model name
-                if (SETTINGS.ModelName != null)
+                if (AIDASettings.Load().ModelName != null)
                 {
-                    AnsiConsole.MarkupLine("Model: " + SETTINGS.ModelName);
+                    AnsiConsole.MarkupLine("Model: " + AIDASettings.Load().ModelName);
                 }
                 else
                 {
@@ -1053,7 +1045,7 @@ namespace AIDA
                 }
 
                 //Assistant color
-                AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + SETTINGS.AssistantMessageColor + "[/] ([" + SETTINGS.AssistantMessageColor + "]looks like this[/])");
+                AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + AIDASettings.Load().AssistantMessageColor + "[/] ([" + AIDASettings.Load().AssistantMessageColor + "]looks like this[/])");
 
                 //Ask what to do
                 Console.WriteLine();
@@ -1070,7 +1062,7 @@ namespace AIDA
                 if (SettingToDoAnswer == "Update Foundry Connection Info")
                 {
                     //Get foundry URL
-                    SETTINGS.FoundryUrl = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
+                    AIDASettings.Load().FoundryUrl = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
     
                     //Ask how they want to authenticate
                     SelectionPrompt<string> FoundryAuthOptions = new SelectionPrompt<string>();
@@ -1082,33 +1074,33 @@ namespace AIDA
                     //Handle auth
                     if (FoundryAuthSelection == "API Key")
                     {
-                        SETTINGS.ApiKey = AnsiConsole.Ask<string>("What is the API key?");
+                        AIDASettings.Load().ApiKey = AnsiConsole.Ask<string>("What is the API key?");
 
                         //Clear out any existing entra ID tokens
-                        SETTINGS.AuthenticatedTokenCredentials = null;
+                        AIDASettings.Load().AuthenticatedTokenCredentials = null;
 
                         //Clear out the Entra ID info becuase now we wil use API key
-                        SETTINGS.TenantID = null;
-                        SETTINGS.ClientID = null;
-                        SETTINGS.ClientSecret = null;
+                        AIDASettings.Load().TenantID = null;
+                        AIDASettings.Load().ClientID = null;
+                        AIDASettings.Load().ClientSecret = null;
                     }
                     else if (FoundryAuthSelection == "Entra ID")
                     {
-                        SETTINGS.TenantID = AnsiConsole.Ask<string>("Tenant ID?");
-                        SETTINGS.ClientID = AnsiConsole.Ask<string>("Client ID?");
-                        SETTINGS.ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
+                        AIDASettings.Load().TenantID = AnsiConsole.Ask<string>("Tenant ID?");
+                        AIDASettings.Load().ClientID = AnsiConsole.Ask<string>("Client ID?");
+                        AIDASettings.Load().ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
                         
                         //Clear out any existing entra ID tokens
-                        SETTINGS.AuthenticatedTokenCredentials = null;
+                        AIDASettings.Load().AuthenticatedTokenCredentials = null;
 
                         //Clear out any API key because now we will use Entra ID
-                        SETTINGS.ApiKey = null;
+                        AIDASettings.Load().ApiKey = null;
                     }
                 }
                 else if (SettingToDoAnswer == "Update Model")
                 {
                     string model_name = AnsiConsole.Ask<string>("Model name?");
-                    SETTINGS.ModelName = model_name;
+                    AIDASettings.Load().ModelName = model_name;
                     AnsiConsole.MarkupLine("Model updated to '" + model_name + "'");
                 }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
@@ -1118,7 +1110,7 @@ namespace AIDA
                     try
                     {
                         AnsiConsole.MarkupLine("Future AI messages will be in [" + NewColor + "]this color[/]");
-                        SETTINGS.AssistantMessageColor = NewColor;
+                        AIDASettings.Load().AssistantMessageColor = NewColor;
                     }
                     catch
                     {
@@ -1138,11 +1130,11 @@ namespace AIDA
                     PackagesQuestion.AddChoice("Shell");
 
                     //Defaults
-                    if (SETTINGS.WebSearchEnabled)
+                    if (AIDASettings.Load().WebSearchEnabled)
                     {
                         PackagesQuestion.Select("Web Search (built in)");
                     }
-                    if (SETTINGS.ShellEnabled)
+                    if (AIDASettings.Load().ShellEnabled)
                     {
                         PackagesQuestion.Select("Shell");
                     }
@@ -1153,15 +1145,15 @@ namespace AIDA
                     //Enable/Disable: Web Search
                     if (PackagesToEnable.Contains("Web Search (built in)"))
                     {
-                        SETTINGS.WebSearchEnabled = true;
+                        AIDASettings.Load().WebSearchEnabled = true;
                     }
                     else
                     {
-                        SETTINGS.WebSearchEnabled = false;
+                        AIDASettings.Load().WebSearchEnabled = false;
                     }
 
                     //Enable/Disable: Shell
-                    SETTINGS.ShellEnabled = PackagesToEnable.Contains("Shell");
+                    AIDASettings.Load().ShellEnabled = PackagesToEnable.Contains("Shell");
 
                     //Confirm
                     AnsiConsole.MarkupLine("[green][bold]" + PackagesToEnable.Count.ToString() + " packages enabled[/][/]");
@@ -1169,7 +1161,7 @@ namespace AIDA
                 else if (SettingToDoAnswer == "Save & Continue")
                 {
                     AnsiConsole.Markup("[gray]Saving settings... [/]");
-                    SETTINGS.Save();
+                    AIDASettings.Load().Save();
                     AnsiConsole.MarkupLine("[green]saved![/]");
                     return; //break out of while loop!
                 }
@@ -1239,7 +1231,7 @@ namespace AIDA
             ToReturn.Add(tool_ViewImage);
 
             //Is shell enabled?
-            if (SETTINGS.ShellEnabled)
+            if (AIDASettings.Load().ShellEnabled)
             {
                 Function tool_shell = new Function("shell", "Executes a single shell command on the host machine (Windows/cmd.exe or Linux/bash) and returns the combined standard output and standard error. Use this for file system operations, running compilers, or checking system status.");
                 tool_shell.Parameters.Add(new FunctionInputParameter("command", "The shell command to execute."));
