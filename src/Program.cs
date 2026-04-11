@@ -500,38 +500,6 @@ namespace AIDA
 
         #region "TOOLS FOR THE AI"
 
-        public static string SaveFile(string file_name, string file_content)
-        {
-            string DestinationDirectory = Directory.GetCurrentDirectory();
-            string DestinationPath = System.IO.Path.Combine(DestinationDirectory, file_name);
-            System.IO.File.WriteAllText(DestinationPath, file_content);
-            return "File successfully saved to '" + DestinationPath + "'.";
-        }
-
-        public static async Task<string> ReadWebpage(string url)
-        {
-            HttpClient hc = new HttpClient();
-            HttpRequestMessage req = new HttpRequestMessage();
-            req.Method = HttpMethod.Get;
-            req.RequestUri = new Uri(url);
-            req.Headers.Add("User-Agent", "AIDA/1.0.0");
-            hc.Timeout = new TimeSpan(0, 1, 0); // 1 minute timeout
-            AnsiConsole.Markup("[gray][italic]reading '" + url + "'... [/][/]");
-            HttpResponseMessage resp = await hc.SendAsync(req);
-            if (resp.StatusCode != HttpStatusCode.OK)
-            {
-                return "Attempt to read the web page came back with status code '" + resp.StatusCode.ToString() + "', so unfortunately it cannot be read (wasn't 200 OK)";
-            }
-            string content = await resp.Content.ReadAsStringAsync();
-
-            //Convert raw HTML to text
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(content);
-            string PlainText = doc.DocumentNode.InnerText;
-
-            return PlainText;
-        }
-
         public static string ReadFile(string path)
         {
             //Print what file we are reading
@@ -583,6 +551,38 @@ namespace AIDA
             }
         }
 
+        public static string SaveFile(string file_name, string file_content)
+        {
+            string DestinationDirectory = Directory.GetCurrentDirectory();
+            string DestinationPath = System.IO.Path.Combine(DestinationDirectory, file_name);
+            System.IO.File.WriteAllText(DestinationPath, file_content);
+            return "File successfully saved to '" + DestinationPath + "'.";
+        }
+
+        public static async Task<string> ReadWebpage(string url)
+        {
+            HttpClient hc = new HttpClient();
+            HttpRequestMessage req = new HttpRequestMessage();
+            req.Method = HttpMethod.Get;
+            req.RequestUri = new Uri(url);
+            req.Headers.Add("User-Agent", "AIDA/1.0.0");
+            hc.Timeout = new TimeSpan(0, 1, 0); // 1 minute timeout
+            AnsiConsole.Markup("[gray][italic]reading '" + url + "'... [/][/]");
+            HttpResponseMessage resp = await hc.SendAsync(req);
+            if (resp.StatusCode != HttpStatusCode.OK)
+            {
+                return "Attempt to read the web page came back with status code '" + resp.StatusCode.ToString() + "', so unfortunately it cannot be read (wasn't 200 OK)";
+            }
+            string content = await resp.Content.ReadAsStringAsync();
+
+            //Convert raw HTML to text
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(content);
+            string PlainText = doc.DocumentNode.InnerText;
+
+            return PlainText;
+        }
+        
         #endregion
 
         #region "UTILITIES"
