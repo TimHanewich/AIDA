@@ -1006,9 +1006,9 @@ namespace AIDA
                 AnsiConsole.MarkupLine("Custom prompt file: [bold]" + Tools.CustomPromptPath + "[/]");
 
                 //Foundry URL
-                if (AIDASettings.Load().FoundryUrl != null)
+                if (SettingsToModify.FoundryUrl != null)
                 {
-                    AnsiConsole.MarkupLine("Foundry Resource: " + AIDASettings.Load().FoundryUrl);
+                    AnsiConsole.MarkupLine("Foundry Resource: " + SettingsToModify.FoundryUrl);
                 }
                 else
                 {
@@ -1016,11 +1016,11 @@ namespace AIDA
                 }
 
                 //Foundry Auth
-                if (AIDASettings.Load().ApiKey != null)
+                if (SettingsToModify.ApiKey != null)
                 {
                     AnsiConsole.MarkupLine("Auth Type: API Key");
                 }
-                else if (AIDASettings.Load().TenantID != null && AIDASettings.Load().ClientID != null && AIDASettings.Load().ClientSecret != null)
+                else if (SettingsToModify.TenantID != null && SettingsToModify.ClientID != null && SettingsToModify.ClientSecret != null)
                 {
                     AnsiConsole.MarkupLine("Auth Type: Access Token");
                 }
@@ -1030,9 +1030,9 @@ namespace AIDA
                 }
 
                 //Model name
-                if (AIDASettings.Load().ModelName != null)
+                if (SettingsToModify.ModelName != null)
                 {
-                    AnsiConsole.MarkupLine("Model: " + AIDASettings.Load().ModelName);
+                    AnsiConsole.MarkupLine("Model: " + SettingsToModify.ModelName);
                 }
                 else
                 {
@@ -1040,7 +1040,7 @@ namespace AIDA
                 }
 
                 //Assistant color
-                AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + AIDASettings.Load().AssistantMessageColor + "[/] ([" + AIDASettings.Load().AssistantMessageColor + "]looks like this[/])");
+                AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + SettingsToModify.AssistantMessageColor + "[/] ([" + SettingsToModify.AssistantMessageColor + "]looks like this[/])");
 
                 //Ask what to do
                 Console.WriteLine();
