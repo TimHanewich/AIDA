@@ -406,6 +406,62 @@ namespace AIDA
                                 }
                             }
                         }
+                        else if (fc.FunctionName == "explore_directory")
+                        {
+                            //Get the 'path' parameter
+                            string? path = null;
+                            JProperty? prop_path = fc.Arguments.Property("path");
+                            if (prop_path != null)
+                            {
+                                path = prop_path.Value.ToString();
+                            }
+
+                            //Handle
+                            if (path == null)
+                            {
+                                tool_call_response_payload = "You must provide the 'path' parameter!";
+                            }
+                            else if (System.IO.Directory.Exists(path) == false)
+                            {
+                                tool_call_response_payload = "Directory at '" + path + "' does not exist!";
+                            }
+                            else
+                            {
+                                AnsiConsole.Markup("[gray][italic]exploring '" + Markup.Escape(path) + "'... [/][/]");
+                                try
+                                {
+                                    List<string> entries = new List<string>();
+
+                                    //Get directories
+                                    string[] dirs = System.IO.Directory.GetDirectories(path);
+                                    foreach (string d in dirs)
+                                    {
+                                        entries.Add("[DIR] " + System.IO.Path.GetFileName(d));
+                                    }
+
+                                    //Get files
+                                    string[] files = System.IO.Directory.GetFiles(path);
+                                    foreach (string f in files)
+                                    {
+                                        entries.Add("[FILE] " + System.IO.Path.GetFileName(f));
+                                    }
+
+                                    //Construct response
+                                    if (entries.Count == 0)
+                                    {
+                                        tool_call_response_payload = "The directory is empty.";
+                                    }
+                                    else
+                                    {
+                                        tool_call_response_payload = "Contents of '" + path + "':" + "\n" + string.Join("\n", entries);
+                                    }
+                                }
+                                catch (Exception ex2)
+                                {
+                                    tool_call_response_payload = "Exploring directory failed. Exception message: " + ex2.Message;
+                                }
+                            }
+                        }
                         else if (fc.FunctionName == "shell")
                         {
                             //Get command
@@ -1086,6 +1142,11 @@ namespace AIDA
             Function tool_DeleteFile = new Function("delete_file", "Delete a file from the user's computer.");
             tool_DeleteFile.Parameters.Add(new FunctionInputParameter("path", "The path of the file to delete."));
             ToReturn.Add(tool_DeleteFile);
+
+            //Add tool: explore directory
+            Function tool_ExploreDirectory = new Function("explore_directory", "Explore the contents of a directory (folder) on the user's computer, listing out all files and sub-directories contained in it.");
+            tool_ExploreDirectory.Parameters.Add(new FunctionInputParameter("path", "The path of the directory to explore."));
+            ToReturn.Add(tool_ExploreDirectory);
 
             //Add tool: open web page
             Function tool_readwebpage = new Function("web_fetch", "Make HTTP GET call to retrieve the contents of a URL endpoint (i.e. a webpage or document). Use this tool if the user asks you to read a webpage or retrieve something specific.");
