@@ -566,6 +566,50 @@ namespace AIDA
             return "File successfully saved to '" + path + "'.";
         }
 
+        public static string EditFile(string path, string old_string, string new_string, bool replace_all = true)
+        {
+            //Exist check
+            if (System.IO.File.Exists(path) == false)
+            {
+                return "File at '" + path + "' does not exist!";
+            }
+
+            //Get content
+            string content;
+            try
+            {
+                content = System.IO.File.ReadAllText(path);
+            }
+            catch (Exception ex)
+            {
+                return "There was an issue opening the file: " + ex.Message;
+            }
+
+            //Handle
+            string[] split = old_string.Split(old_string);
+            int occurences = split.Length - 1;
+            if (occurences == 0)
+            {
+                return "No edits made. There were no occurences of the old_string you provided in the file content.";
+            }
+            else if (occurences > 1)
+            {
+                if (replace_all == false)
+                {
+                    return "There are multiple occurences of the old_string you provided in the file content and you did not have 'replace_all' enabled. Please expand the context of the 'old_string' (make it unique) to clearly indicate what portion you want to edit."; 
+                }
+            }
+
+            //Replace
+            content = content.Replace(old_string, new_string);
+
+            //Write back
+            System.IO.File.WriteAllText(path, content);
+
+            //return
+            return "File edit was successful.";
+        }
+
         public static async Task<string> ReadWebpage(string url)
         {
             HttpClient hc = new HttpClient();
