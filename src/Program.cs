@@ -370,6 +370,38 @@ namespace AIDA
                                 tool_call_response_payload = "You must provide 'path', 'old_string', and 'new_string' parameters!";
                             }
                         }
+                        else if (fc.FunctionName == "delete_file")
+                        {
+                            //Get the 'path' parameter
+                            string? path = null;
+                            JProperty? prop_path = fc.Arguments.Property("path");
+                            if (prop_path != null)
+                            {
+                                path = prop_path.Value.ToString();
+                            }
+
+                            //Handle
+                            if (path == null)
+                            {
+                                tool_call_response_payload = "You must provide the 'path' parameter!";
+                            }
+                            else if (System.IO.File.Exists(path) == false)
+                            {
+                                tool_call_response_payload = "File at '" + path + "' does not exist!";
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    System.IO.File.Delete(path);
+                                    tool_call_response_payload = "File '" + path + "' was successfully deleted.";
+                                }
+                                catch (Exception ex2)
+                                {
+                                    tool_call_response_payload = "Deletion of file failed. Exception message: " + ex2.Message;
+                                }
+                            }
+                        }
                         else if (fc.FunctionName == "shell")
                         {
                             //Get command
@@ -1045,6 +1077,11 @@ namespace AIDA
             tool_EditFile.Parameters.Add(new FunctionInputParameter("new_string", "The new string to replace the old string with."));
             tool_EditFile.Parameters.Add(new FunctionInputParameter("replace_all", "If true, replace all occurrences. If false, only replace if the old_string is unique in the file. Defaults to true."));
             ToReturn.Add(tool_EditFile);
+
+            //Add tool: delete file
+            Function tool_DeleteFile = new Function("delete_file", "Delete a file from the user's computer.");
+            tool_DeleteFile.Parameters.Add(new FunctionInputParameter("path", "The path of the file to delete."));
+            ToReturn.Add(tool_DeleteFile);
 
             //Add tool: open web page
             Function tool_readwebpage = new Function("web_fetch", "Make HTTP GET call to retrieve the contents of a URL endpoint (i.e. a webpage or document). Use this tool if the user asks you to read a webpage or retrieve something specific.");
