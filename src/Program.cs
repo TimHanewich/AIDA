@@ -262,7 +262,7 @@ namespace AIDA
                         string tool_call_response_payload = "";
 
                         //Call to the tool and save the response from that tool
-                        if (fc.FunctionName == "save_file")
+                        if (fc.FunctionName == "write_file")
                         {
                             //Get file name
                             string file_name = "dummy.txt";
@@ -281,7 +281,7 @@ namespace AIDA
                             }
 
                             //Save file
-                            tool_call_response_payload = SaveFile(file_name, file_content);
+                            tool_call_response_payload = WriteFile(file_name, file_content);
                         }
                         else if (fc.FunctionName == "read_file")
                         {
@@ -551,7 +551,7 @@ namespace AIDA
             }
         }
 
-        public static string SaveFile(string file_name, string file_content)
+        public static string WriteFile(string file_name, string file_content)
         {
             string DestinationDirectory = Directory.GetCurrentDirectory();
             string DestinationPath = System.IO.Path.Combine(DestinationDirectory, file_name);
@@ -582,7 +582,7 @@ namespace AIDA
 
             return PlainText;
         }
-        
+
         #endregion
 
         #region "UTILITIES"
@@ -987,7 +987,7 @@ namespace AIDA
             List<Function> ToReturn = new List<Function>();
 
             //Add tool: save file
-            Function tool_savetxtfile = new Function("save_file", "Save a file to the user's computer in the current directory.");
+            Function tool_savetxtfile = new Function("write_file", "Create a new file on the user's computer in the current directory.");
             tool_savetxtfile.Parameters.Add(new FunctionInputParameter("file_name", "The name of the file, like `myfile.txt` or `report.md`."));
             tool_savetxtfile.Parameters.Add(new FunctionInputParameter("file_content", "The content of the file."));
             ToReturn.Add(tool_savetxtfile);
