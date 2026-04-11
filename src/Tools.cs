@@ -38,7 +38,7 @@ namespace AIDA
             }
         }
 
-        public static string GetSystemPrompt(AIDASettings current_settings)
+        public static string GetSystemPrompt()
         {
             List<string> SystemMessage = new List<string>();
 
@@ -71,7 +71,7 @@ When editing files, always use `read_file` first to see the current contents so 
 
 
             //Shell tool?
-            if (current_settings.ShellEnabled)
+            if (AIDASettings.Load().ShellEnabled)
             {
 
                 string ShellSystemPrompt = @"
