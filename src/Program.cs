@@ -281,6 +281,7 @@ namespace AIDA
                             }
 
                             //Save file
+                            AnsiConsole.Markup("[gray][italic]writing '" + Markup.Escape(file_name) + "'... [/][/]");
                             tool_call_response_payload = WriteFile(file_name, file_content);
                         }
                         else if (fc.FunctionName == "read_file")
@@ -293,6 +294,7 @@ namespace AIDA
                                 file_path = prop_file_path.Value.ToString();
                             }
 
+                            AnsiConsole.Markup("[gray][italic]reading '" + Markup.Escape(file_path) + "'... [/][/]");
                             tool_call_response_payload = ReadFile(file_path);
                         }
                         else if (fc.FunctionName == "check_current_time")
@@ -363,6 +365,7 @@ namespace AIDA
                             //Handle
                             if (path != null && old_string != null && new_string != null)
                             {
+                                AnsiConsole.Markup("[gray][italic]editing '" + Markup.Escape(path) + "'... [/][/]");
                                 tool_call_response_payload = EditFile(path, old_string, new_string, replace_all);
                             }
                             else
@@ -393,6 +396,7 @@ namespace AIDA
                             {
                                 try
                                 {
+                                    AnsiConsole.Markup("[gray][italic]deleting '" + Markup.Escape(path) + "'... [/][/]");
                                     System.IO.File.Delete(path);
                                     tool_call_response_payload = "File '" + path + "' was successfully deleted.";
                                 }
