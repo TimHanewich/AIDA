@@ -319,71 +319,6 @@ namespace AIDA
                                 tool_call_response_payload = "Unable to read webpage because the 'url' parameter was not successfully provided by the AI.";
                             }
                         }
-                        else if (fc.FunctionName == "rename_file")
-                        {
-                            //Define input params the AI must provide
-                            string? path = null;
-                            string? new_name = null;
-
-                            //Get the 'path' parameter
-                            JProperty? prop_path = fc.Arguments.Property("path");
-                            if (prop_path != null)
-                            {
-                                path = prop_path.Value.ToString();
-                            }
-
-                            //Get the 'new_name' parameter
-                            JProperty? prop_new_name = fc.Arguments.Property("new_name");
-                            if (prop_new_name != null)
-                            {
-                                new_name = prop_new_name.Value.ToString();
-                            }
-
-                            //Check
-                            if (path == null && new_name == null)
-                            {
-                                tool_call_response_payload = "Renaming of file unsuccessful. You must provide both the 'path' and 'new_name' parameters.";
-                            }
-                            else if (path == null)
-                            {
-                                tool_call_response_payload = "Renaming of file unsuccessful. You did not provide the 'path' parameter.";
-                            }
-                            else if (new_name == null)
-                            {
-                                tool_call_response_payload = "Renaming of file unsuccessful. You did not provide the 'new_name' parameter.";
-                            }
-                            else //AI provided both
-                            {
-
-                                try
-                                {
-                                    //Get directory path
-                                    string? dir_path = Path.GetDirectoryName(path);
-                                    if (dir_path == null)
-                                    {
-                                        tool_call_response_payload = "Internal failure while renaming: unable to determine directory path";
-                                    }
-                                    else
-                                    {
-                                        //Get extension
-                                        string extension = Path.GetExtension(path);
-
-                                        //Get new abs path (target)
-                                        string NewAbsPath = Path.Combine(dir_path, new_name + extension);
-
-                                        //Perform rename
-                                        File.Move(path, NewAbsPath);
-
-                                        //Mention it being successful
-                                        tool_call_response_payload = "Renaming successful! File '" + path + "' renamed to '" + NewAbsPath + "'";
-                                    }
-                                }
-                                catch (Exception ex2)
-                                {
-                                    tool_call_response_payload = "Renaming of file failed. Exception message: " + ex2.Message;
-                                }
-                            }   
-                        }
                         else if (fc.FunctionName == "edit_file")
                         {
                             //Get the 'path' parameter
@@ -1110,12 +1045,6 @@ namespace AIDA
             tool_EditFile.Parameters.Add(new FunctionInputParameter("new_string", "The new string to replace the old string with."));
             tool_EditFile.Parameters.Add(new FunctionInputParameter("replace_all", "If true, replace all occurrences. If false, only replace if the old_string is unique in the file. Defaults to true."));
             ToReturn.Add(tool_EditFile);
-
-            //Add tool: rename file
-            Function tool_RenameFile = new Function("rename_file", "Rename a specific file on the user's drive.");
-            tool_RenameFile.Parameters.Add(new FunctionInputParameter("path", "The current absolute path of the file."));
-            tool_RenameFile.Parameters.Add(new FunctionInputParameter("new_name", "The new name of the file, NOT including the extension."));
-            ToReturn.Add(tool_RenameFile);
 
             //Add tool: open web page
             Function tool_readwebpage = new Function("web_fetch", "Make HTTP GET call to retrieve the contents of a URL endpoint (i.e. a webpage or document). Use this tool if the user asks you to read a webpage or retrieve something specific.");
