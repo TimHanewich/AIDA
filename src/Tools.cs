@@ -46,6 +46,24 @@ namespace AIDA
             SystemMessage.Add("You are AIDA, Artificial Intelligence Desktop Assistant. Your role is to be a friendly and helpful assistant. Speak in a playful, lighthearted, and fun manner.");
             SystemMessage.Add("Do not use emojis.");
 
+            //File manipulation
+            if (true)
+            {
+                string FileOperationsPrompt = @"
+## File Operations 
+You have four tools available to you that allow you to manipulate files on the users computer: 
+- `write_file`: Create a new file. You provide the path and the content to write.
+- `read_file`: Read the contents of an existing file of any type (txt, pdf, word document, etc.).
+- `edit_file`: Edit an existing file by finding and replacing a specific string. You provide the path, the old string to find, and the new string to replace it with. You can optionally set `replace_all` to false if you only want to replace a unique occurrence.
+- `delete_file`: Delete a file. You provide the path of the file to delete.
+
+When editing files, always use `read_file` first to see the current contents so you know exactly what to target with `edit_file`. When writing or editing code, be precise and careful to preserve the existing formatting and style of the file.        
+";
+
+                //Add
+                SystemMessage.Add(FileOperationsPrompt);
+            }
+
 
             //Shell tool?
             if (current_settings.ShellEnabled)
