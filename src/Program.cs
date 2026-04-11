@@ -1088,31 +1088,20 @@ namespace AIDA
         {
             List<Function> ToReturn = new List<Function>();
 
-            //Add tool: save file
-            Function tool_savetxtfile = new Function("write_file", "Create a new file on the user's computer in the current directory.");
-            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("path", "The path of the file to write."));
-            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("content", "The content of the file."));
-            ToReturn.Add(tool_savetxtfile);
+            //Add tool: check current time
+            Function tool_checkcurrenttime = new Function("check_current_time", "Check the current date and time right now.");
+            ToReturn.Add(tool_checkcurrenttime);
 
             //Add tool: read file
             Function tool_readfile = new Function("read_file", "Read the contents of a file of any type (txt, pdf, word document, etc.) from the user's computer");
             tool_readfile.Parameters.Add(new FunctionInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
             ToReturn.Add(tool_readfile);
 
-            //Add tool: check current time
-            Function tool_checkcurrenttime = new Function("check_current_time", "Check the current date and time right now.");
-            ToReturn.Add(tool_checkcurrenttime);
-
-            //Add tool: open web page
-            Function tool_readwebpage = new Function("web_fetch", "Make HTTP GET call to retrieve the contents of a URL endpoint (i.e. a webpage or document). Use this tool if the user asks you to read a webpage or retrieve something specific.");
-            tool_readwebpage.Parameters.Add(new FunctionInputParameter("url", "The specific URL to GET."));
-            ToReturn.Add(tool_readwebpage);
-
-            //Add tool: rename file
-            Function tool_RenameFile = new Function("rename_file", "Rename a specific file on the user's drive.");
-            tool_RenameFile.Parameters.Add(new FunctionInputParameter("path", "The current absolute path of the file."));
-            tool_RenameFile.Parameters.Add(new FunctionInputParameter("new_name", "The new name of the file, NOT including the extension."));
-            ToReturn.Add(tool_RenameFile);
+            //Add tool: write file
+            Function tool_savetxtfile = new Function("write_file", "Create a new file on the user's computer in the current directory.");
+            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("path", "The path of the file to write."));
+            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("content", "The content of the file."));
+            ToReturn.Add(tool_savetxtfile);
 
             //Add tool: edit file
             Function tool_EditFile = new Function("edit_file", "Edit an existing file on the user's computer by replacing a specific string with a new string.");
@@ -1121,6 +1110,17 @@ namespace AIDA
             tool_EditFile.Parameters.Add(new FunctionInputParameter("new_string", "The new string to replace the old string with."));
             tool_EditFile.Parameters.Add(new FunctionInputParameter("replace_all", "If true, replace all occurrences. If false, only replace if the old_string is unique in the file. Defaults to true."));
             ToReturn.Add(tool_EditFile);
+
+            //Add tool: rename file
+            Function tool_RenameFile = new Function("rename_file", "Rename a specific file on the user's drive.");
+            tool_RenameFile.Parameters.Add(new FunctionInputParameter("path", "The current absolute path of the file."));
+            tool_RenameFile.Parameters.Add(new FunctionInputParameter("new_name", "The new name of the file, NOT including the extension."));
+            ToReturn.Add(tool_RenameFile);
+
+            //Add tool: open web page
+            Function tool_readwebpage = new Function("web_fetch", "Make HTTP GET call to retrieve the contents of a URL endpoint (i.e. a webpage or document). Use this tool if the user asks you to read a webpage or retrieve something specific.");
+            tool_readwebpage.Parameters.Add(new FunctionInputParameter("url", "The specific URL to GET."));
+            ToReturn.Add(tool_readwebpage);
 
             //Add tool: view image
             Function tool_ViewImage = new Function("view_image", "View an image that is either on the user's device or available at a URL.");
