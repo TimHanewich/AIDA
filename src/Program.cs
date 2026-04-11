@@ -266,7 +266,7 @@ namespace AIDA
                         {
                             //Get file name
                             string file_name = "dummy.txt";
-                            JProperty? prop_file_name = fc.Arguments.Property("file_name");
+                            JProperty? prop_file_name = fc.Arguments.Property("path");
                             if (prop_file_name != null)
                             {
                                 file_name = prop_file_name.Value.ToString();
@@ -274,7 +274,7 @@ namespace AIDA
 
                             //Get file content
                             string file_content = "(dummy content)";
-                            JProperty? prop_file_content = fc.Arguments.Property("file_content");
+                            JProperty? prop_file_content = fc.Arguments.Property("content");
                             if (prop_file_content != null)
                             {
                                 file_content = prop_file_content.Value.ToString();
@@ -551,12 +551,15 @@ namespace AIDA
             }
         }
 
-        public static string WriteFile(string file_name, string file_content)
+        public static string WriteFile(string path, string file_content)
         {
-            string DestinationDirectory = Directory.GetCurrentDirectory();
-            string DestinationPath = System.IO.Path.Combine(DestinationDirectory, file_name);
-            System.IO.File.WriteAllText(DestinationPath, file_content);
-            return "File successfully saved to '" + DestinationPath + "'.";
+            DirectoryInfo? DestinationDirectory = Directory.GetParent(path);
+            if (DestinationDirectory == null)
+            {
+                return "The new file path you provided was not in a valid directory.";
+            }
+            System.IO.File.WriteAllText(path, file_content);
+            return "File successfully saved to '" + path + "'.";
         }
 
         public static async Task<string> ReadWebpage(string url)
@@ -988,8 +991,8 @@ namespace AIDA
 
             //Add tool: save file
             Function tool_savetxtfile = new Function("write_file", "Create a new file on the user's computer in the current directory.");
-            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("file_name", "The name of the file, like `myfile.txt` or `report.md`."));
-            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("file_content", "The content of the file."));
+            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("path", "The path of the file to write."));
+            tool_savetxtfile.Parameters.Add(new FunctionInputParameter("content", "The content of the file."));
             ToReturn.Add(tool_savetxtfile);
 
             //Add tool: read file
