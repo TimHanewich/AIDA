@@ -59,7 +59,9 @@ You have four tools available to you that allow you to manipulate files on the u
 
 When editing files, always use `read_file` first to see the current contents so you know exactly what to target with `edit_file`. When writing or editing code, be precise and careful to preserve the existing formatting and style of the file.  
 
-You also have a tool called `explore_directory` that lists all files and sub-directories in a given directory. Use this to understand the structure of a project or find files before reading or editing them.
+## Directory Operations
+- `explore_directory`: Lists all files and sub-directories in a given directory. Use this to understand the structure of a project or find files before reading or editing them.
+- `create_directory`: Create a new directory (folder) on the user's computer. You provide the path of the directory to create. This will also create any parent directories that do not yet exist.
 ";
 
                 //Add
