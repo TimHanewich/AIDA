@@ -553,10 +553,14 @@ namespace AIDA
 
         public static string WriteFile(string path, string file_content)
         {
-            DirectoryInfo? DestinationDirectory = Directory.GetParent(path);
+            string? DestinationDirectory = Path.GetDirectoryName(path);
             if (DestinationDirectory == null)
             {
-                return "The new file path you provided was not in a valid directory.";
+                return "Unable to determine destination directory from the path you provided. Are you sure it is valid?";
+            }
+            if (Directory.Exists(DestinationDirectory) == false)
+            {
+                return "Path invalid! Destination directory does not exist";
             }
             System.IO.File.WriteAllText(path, file_content);
             return "File successfully saved to '" + path + "'.";
