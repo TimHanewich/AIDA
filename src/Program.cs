@@ -384,6 +384,57 @@ namespace AIDA
                                 }
                             }   
                         }
+                        else if (fc.FunctionName == "edit_file")
+                        {
+                            //Get the 'path' parameter
+                            string? path = null;
+                            JProperty? prop_path = fc.Arguments.Property("path");
+                            if (prop_path != null)
+                            {
+                                path = prop_path.Value.ToString();
+                            }
+
+                            //Get the 'old_string' parameter
+                            string? old_string = null;
+                            JProperty? prop_old_string = fc.Arguments.Property("old_string");
+                            if (prop_old_string != null)
+                            {
+                                old_string = prop_old_string.Value.ToString();
+                            }
+
+                            //Get the 'new_string' parameter
+                            string? new_string = null;
+                            JProperty? prop_new_string = fc.Arguments.Property("new_string");
+                            if (prop_new_string != null)
+                            {
+                                new_string = prop_new_string.Value.ToString();
+                            }
+
+                            //Get the 'replace_all' parameter
+                            bool replace_all = true;
+                            JProperty? prop_replace_all = fc.Arguments.Property("replace_all");
+                            if (prop_replace_all != null)
+                            {
+                                try
+                                {
+                                    replace_all = bool.Parse(prop_replace_all.Value.ToString());
+                                }
+                                catch
+                                {
+                                    replace_all = true;
+                                }
+                            }
+
+                            //Handle
+                            if (path != null && old_string != null && new_string != null)
+                            {
+                                tool_call_response_payload = EditFile(path, old_string, new_string, replace_all);
+                            }
+                            else
+                            {
+                                tool_call_response_payload = "You must provide 'path', 'old_string', and 'new_string' parameters!";
+                            }
+                        }
                         else if (fc.FunctionName == "shell")
                         {
                             //Get command
@@ -1062,6 +1113,14 @@ namespace AIDA
             tool_RenameFile.Parameters.Add(new FunctionInputParameter("path", "The current absolute path of the file."));
             tool_RenameFile.Parameters.Add(new FunctionInputParameter("new_name", "The new name of the file, NOT including the extension."));
             ToReturn.Add(tool_RenameFile);
+
+            //Add tool: edit file
+            Function tool_EditFile = new Function("edit_file", "Edit an existing file on the user's computer by replacing a specific string with a new string.");
+            tool_EditFile.Parameters.Add(new FunctionInputParameter("path", "The path of the file to edit."));
+            tool_EditFile.Parameters.Add(new FunctionInputParameter("old_string", "The existing string in the file to find and replace."));
+            tool_EditFile.Parameters.Add(new FunctionInputParameter("new_string", "The new string to replace the old string with."));
+            tool_EditFile.Parameters.Add(new FunctionInputParameter("replace_all", "If true, replace all occurrences. If false, only replace if the old_string is unique in the file. Defaults to true."));
+            ToReturn.Add(tool_EditFile);
 
             //Add tool: view image
             Function tool_ViewImage = new Function("view_image", "View an image that is either on the user's device or available at a URL.");
