@@ -19,13 +19,6 @@ namespace AIDA
 {
     public class Program
     {
-        #region "GLOBAL VARIABLES"
-
-        public static Agent AGENT {get; set;}
-
-        #endregion
-
-
         public static void Main(string[] args)
         {
             RunAsync().Wait();
@@ -47,17 +40,17 @@ namespace AIDA
                 System.IO.Directory.CreateDirectory(Tools.ConfigDirectoryPath);
             }
 
-            //Set up main AGENT
-            AGENT = new Agent();
+            //Set up main Agent.Instance
+            Agent.Instance = new Agent();
 
             #endregion
 
             //Add system message
-            AGENT.Inputs.Add(new Message(Role.developer, Tools.GetSystemPrompt()));
+            Agent.Instance.Inputs.Add(new Message(Role.developer, Tools.GetSystemPrompt()));
 
             //Add welcoming message
             string opening_msg = "Hi, I'm AIDA, and I'm here to help! What can I do for you?";
-            AGENT.Inputs.Add(new Message(Role.assistant, opening_msg));
+            Agent.Instance.Inputs.Add(new Message(Role.assistant, opening_msg));
             AnsiConsole.MarkupLine("[bold][" + AIDASettings.Load().AssistantMessageColor + "]" + opening_msg + "[/][/]");
 
             //Add link to project
@@ -106,8 +99,8 @@ namespace AIDA
 
                     //Print tokens
                     AnsiConsole.MarkupLine("[blue][underline]Tokens Consumed in This Sesssion so Far[/][/]");
-                    AnsiConsole.MarkupLine("[blue]Prompt tokens: [bold]" + AGENT.CumulativeInputTokens.ToString("#,##0") + "[/][/]");
-                    AnsiConsole.MarkupLine("[blue]Completion tokens: [bold]" + AGENT.CumulativeOutputTokens.ToString("#,##0") + "[/][/]");
+                    AnsiConsole.MarkupLine("[blue]Prompt tokens: [bold]" + Agent.Instance.CumulativeInputTokens.ToString("#,##0") + "[/][/]");
+                    AnsiConsole.MarkupLine("[blue]Completion tokens: [bold]" + Agent.Instance.CumulativeOutputTokens.ToString("#,##0") + "[/][/]");
                     Console.WriteLine();
 
                     Console.WriteLine();
@@ -133,8 +126,8 @@ namespace AIDA
                 }
                 else if (input.ToLower() == "/clear")
                 {
-                    AGENT.ClearHistory();
-                    AGENT.Inputs.Add(new Message(Role.user, Tools.GetSystemPrompt())); //add the system message back (need that!)
+                    Agent.Instance.ClearHistory();
+                    Agent.Instance.Inputs.Add(new Message(Role.user, Tools.GetSystemPrompt())); //add the system message back (need that!)
                     AnsiConsole.MarkupLine("[blue][bold]Chat history cleared. Latest prompt.md injected.[/][/]");
                     Console.WriteLine();
                     goto Input;
@@ -153,7 +146,7 @@ namespace AIDA
                 }
 
                 //It did not trigger a special command, so add it to the history, it will be passed to the AI!
-                AGENT.Inputs.Add(new Message(Role.user, input));
+                Agent.Instance.Inputs.Add(new Message(Role.user, input));
 
             //Prompt
             Prompt:
@@ -161,12 +154,12 @@ namespace AIDA
                 //Configure the agent's foundry connection
                 if (AIDASettings.Load().FoundryUrl != null)
                 {
-                    AGENT.FoundryConnection = new FoundryResource(AIDASettings.Load().FoundryUrl);
+                    Agent.Instance.FoundryConnection = new FoundryResource(AIDASettings.Load().FoundryUrl);
                     
                     //If we are using API key auth, plug that in
                     if (AIDASettings.Load().ApiKey != null)
                     {
-                        AGENT.FoundryConnection.ApiKey = AIDASettings.Load().ApiKey;
+                        Agent.Instance.FoundryConnection.ApiKey = AIDASettings.Load().ApiKey;
                     }
                     else if (AIDASettings.Load().TenantID != null && AIDASettings.Load().ClientID != null && AIDASettings.Load().ClientSecret != null) // if instead we are using entra ID auth
                     {
@@ -176,7 +169,7 @@ namespace AIDA
                         {
                             if (AIDASettings.Load().AuthenticatedTokenCredentials.Expires >= DateTime.UtcNow) // if it is NOT expired yet
                             {
-                                AGENT.FoundryConnection.AccessToken = AIDASettings.Load().AuthenticatedTokenCredentials.AccessToken;
+                                Agent.Instance.FoundryConnection.AccessToken = AIDASettings.Load().AuthenticatedTokenCredentials.AccessToken;
                                 NeedNewToken = false;
                             }
                         }
@@ -189,7 +182,7 @@ namespace AIDA
                             //If it was successful
                             if (AIDASettings.Load().AuthenticatedTokenCredentials != null)
                             {
-                                AGENT.FoundryConnection.AccessToken = AIDASettings.Load().AuthenticatedTokenCredentials.AccessToken; //Plug in the latest token to the agent for it to use
+                                Agent.Instance.FoundryConnection.AccessToken = AIDASettings.Load().AuthenticatedTokenCredentials.AccessToken; //Plug in the latest token to the agent for it to use
                             }
 
                             //Line break
@@ -201,20 +194,20 @@ namespace AIDA
                 //Configure the agent's model
                 if (AIDASettings.Load().ModelName != null)
                 {
-                    AGENT.ModelName = AIDASettings.Load().ModelName;
+                    Agent.Instance.ModelName = AIDASettings.Load().ModelName;
                 }
 
                 #region "Plug in tools & functions"
 
                 //CLEAR TOOLS (so we don't re-add them)
                 //The clearing and re-adding process will happen each time so they can update the tools available on the fly
-                AGENT.Functions.Clear();
+                Agent.Instance.Functions.Clear();
 
                 //Add them back
-                AGENT.Functions = DetermineAvailableFunctions().ToList();
+                Agent.Instance.Functions = DetermineAvailableFunctions().ToList();
 
                 //Built-in tools: web search
-                AGENT.WebSearchEnabled = AIDASettings.Load().WebSearchEnabled;
+                Agent.Instance.WebSearchEnabled = AIDASettings.Load().WebSearchEnabled;
 
                 #endregion
 
@@ -223,7 +216,7 @@ namespace AIDA
                 Exchange[] outputs;
                 try
                 {
-                    outputs = await AGENT.PromptAsync();
+                    outputs = await Agent.Instance.PromptAsync();
                     Console.WriteLine();
                 }
                 catch (Exception ex)
@@ -570,7 +563,7 @@ namespace AIDA
                                         img_msg.Text = "This is the image at '" + path + "':";
                                         InputImage ii = InputImage.FromFile(path);
                                         img_msg.Images.Add(ii);
-                                        AGENT.Inputs.Add(img_msg); //add it as a message to go in next time.
+                                        Agent.Instance.Inputs.Add(img_msg); //add it as a message to go in next time.
                                     }
                                     catch (Exception ex2)
                                     {
@@ -584,7 +577,7 @@ namespace AIDA
                                     img_msg.Text = "This is the image at '" + path + "':";
                                     InputImage ii = InputImage.FromURL(path);
                                     img_msg.Images.Add(ii);
-                                    AGENT.Inputs.Add(img_msg); //add it as a message to go in next time.
+                                    Agent.Instance.Inputs.Add(img_msg); //add it as a message to go in next time.
                                 } 
 
                                 //Fill in response
@@ -605,7 +598,7 @@ namespace AIDA
                         FunctionCallOutput fco = new FunctionCallOutput();
                         fco.CallId = fc.CallId;
                         fco.Output = tool_call_response_payload;
-                        AGENT.Inputs.Add(fco);
+                        Agent.Instance.Inputs.Add(fco);
                         //Confirm completion of tool call
                         AnsiConsole.MarkupLine("[gray][italic]complete[/][/]");
                     }

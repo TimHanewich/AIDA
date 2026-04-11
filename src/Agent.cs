@@ -6,6 +6,10 @@ namespace AIDA
 {
     public class Agent
     {
+        ///// UNIVERSALLY ACCESSIBLE INSTANCE /////
+        public static Agent Instance {get; set;} = new Agent();
+        ///////////////////////////////////////////
+
         //Private vars
         private string? PreviousResponseID;
         private int _CumulativeInputTokens;
