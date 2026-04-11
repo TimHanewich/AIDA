@@ -980,6 +980,8 @@ namespace AIDA
 
         public static void SettingsMenu()
         {
+            //LOAD SETTINGS TO USE AND UPDATE HERE
+            AIDASettings SettingsToModify = AIDASettings.Load();
 
             //Loop until selected out
             while (true)
@@ -1054,8 +1056,9 @@ namespace AIDA
                 //Handle what to do
                 if (SettingToDoAnswer == "Update Foundry Connection Info")
                 {
+
                     //Get foundry URL
-                    AIDASettings.Load().FoundryUrl = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
+                    SettingsToModify.FoundryUrl = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
     
                     //Ask how they want to authenticate
                     SelectionPrompt<string> FoundryAuthOptions = new SelectionPrompt<string>();
@@ -1067,33 +1070,33 @@ namespace AIDA
                     //Handle auth
                     if (FoundryAuthSelection == "API Key")
                     {
-                        AIDASettings.Load().ApiKey = AnsiConsole.Ask<string>("What is the API key?");
+                        SettingsToModify.ApiKey = AnsiConsole.Ask<string>("What is the API key?");
 
                         //Clear out any existing entra ID tokens
-                        AIDASettings.Load().AuthenticatedTokenCredentials = null;
+                        SettingsToModify.AuthenticatedTokenCredentials = null;
 
                         //Clear out the Entra ID info becuase now we wil use API key
-                        AIDASettings.Load().TenantID = null;
-                        AIDASettings.Load().ClientID = null;
-                        AIDASettings.Load().ClientSecret = null;
+                        SettingsToModify.TenantID = null;
+                        SettingsToModify.ClientID = null;
+                        SettingsToModify.ClientSecret = null;
                     }
                     else if (FoundryAuthSelection == "Entra ID")
                     {
-                        AIDASettings.Load().TenantID = AnsiConsole.Ask<string>("Tenant ID?");
-                        AIDASettings.Load().ClientID = AnsiConsole.Ask<string>("Client ID?");
-                        AIDASettings.Load().ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
+                        SettingsToModify.TenantID = AnsiConsole.Ask<string>("Tenant ID?");
+                        SettingsToModify.ClientID = AnsiConsole.Ask<string>("Client ID?");
+                        SettingsToModify.ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
                         
                         //Clear out any existing entra ID tokens
-                        AIDASettings.Load().AuthenticatedTokenCredentials = null;
+                        SettingsToModify.AuthenticatedTokenCredentials = null;
 
                         //Clear out any API key because now we will use Entra ID
-                        AIDASettings.Load().ApiKey = null;
+                        SettingsToModify.ApiKey = null;
                     }
                 }
                 else if (SettingToDoAnswer == "Update Model")
                 {
                     string model_name = AnsiConsole.Ask<string>("Model name?");
-                    AIDASettings.Load().ModelName = model_name;
+                    SettingsToModify.ModelName = model_name;
                     AnsiConsole.MarkupLine("Model updated to '" + model_name + "'");
                 }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
@@ -1103,7 +1106,7 @@ namespace AIDA
                     try
                     {
                         AnsiConsole.MarkupLine("Future AI messages will be in [" + NewColor + "]this color[/]");
-                        AIDASettings.Load().AssistantMessageColor = NewColor;
+                        SettingsToModify.AssistantMessageColor = NewColor;
                     }
                     catch
                     {
@@ -1123,11 +1126,11 @@ namespace AIDA
                     PackagesQuestion.AddChoice("Shell");
 
                     //Defaults
-                    if (AIDASettings.Load().WebSearchEnabled)
+                    if (SettingsToModify.WebSearchEnabled)
                     {
                         PackagesQuestion.Select("Web Search (built in)");
                     }
-                    if (AIDASettings.Load().ShellEnabled)
+                    if (SettingsToModify.ShellEnabled)
                     {
                         PackagesQuestion.Select("Shell");
                     }
@@ -1138,15 +1141,15 @@ namespace AIDA
                     //Enable/Disable: Web Search
                     if (PackagesToEnable.Contains("Web Search (built in)"))
                     {
-                        AIDASettings.Load().WebSearchEnabled = true;
+                        SettingsToModify.WebSearchEnabled = true;
                     }
                     else
                     {
-                        AIDASettings.Load().WebSearchEnabled = false;
+                        SettingsToModify.WebSearchEnabled = false;
                     }
 
                     //Enable/Disable: Shell
-                    AIDASettings.Load().ShellEnabled = PackagesToEnable.Contains("Shell");
+                    SettingsToModify.ShellEnabled = PackagesToEnable.Contains("Shell");
 
                     //Confirm
                     AnsiConsole.MarkupLine("[green][bold]" + PackagesToEnable.Count.ToString() + " packages enabled[/][/]");
@@ -1154,7 +1157,7 @@ namespace AIDA
                 else if (SettingToDoAnswer == "Save & Continue")
                 {
                     AnsiConsole.Markup("[gray]Saving settings... [/]");
-                    AIDASettings.Load().Save();
+                    SettingsToModify.Save();
                     AnsiConsole.MarkupLine("[green]saved![/]");
                     return; //break out of while loop!
                 }
