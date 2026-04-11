@@ -495,6 +495,43 @@ namespace AIDA
                                 }
                             }
                         }
+                        else if (fc.FunctionName == "delete_directory")
+                        {
+                            //Get the 'path' parameter
+                            string? path = null;
+                            JProperty? prop_path = fc.Arguments.Property("path");
+                            if (prop_path != null)
+                            {
+                                path = prop_path.Value.ToString();
+                            }
+
+                            //Handle
+                            if (path == null)
+                            {
+                                tool_call_response_payload = "You must provide the 'path' parameter!";
+                            }
+                            else if (System.IO.Directory.Exists(path) == false)
+                            {
+                                tool_call_response_payload = "Directory at '" + path + "' does not exist!";
+                            }
+                            else if (System.IO.Directory.GetFiles(path).Length > 0 || System.IO.Directory.GetDirectories(path).Length > 0)
+                            {
+                                tool_call_response_payload = "Directory at '" + path + "' is not empty! You must delete all files and sub-directories first using the `delete_file` tool before you can delete this directory.";
+                            }
+                            else
+                            {
+                                AnsiConsole.Markup("[gray][italic]deleting directory '" + Markup.Escape(path) + "'... [/][/]");
+                                try
+                                {
+                                    System.IO.Directory.Delete(path);
+                                    tool_call_response_payload = "Directory '" + path + "' was successfully deleted.";
+                                }
+                                catch (Exception ex2)
+                                {
+                                    tool_call_response_payload = "Deletion of directory failed. Exception message: " + ex2.Message;
+                                }
+                            }
+                        }
                         else if (fc.FunctionName == "shell")
                         {
                             //Get command
@@ -1185,6 +1222,11 @@ namespace AIDA
             Function tool_CreateDirectory = new Function("create_directory", "Create a new directory (folder) on the user's computer.");
             tool_CreateDirectory.Parameters.Add(new FunctionInputParameter("path", "The path of the directory to create."));
             ToReturn.Add(tool_CreateDirectory);
+
+            //Add tool: delete directory
+            Function tool_DeleteDirectory = new Function("delete_directory", "Delete an empty directory (folder) from the user's computer. The directory must be empty before it can be deleted.");
+            tool_DeleteDirectory.Parameters.Add(new FunctionInputParameter("path", "The path of the directory to delete."));
+            ToReturn.Add(tool_DeleteDirectory);
 
             //Add tool: open web page
             Function tool_readwebpage = new Function("web_fetch", "Make HTTP GET call to retrieve the contents of a URL endpoint (i.e. a webpage or document). Use this tool if the user asks you to read a webpage or retrieve something specific.");
