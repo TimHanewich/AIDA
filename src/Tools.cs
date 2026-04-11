@@ -57,7 +57,9 @@ You have four tools available to you that allow you to manipulate files on the u
 - `edit_file`: Edit an existing file by finding and replacing a specific string. You provide the path, the old string to find, and the new string to replace it with. You can optionally set `replace_all` to false if you only want to replace a unique occurrence.
 - `delete_file`: Delete a file. You provide the path of the file to delete.
 
-When editing files, always use `read_file` first to see the current contents so you know exactly what to target with `edit_file`. When writing or editing code, be precise and careful to preserve the existing formatting and style of the file.        
+When editing files, always use `read_file` first to see the current contents so you know exactly what to target with `edit_file`. When writing or editing code, be precise and careful to preserve the existing formatting and style of the file.  
+
+You also have a tool called `explore_directory` that lists all files and sub-directories in a given directory. Use this to understand the structure of a project or find files before reading or editing them.
 ";
 
                 //Add
