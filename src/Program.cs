@@ -462,6 +462,39 @@ namespace AIDA
                                 }
                             }
                         }
+                        else if (fc.FunctionName == "create_directory")
+                        {
+                            //Get the 'path' parameter
+                            string? path = null;
+                            JProperty? prop_path = fc.Arguments.Property("path");
+                            if (prop_path != null)
+                            {
+                                path = prop_path.Value.ToString();
+                            }
+
+                            //Handle
+                            if (path == null)
+                            {
+                                tool_call_response_payload = "You must provide the 'path' parameter!";
+                            }
+                            else if (System.IO.Directory.Exists(path))
+                            {
+                                tool_call_response_payload = "Directory at '" + path + "' already exists!";
+                            }
+                            else
+                            {
+                                AnsiConsole.Markup("[gray][italic]creating directory '" + Markup.Escape(path) + "'... [/][/]");
+                                try
+                                {
+                                    System.IO.Directory.CreateDirectory(path);
+                                    tool_call_response_payload = "Directory '" + path + "' was successfully created.";
+                                }
+                                catch (Exception ex2)
+                                {
+                                    tool_call_response_payload = "Creation of directory failed. Exception message: " + ex2.Message;
+                                }
+                            }
+                        }
                         else if (fc.FunctionName == "shell")
                         {
                             //Get command
@@ -1147,6 +1180,11 @@ namespace AIDA
             Function tool_ExploreDirectory = new Function("explore_directory", "Explore the contents of a directory (folder) on the user's computer, listing out all files and sub-directories contained in it.");
             tool_ExploreDirectory.Parameters.Add(new FunctionInputParameter("path", "The path of the directory to explore."));
             ToReturn.Add(tool_ExploreDirectory);
+
+            //Add tool: create directory
+            Function tool_CreateDirectory = new Function("create_directory", "Create a new directory (folder) on the user's computer.");
+            tool_CreateDirectory.Parameters.Add(new FunctionInputParameter("path", "The path of the directory to create."));
+            ToReturn.Add(tool_CreateDirectory);
 
             //Add tool: open web page
             Function tool_readwebpage = new Function("web_fetch", "Make HTTP GET call to retrieve the contents of a URL endpoint (i.e. a webpage or document). Use this tool if the user asks you to read a webpage or retrieve something specific.");
