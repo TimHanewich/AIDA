@@ -80,7 +80,7 @@ namespace AIDA
             System.IO.File.WriteAllText(SavePath, JsonConvert.SerializeObject(this, Formatting.Indented));
         }
 
-        public static AIDASettings Open()
+        public static AIDASettings Load()
         {
             if (System.IO.File.Exists(SavePath) == false)
             {

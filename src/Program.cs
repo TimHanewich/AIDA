@@ -49,7 +49,7 @@ namespace AIDA
             }
 
             //Retrieve settings
-            SETTINGS = AIDASettings.Open();
+            SETTINGS = AIDASettings.Load();
 
             //Set up main AGENT
             AGENT = new Agent();
@@ -124,7 +124,7 @@ namespace AIDA
                     SettingsMenu();
 
                     //Now that it has changed, refresh settings
-                    SETTINGS = AIDASettings.Open();
+                    SETTINGS = AIDASettings.Load();
 
                     Console.WriteLine();
                     goto Input;
