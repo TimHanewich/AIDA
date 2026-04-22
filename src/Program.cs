@@ -204,7 +204,7 @@ namespace AIDA
                 await ConfigureAgentConnectionAsync(AidaAgent);
                 RegisterTools(AidaAgent);
 
-                //Track tokens for stats
+                //Track tokens before calling for stats later
                 int prevInput = AidaAgent.InputTokensConsumed;
                 int prevOutput = AidaAgent.OutputTokensConsumed;
 
