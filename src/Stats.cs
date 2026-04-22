@@ -128,6 +128,12 @@ namespace AIDA
                 AnsiConsole.MarkupLine("[bold]" + day.Month.ToString() + "/" + day.Day.ToString() + "/" + day.Year.ToString() + "[/]: " + InputThisDay.ToString("#,##0") + " input tokens, " + OutputThisDay.ToString("#,##0") + " output tokens");
             }
 
+            //Pull tokens in this session
+            Console.WriteLine();
+            AnsiConsole.MarkupLine("[underline]Tokens Consumed in This Sesssion so Far[/]");
+            AnsiConsole.MarkupLine("Prompt tokens: [bold]" + Agent.Instance.CumulativeInputTokens.ToString("#,##0") + "[/]");
+            AnsiConsole.MarkupLine("Completion tokens: [bold]" + Agent.Instance.CumulativeOutputTokens.ToString("#,##0") + "[/]");
+
             //Last break
             Console.WriteLine();
         }
