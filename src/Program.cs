@@ -27,12 +27,14 @@ namespace AIDA
             RegisterTools(agent);
 
             //Event handler for tool invocations
-            agent.ExecutableFunctionInvoked += (ExecutableFunction ef, JObject arguments) =>
-            {
-                AnsiConsole.Markup("[gray][italic]calling '" + ef.Name + "'... [/][/]");
-            };
+            agent.ExecutableFunctionInvoked += OnToolInvoked;
 
             return agent;
+        }
+
+        private static void OnToolInvoked(ExecutableFunction ef, JObject arguments)
+        {
+            AnsiConsole.Markup("[gray][italic]calling '" + ef.Name + "'... [/][/]");
         }
 
         public static void RegisterTools(TimHanewich.AgentFramework.Agent agent)
