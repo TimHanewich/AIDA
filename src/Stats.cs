@@ -107,7 +107,7 @@ namespace AIDA
 
             //pull data per day
             Console.WriteLine();
-            AnsiConsole.MarkupLine("[underline]Consumption Breakdown, Last 7 Days[/]");
+            AnsiConsole.MarkupLine("[underline]Consumption Breakdown, Last 7 Days (UTC time)[/]");
             foreach (DateTime day in Last7Days)
             {
 
