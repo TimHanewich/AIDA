@@ -17,7 +17,6 @@ AIDA has built-in tools (function-calling) that give it several capabilities:
 - **Shell** - execute a shell command on the host machine (enabled via settings).
 
 In addition to the above capabilities, you can run several commands to manage the interfacing with the LLM (run command `/help` to list these): 
-- `/tokens` - check the token consumption (input/output) for the current chat session.
 - `/clear` - clear the chat history.
 - `/tools` - list the tools (function calling) available to AIDA.
 - `/settings` - open AIDA's settings menu.

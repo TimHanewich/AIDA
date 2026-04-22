@@ -86,7 +86,6 @@ namespace AIDA
                     AnsiConsole.MarkupLine("Here are the commands you can use:");
                     Console.WriteLine();
                     AnsiConsole.MarkupLine("[bold]/clear[/] - clear the chat history.");
-                    AnsiConsole.MarkupLine("[bold]/tokens[/] - check token consumption for this session.");
                     AnsiConsole.MarkupLine("[bold]/settings[/] - Open AIDA's settings menu");
                     AnsiConsole.MarkupLine("[bold]/tools[/] - list all tools AIDA has available to it.");
                     AnsiConsole.MarkupLine("[bold]/auth[/] - authenticate into Foundry if using Service Principal.");
@@ -94,19 +93,7 @@ namespace AIDA
                     Console.WriteLine();
                     goto Input;
                 }
-                if (input.ToLower() == "/tokens")
-                {
-
-                    //Print tokens
-                    AnsiConsole.MarkupLine("[blue][underline]Tokens Consumed in This Sesssion so Far[/][/]");
-                    AnsiConsole.MarkupLine("[blue]Prompt tokens: [bold]" + Agent.Instance.CumulativeInputTokens.ToString("#,##0") + "[/][/]");
-                    AnsiConsole.MarkupLine("[blue]Completion tokens: [bold]" + Agent.Instance.CumulativeOutputTokens.ToString("#,##0") + "[/][/]");
-                    Console.WriteLine();
-
-                    Console.WriteLine();
-                    goto Input;
-                }
-                else if (input.ToLower() == "/settings") //Where the config files are
+                if (input.ToLower() == "/settings") //Where the config files are
                 {
 
                     //Present settings menu and allow them to change things
