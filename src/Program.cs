@@ -625,7 +625,6 @@ namespace AIDA
             //Print what file we are reading
             string FileName = System.IO.Path.GetFileName(path);
             string FullPath = System.IO.Path.GetFullPath(path);
-            AnsiConsole.Markup("[gray][italic]reading file '" + Markup.Escape(FullPath) + "'... [/][/]");
 
             //Does file exist?
             if (System.IO.File.Exists(path) == false)
