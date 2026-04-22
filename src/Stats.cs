@@ -102,7 +102,7 @@ namespace AIDA
             List<DateTime> Last7Days = new List<DateTime>();
             for (int i = 0; i < 7; i++)
             {
-                Last7Days.Add(DateTime.Today.AddDays(i * -1));
+                Last7Days.Add(DateTime.UtcNow.AddDays(i * -1));
             }
 
             //pull data per day
