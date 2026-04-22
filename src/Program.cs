@@ -989,7 +989,7 @@ namespace AIDA
 
                 //Print header
                 Console.WriteLine();
-                AnsiConsole.MarkupLine("[bold][underline]AIDA AIDASettings.Load() MENU[/][/]");
+                AnsiConsole.MarkupLine("[bold][underline]AIDA SETTINGS MENU[/][/]");
 
                 //AIDA version
                 Assembly ass = Assembly.GetExecutingAssembly();
