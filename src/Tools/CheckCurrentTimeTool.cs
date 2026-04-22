@@ -12,10 +12,10 @@ namespace AIDA
             Description = "Check the current date and time right now.";
         }
 
-        public override Task<string> ExecuteAsync(JObject? arguments = null)
+        public override async Task<string> ExecuteAsync(JObject? arguments = null)
         {
             AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
-            return Task.FromResult("The current date and time is " + DateTime.Now.ToString());
+            return "The current date and time is " + DateTime.Now.ToString();
         }
     }
 }
