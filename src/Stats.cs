@@ -98,6 +98,31 @@ namespace AIDA
             AnsiConsole.MarkupLine("Input Tokens: " + CumInput.ToString("#,##0"));
             AnsiConsole.MarkupLine("Output Tokens: " + CumOutput.ToString("#,##0"));
 
+            //Per-model breakdown
+            Dictionary<string, (int Input, int Output)> perModel = new Dictionary<string, (int, int)>();
+            foreach (ConsumptionEvent ce in ConsumptionEvents)
+            {
+                string model = ce.Model ?? "unknown";
+                if (perModel.ContainsKey(model))
+                {
+                    var existing = perModel[model];
+                    perModel[model] = (existing.Input + ce.InputTokens, existing.Output + ce.OutputTokens);
+                }
+                else
+                {
+                    perModel[model] = (ce.InputTokens, ce.OutputTokens);
+                }
+            }
+            if (perModel.Count > 0)
+            {
+                Console.WriteLine();
+                AnsiConsole.MarkupLine("[underline]CUMULATIVE CONSUMPTION BY MODEL[/]");
+                foreach (var kvp in perModel)
+                {
+                    AnsiConsole.MarkupLine("[bold]" + Markup.Escape(kvp.Key) + "[/]: " + kvp.Value.Input.ToString("#,##0") + " input tokens, " + kvp.Value.Output.ToString("#,##0") + " output tokens");
+                }
+            }
+
             //Prepare a list of last 7 days
             List<DateTime> Last7Days = new List<DateTime>();
             for (int i = 0; i < 7; i++)
