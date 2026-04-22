@@ -80,7 +80,7 @@ namespace AIDA
             AddConsumptionEvent(ce);
         }
 
-        public void PrintReport()
+        public void PrintReport(int sessionInputTokens = 0, int sessionOutputTokens = 0)
         {
             //Header
             AnsiConsole.MarkupLine("[bold][underline][blue]AIDA STAT REPORT[/][/][/]");
@@ -156,8 +156,8 @@ namespace AIDA
             //Pull tokens in this session
             Console.WriteLine();
             AnsiConsole.MarkupLine("[underline]Tokens Consumed in This Sesssion so Far[/]");
-            AnsiConsole.MarkupLine("Prompt tokens: [bold]" + Agent.Instance.CumulativeInputTokens.ToString("#,##0") + "[/]");
-            AnsiConsole.MarkupLine("Completion tokens: [bold]" + Agent.Instance.CumulativeOutputTokens.ToString("#,##0") + "[/]");
+            AnsiConsole.MarkupLine("Prompt tokens: [bold]" + sessionInputTokens.ToString("#,##0") + "[/]");
+            AnsiConsole.MarkupLine("Completion tokens: [bold]" + sessionOutputTokens.ToString("#,##0") + "[/]");
 
             //Last break
             Console.WriteLine();
