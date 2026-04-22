@@ -14,7 +14,7 @@ namespace AIDA
             InputParameters.Add(new FunctionInputParameter("path", "The path of the directory to explore."));
         }
 
-        public override Task<string> ExecuteAsync(JObject? arguments = null)
+        public override async Task<string> ExecuteAsync(JObject? arguments = null)
         {
             string? path = null;
             if (arguments != null)
@@ -25,11 +25,11 @@ namespace AIDA
 
             if (path == null)
             {
-                return Task.FromResult("You must provide the 'path' parameter!");
+                return "You must provide the 'path' parameter!";
             }
             if (System.IO.Directory.Exists(path) == false)
             {
-                return Task.FromResult("Directory at '" + path + "' does not exist!");
+                return "Directory at '" + path + "' does not exist!";
             }
 
             AnsiConsole.Markup("[gray][italic]exploring '" + Markup.Escape(path) + "'... [/][/]");
@@ -53,14 +53,14 @@ namespace AIDA
 
                 if (entries.Count == 0)
                 {
-                    return Task.FromResult("The directory is empty.");
+                    return "The directory is empty.";
                 }
-                return Task.FromResult("Contents of '" + path + "':" + "\n" + string.Join("\n", entries));
+                return "Contents of '" + path + "':" + "\n" + string.Join("\n", entries);
             }
             catch (Exception ex)
             {
                 AnsiConsole.MarkupLine("[gray][italic]failed[/][/]");
-                return Task.FromResult("Exploring directory failed. Exception message: " + ex.Message);
+                return "Exploring directory failed. Exception message: " + ex.Message;
             }
         }
     }

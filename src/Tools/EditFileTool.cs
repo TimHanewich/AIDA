@@ -17,7 +17,7 @@ namespace AIDA
             InputParameters.Add(new FunctionInputParameter("replace_all", "If true, replace all occurrences. If false, only replace if the old_string is unique in the file. Defaults to true."));
         }
 
-        public override Task<string> ExecuteAsync(JObject? arguments = null)
+        public override async Task<string> ExecuteAsync(JObject? arguments = null)
         {
             string? path = null;
             string? old_string = null;
@@ -45,7 +45,7 @@ namespace AIDA
 
             if (path == null || old_string == null || new_string == null)
             {
-                return Task.FromResult("You must provide 'path', 'old_string', and 'new_string' parameters!");
+                return "You must provide 'path', 'old_string', and 'new_string' parameters!";
             }
 
             AnsiConsole.Markup("[gray][italic]editing '" + Markup.Escape(path) + "'... [/][/]");
@@ -53,7 +53,7 @@ namespace AIDA
             if (System.IO.File.Exists(path) == false)
             {
                 AnsiConsole.MarkupLine("[gray][italic]failed[/][/]");
-                return Task.FromResult("File at '" + path + "' does not exist!");
+                return "File at '" + path + "' does not exist!";
             }
 
             string content;
@@ -64,7 +64,7 @@ namespace AIDA
             catch (Exception ex)
             {
                 AnsiConsole.MarkupLine("[gray][italic]failed[/][/]");
-                return Task.FromResult("There was an issue opening the file: " + ex.Message);
+                return "There was an issue opening the file: " + ex.Message;
             }
 
             string[] split = old_string.Split(old_string);
@@ -72,14 +72,14 @@ namespace AIDA
             if (occurences == 0)
             {
                 AnsiConsole.MarkupLine("[gray][italic]no changes[/][/]");
-                return Task.FromResult("No edits made. There were no occurences of the old_string you provided in the file content.");
+                return "No edits made. There were no occurences of the old_string you provided in the file content.";
             }
             else if (occurences > 1)
             {
                 if (replace_all == false)
                 {
                     AnsiConsole.MarkupLine("[gray][italic]failed[/][/]");
-                    return Task.FromResult("There are multiple occurences of the old_string you provided in the file content and you did not have 'replace_all' enabled. Please expand the context of the 'old_string' (make it unique) to clearly indicate what portion you want to edit.");
+                    return "There are multiple occurences of the old_string you provided in the file content and you did not have 'replace_all' enabled. Please expand the context of the 'old_string' (make it unique) to clearly indicate what portion you want to edit.";
                 }
             }
 
@@ -87,7 +87,7 @@ namespace AIDA
             System.IO.File.WriteAllText(path, content);
 
             AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
-            return Task.FromResult("File edit was successful.");
+            return "File edit was successful.";
         }
     }
 }

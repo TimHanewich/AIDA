@@ -14,7 +14,7 @@ namespace AIDA
             InputParameters.Add(new FunctionInputParameter("path", "The path of the directory to delete."));
         }
 
-        public override Task<string> ExecuteAsync(JObject? arguments = null)
+        public override async Task<string> ExecuteAsync(JObject? arguments = null)
         {
             string? path = null;
             if (arguments != null)
@@ -25,15 +25,15 @@ namespace AIDA
 
             if (path == null)
             {
-                return Task.FromResult("You must provide the 'path' parameter!");
+                return "You must provide the 'path' parameter!";
             }
             if (System.IO.Directory.Exists(path) == false)
             {
-                return Task.FromResult("Directory at '" + path + "' does not exist!");
+                return "Directory at '" + path + "' does not exist!";
             }
             if (System.IO.Directory.GetFiles(path).Length > 0 || System.IO.Directory.GetDirectories(path).Length > 0)
             {
-                return Task.FromResult("Directory at '" + path + "' is not empty! You must delete all files and sub-directories first using the `delete_file` tool before you can delete this directory.");
+                return "Directory at '" + path + "' is not empty! You must delete all files and sub-directories first using the `delete_file` tool before you can delete this directory.";
             }
 
             AnsiConsole.Markup("[gray][italic]deleting directory '" + Markup.Escape(path) + "'... [/][/]");
@@ -41,12 +41,12 @@ namespace AIDA
             {
                 System.IO.Directory.Delete(path);
                 AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
-                return Task.FromResult("Directory '" + path + "' was successfully deleted.");
+                return "Directory '" + path + "' was successfully deleted.";
             }
             catch (Exception ex)
             {
                 AnsiConsole.MarkupLine("[gray][italic]failed[/][/]");
-                return Task.FromResult("Deletion of directory failed. Exception message: " + ex.Message);
+                return "Deletion of directory failed. Exception message: " + ex.Message;
             }
         }
     }

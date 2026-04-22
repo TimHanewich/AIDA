@@ -14,7 +14,7 @@ namespace AIDA
             InputParameters.Add(new FunctionInputParameter("path", "The path of the file to delete."));
         }
 
-        public override Task<string> ExecuteAsync(JObject? arguments = null)
+        public override async Task<string> ExecuteAsync(JObject? arguments = null)
         {
             string? path = null;
             if (arguments != null)
@@ -25,11 +25,11 @@ namespace AIDA
 
             if (path == null)
             {
-                return Task.FromResult("You must provide the 'path' parameter!");
+                return "You must provide the 'path' parameter!";
             }
             if (System.IO.File.Exists(path) == false)
             {
-                return Task.FromResult("File at '" + path + "' does not exist!");
+                return "File at '" + path + "' does not exist!";
             }
 
             try
@@ -37,12 +37,12 @@ namespace AIDA
                 AnsiConsole.Markup("[gray][italic]deleting '" + Markup.Escape(path) + "'... [/][/]");
                 System.IO.File.Delete(path);
                 AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
-                return Task.FromResult("File '" + path + "' was successfully deleted.");
+                return "File '" + path + "' was successfully deleted.";
             }
             catch (Exception ex)
             {
                 AnsiConsole.MarkupLine("[gray][italic]failed[/][/]");
-                return Task.FromResult("Deletion of file failed. Exception message: " + ex.Message);
+                return "Deletion of file failed. Exception message: " + ex.Message;
             }
         }
     }

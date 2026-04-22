@@ -17,7 +17,7 @@ namespace AIDA
             InputParameters.Add(new FunctionInputParameter("file_path", "The path to the file on the computer, for example 'C:\\Users\\timh\\Downloads\\notes.txt' or '.\\notes.txt' or 'notes.txt'"));
         }
 
-        public override Task<string> ExecuteAsync(JObject? arguments = null)
+        public override async Task<string> ExecuteAsync(JObject? arguments = null)
         {
             string file_path = "?";
             if (arguments != null)
@@ -29,7 +29,7 @@ namespace AIDA
             AnsiConsole.Markup("[gray][italic]reading '" + Markup.Escape(file_path) + "'... [/][/]");
             string result = ReadFile(file_path);
             AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
-            return Task.FromResult(result);
+            return result;
         }
 
         private static string ReadFile(string path)
