@@ -26,7 +26,9 @@ namespace AIDA
             var agent = new TimHanewich.AgentFramework.Agent(Tools.GetSystemPrompt());
             RegisterTools(agent);
 
-            //Event handler for tool invocations
+            //Event handlers
+            agent.InferenceRequested += OnInferenceRequested;
+            agent.InferenceReceived += OnInferenceReceived;
             agent.ExecutableFunctionInvoked += OnToolInvoked;
 
             return agent;
@@ -36,6 +38,16 @@ namespace AIDA
         {
             //AnsiConsole.Markup("[gray][italic]calling '" + ef.Name + "'... [/][/]");
             AnsiConsole.Markup("[bold]" + ef.Name + "[/]... ");
+        }
+
+        private static void OnInferenceRequested()
+        {
+            AnsiConsole.Markup("[gray][italic]thinking... ");
+        }
+
+        private static void OnInferenceReceived(int input_tokens_consumed, int output_tokens_consumed)
+        {
+            AnsiConsole.MarkupLine("[gray][italic]complete: " + input_tokens_consumed.ToString("#,##0") + ", " + output_tokens_consumed.ToString("#,##0") + " [/][/]");
         }
 
         public static void RegisterTools(TimHanewich.AgentFramework.Agent agent)
