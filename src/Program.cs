@@ -35,7 +35,7 @@ namespace AIDA
         private static void OnToolInvoked(ExecutableFunction ef, JObject arguments)
         {
             //AnsiConsole.Markup("[gray][italic]calling '" + ef.Name + "'... [/][/]");
-            AnsiConsole.Markup("🔨 [bold]" + ef.Name + "[/]... ");
+            AnsiConsole.Markup("[bold]" + ef.Name + "[/]... ");
         }
 
         public static void RegisterTools(TimHanewich.AgentFramework.Agent agent)
