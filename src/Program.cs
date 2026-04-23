@@ -42,12 +42,12 @@ namespace AIDA
 
         private static void OnInferenceRequested()
         {
-            AnsiConsole.Markup("[gray][italic]thinking... ");
+            AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
         }
 
         private static void OnInferenceReceived(int input_tokens_consumed, int output_tokens_consumed)
         {
-            AnsiConsole.MarkupLine("[gray][italic]complete: " + input_tokens_consumed.ToString("#,##0") + ", " + output_tokens_consumed.ToString("#,##0") + " [/][/]");
+            AnsiConsole.MarkupLine("[gray][italic]complete.[/][/]");
         }
 
         public static void RegisterTools(TimHanewich.AgentFramework.Agent agent)
