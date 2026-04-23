@@ -34,7 +34,8 @@ namespace AIDA
 
         private static void OnToolInvoked(ExecutableFunction ef, JObject arguments)
         {
-            AnsiConsole.Markup("[gray][italic]calling '" + ef.Name + "'... [/][/]");
+            //AnsiConsole.Markup("[gray][italic]calling '" + ef.Name + "'... [/][/]");
+            AnsiConsole.Markup("🔨 [bold]" + ef.Name + "[/]... ");
         }
 
         public static void RegisterTools(TimHanewich.AgentFramework.Agent agent)
@@ -208,16 +209,13 @@ namespace AIDA
                 int prevInput = AidaAgent.InputTokensConsumed;
                 int prevOutput = AidaAgent.OutputTokensConsumed;
 
-                //Prompt the model
-                AnsiConsole.Markup("[gray][italic]thinking... [/][/]");
+                //Prompt the model, get response
+                AnsiConsole.MarkupLine("[gray][italic]Inference Begin [/][/]");
+                string response = null!;
+                DateTime BeganAtUtc = DateTime.UtcNow;
                 try
                 {
-                    string response = await AidaAgent.PromptAsync(input);
-                    Console.WriteLine();
-
-                    //Print the response
-                    PrintAIMessage(response, AIDASettings.Load().AssistantMessageColor);
-                    Console.WriteLine();
+                    response = await AidaAgent.PromptAsync(input);
                 }
                 catch (Exception ex)
                 {
@@ -228,25 +226,43 @@ namespace AIDA
                     AnsiConsole.Markup("[italic][gray]Press enter to try another input... [/][/]");
                     Console.ReadLine();
                 }
-                finally
-                {
-                    //Log consumption (even on failure, tokens may have been consumed)
-                    int deltaInput = AidaAgent.InputTokensConsumed - prevInput;
-                    int deltaOutput = AidaAgent.OutputTokensConsumed - prevOutput;
-                    if (deltaInput > 0 || deltaOutput > 0)
-                    {
-                        SessionInputTokens += deltaInput;
-                        SessionOutputTokens += deltaOutput;
+                DateTime CompletedAtUtc = DateTime.UtcNow;
 
-                        ConsumptionEvent ce = new ConsumptionEvent();
-                        ce.Model = AidaAgent.Model;
-                        ce.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                        ce.InputTokens = deltaInput;
-                        ce.OutputTokens = deltaOutput;
-                        Stats s = Stats.Load();
-                        s.AddConsumptionEvent(ce);
-                        s.Save();
-                    }
+                //Calculate tokens consumed
+                int deltaInput = AidaAgent.InputTokensConsumed - prevInput;
+                int deltaOutput = AidaAgent.OutputTokensConsumed - prevOutput;
+
+                
+                //If successfull, print
+                if (response != null)
+                {
+                    //Calc time delta
+                    TimeSpan TimeDelta = CompletedAtUtc - BeganAtUtc;
+
+                    //Print complete
+                    AnsiConsole.MarkupLine("[gray][italic]Inference Complete in " + TimeDelta.TotalSeconds.ToString("#,##0") + " seconds: " + deltaInput.ToString("#,##0") + " input tokens, " + deltaOutput.ToString("#,##0") + " output tokens" + "[/][/]");
+
+                    //Print
+                    PrintAIMessage(response, AIDASettings.Load().AssistantMessageColor);
+
+                    //new line
+                    Console.WriteLine();
+                }
+                
+                //Log consumption (even on failure, tokens may have been consumed)
+                if (deltaInput > 0 || deltaOutput > 0)
+                {
+                    SessionInputTokens += deltaInput;
+                    SessionOutputTokens += deltaOutput;
+
+                    ConsumptionEvent ce = new ConsumptionEvent();
+                    ce.Model = AidaAgent.Model;
+                    ce.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    ce.InputTokens = deltaInput;
+                    ce.OutputTokens = deltaOutput;
+                    Stats s = Stats.Load();
+                    s.AddConsumptionEvent(ce);
+                    s.Save();
                 }
 
             } //END INFINITE CHAT
