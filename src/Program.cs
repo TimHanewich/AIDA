@@ -47,7 +47,7 @@ namespace AIDA
 
         private static void OnInferenceReceived(int input_tokens_consumed, int output_tokens_consumed)
         {
-            AnsiConsole.MarkupLine("[gray][italic]complete.[/][/]");
+            AnsiConsole.MarkupLine("[gray][italic]complete[/][/]");
         }
 
         public static void RegisterTools(TimHanewich.AgentFramework.Agent agent)
