@@ -22,3 +22,4 @@
 |0.19.0|[download](https://github.com/TimHanewich/AIDA/releases/download/17/AIDA.exe)|[download](https://github.com/TimHanewich/AIDA/releases/download/17/AIDA)|All commands now begin with `/`, added `/stats`, removed MSX package, removed Weather package, removed Finance package, implemented timeout on shell commands, added ability to view images|
 |0.20.0|[download](https://github.com/TimHanewich/AIDA/releases/download/18/AIDA.exe)|[download](https://github.com/TimHanewich/AIDA/releases/download/18/AIDA)|Further fleshed out file manipulation and directory manipulation tools. Code optimizations.|
 |0.20.1|[download](https://github.com/TimHanewich/AIDA/releases/download/19/AIDA.exe)|[download](https://github.com/TimHanewich/AIDA/releases/download/19/AIDA)|Fixed settings saving issue (previous version doesn't save settings at all)|
+|0.21.0|`5656e3dc250dca45ca6e75c1d32e9671a7fc8662`|[download]()|[download]()||
