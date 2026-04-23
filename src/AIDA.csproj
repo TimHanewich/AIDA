@@ -26,6 +26,9 @@
     <PublishSelfContained>true</PublishSelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>
+
+    <!--Publish with lowercase assembly name-->
+    <AssemblyName>aida</AssemblyName>
   </PropertyGroup>
 
 </Project>
