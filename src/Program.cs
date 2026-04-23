@@ -222,9 +222,7 @@ namespace AIDA
                 int prevOutput = AidaAgent.OutputTokensConsumed;
 
                 //Prompt the model, get response
-                AnsiConsole.MarkupLine("[gray][italic]Inference Begin [/][/]");
                 string response = null!;
-                DateTime BeganAtUtc = DateTime.UtcNow;
                 try
                 {
                     response = await AidaAgent.PromptAsync(input);
@@ -238,22 +236,10 @@ namespace AIDA
                     AnsiConsole.Markup("[italic][gray]Press enter to try another input... [/][/]");
                     Console.ReadLine();
                 }
-                DateTime CompletedAtUtc = DateTime.UtcNow;
 
-                //Calculate tokens consumed
-                int deltaInput = AidaAgent.InputTokensConsumed - prevInput;
-                int deltaOutput = AidaAgent.OutputTokensConsumed - prevOutput;
-
-                
                 //If successfull, print
                 if (response != null)
                 {
-                    //Calc time delta
-                    TimeSpan TimeDelta = CompletedAtUtc - BeganAtUtc;
-
-                    //Print complete
-                    AnsiConsole.MarkupLine("[gray][italic]Inference Complete in " + TimeDelta.TotalSeconds.ToString("#,##0") + " seconds: " + deltaInput.ToString("#,##0") + " input tokens, " + deltaOutput.ToString("#,##0") + " output tokens" + "[/][/]");
-
                     //Print
                     PrintAIMessage(response, AIDASettings.Load().AssistantMessageColor);
 
@@ -262,6 +248,8 @@ namespace AIDA
                 }
                 
                 //Log consumption (even on failure, tokens may have been consumed)
+                int deltaInput = AidaAgent.InputTokensConsumed - prevInput;
+                int deltaOutput = AidaAgent.OutputTokensConsumed - prevOutput;
                 if (deltaInput > 0 || deltaOutput > 0)
                 {
                     SessionInputTokens += deltaInput;
