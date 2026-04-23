@@ -38,7 +38,7 @@ dotnet publish AIDA.csproj -c Release --self-contained true
 
 For linux:
 ```
-dotnet publish AIDA.csproj -c Release -r linux-x64 --self-contained true -p:AssemblyName=aida
+dotnet publish AIDA.csproj -c Release -r linux-x64 --self-contained true
 ```
 
 ## Other Resources
