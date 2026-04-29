@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using TimHanewich.Foundry;
+using TimHanewich.Foundry.OpenAI.Responses;
 
 namespace AIDA
 {
@@ -22,6 +23,7 @@ namespace AIDA
 
         //AI Model we are using within foundry
         public string? ModelName {get; set;} //the name of the model or deployment to be used, i.e. "gpt-5.2"
+        public ReasoningEffortLevel? ReasoningEffortLevel {get; set;} //the amount of reasoning effort to use
 
         //Formatting settings
         public string AssistantMessageColor { get; set; } //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
@@ -38,8 +40,10 @@ namespace AIDA
             ClientID = null;
             ClientSecret = null;
             ModelName = null;
+            ReasoningEffortLevel = null;
             AssistantMessageColor = "navyblue";
             WebSearchEnabled = false;
+            ShellEnabled = false;
         }
 
         public FoundryResource PrepareFoundryResource()

@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
 using System.Reflection;
 using TimHanewich.Foundry;
 using TimHanewich.AgentFramework;
+using TimHanewich.Foundry.OpenAI.Responses;
 
 namespace AIDA
 {
@@ -111,6 +112,10 @@ namespace AIDA
             if (settings.ModelName != null)
             {
                 agent.Model = settings.ModelName;
+            }
+            if (settings.ReasoningEffortLevel != null)
+            {
+                agent.ReasoningEffortLevel = settings.ReasoningEffortLevel.Value;
             }
         }
 
@@ -487,6 +492,16 @@ namespace AIDA
                     AnsiConsole.MarkupLine("Model: (none)");
                 }
 
+                //Reasoning effort
+                if (SettingsToModify.ReasoningEffortLevel != null)
+                {
+                    AnsiConsole.MarkupLine("Reasoning Effort: " + SettingsToModify.ReasoningEffortLevel.Value.ToString());
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine("Reasoning Effort: (none)");
+                }
+
                 //Assistant color
                 AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + SettingsToModify.AssistantMessageColor + "[/] ([" + SettingsToModify.AssistantMessageColor + "]looks like this[/])");
 
@@ -545,7 +560,15 @@ namespace AIDA
                 {
                     string model_name = AnsiConsole.Ask<string>("Model name?");
                     SettingsToModify.ModelName = model_name;
-                    AnsiConsole.MarkupLine("Model updated to '" + model_name + "'");
+
+                    SelectionPrompt<ReasoningEffortLevel> reasoningPrompt = new SelectionPrompt<ReasoningEffortLevel>();
+                    reasoningPrompt.Title("What level of reasoning effort do you want?");
+                    reasoningPrompt.AddChoices(Enum.GetValues<ReasoningEffortLevel>());
+
+                    ReasoningEffortLevel selectedReasoningEffort = AnsiConsole.Prompt(reasoningPrompt);
+                    SettingsToModify.ReasoningEffortLevel = selectedReasoningEffort;
+
+                    AnsiConsole.MarkupLine("Model updated to '" + model_name + "' with reasoning effort '" + selectedReasoningEffort.ToString() + "'");
                 }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
                 {
