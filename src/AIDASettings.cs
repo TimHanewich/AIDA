@@ -23,6 +23,7 @@ namespace AIDA
 
         //AI Model we are using within foundry
         public string? ModelName {get; set;} //the name of the model or deployment to be used, i.e. "gpt-5.2"
+        public Verbosity? VerbosityLevel {get; set;} //the amount of verbosity to use
         public ReasoningEffortLevel? ReasoningEffortLevel {get; set;} //the amount of reasoning effort to use
 
         //Formatting settings
@@ -40,6 +41,7 @@ namespace AIDA
             ClientID = null;
             ClientSecret = null;
             ModelName = null;
+            VerbosityLevel = null;
             ReasoningEffortLevel = null;
             AssistantMessageColor = "navyblue";
             WebSearchEnabled = false;

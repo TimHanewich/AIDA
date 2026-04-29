@@ -113,6 +113,10 @@ namespace AIDA
             {
                 agent.Model = settings.ModelName;
             }
+            if (settings.VerbosityLevel != null)
+            {
+                agent.VerbosityLevel = settings.VerbosityLevel.Value;
+            }
             if (settings.ReasoningEffortLevel != null)
             {
                 agent.ReasoningEffortLevel = settings.ReasoningEffortLevel.Value;
@@ -492,6 +496,16 @@ namespace AIDA
                     AnsiConsole.MarkupLine("Model: (none)");
                 }
 
+                //Verbosity level
+                if (SettingsToModify.VerbosityLevel != null)
+                {
+                    AnsiConsole.MarkupLine("Verbosity: " + SettingsToModify.VerbosityLevel.Value.ToString());
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine("Verbosity: (none)");
+                }
+
                 //Reasoning effort
                 if (SettingsToModify.ReasoningEffortLevel != null)
                 {
@@ -561,6 +575,13 @@ namespace AIDA
                     string model_name = AnsiConsole.Ask<string>("Model name?");
                     SettingsToModify.ModelName = model_name;
 
+                    SelectionPrompt<Verbosity> verbosityPrompt = new SelectionPrompt<Verbosity>();
+                    verbosityPrompt.Title("What verbosity level do you want?");
+                    verbosityPrompt.AddChoices(Enum.GetValues<Verbosity>());
+
+                    Verbosity selectedVerbosity = AnsiConsole.Prompt(verbosityPrompt);
+                    SettingsToModify.VerbosityLevel = selectedVerbosity;
+
                     SelectionPrompt<ReasoningEffortLevel> reasoningPrompt = new SelectionPrompt<ReasoningEffortLevel>();
                     reasoningPrompt.Title("What level of reasoning effort do you want?");
                     reasoningPrompt.AddChoices(Enum.GetValues<ReasoningEffortLevel>());
@@ -568,7 +589,7 @@ namespace AIDA
                     ReasoningEffortLevel selectedReasoningEffort = AnsiConsole.Prompt(reasoningPrompt);
                     SettingsToModify.ReasoningEffortLevel = selectedReasoningEffort;
 
-                    AnsiConsole.MarkupLine("Model updated to '" + model_name + "' with reasoning effort '" + selectedReasoningEffort.ToString() + "'");
+                    AnsiConsole.MarkupLine("Model updated to '" + model_name + "' with verbosity '" + selectedVerbosity.ToString() + "' and reasoning effort '" + selectedReasoningEffort.ToString() + "'");
                 }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
                 {
