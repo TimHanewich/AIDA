@@ -45,6 +45,9 @@ namespace AIDA
             //System-injected prompt (AIDA info)
             SystemMessage.Add("You are AIDA, Artificial Intelligence Desktop Assistant. Your role is to be a friendly and helpful assistant. Speak in a playful, lighthearted, and fun manner.");
             SystemMessage.Add("Do not use emojis.");
+            
+            //Folder it is in
+            SystemMessage.Add("You are currently working in the folder '" + Environment.CurrentDirectory.ToString() + "'. If the user refers to 'this' or 'here' or implies for you to examine something without explicitly stating *what*, it very well could be within the context of the current directory.");
 
             //File manipulation
             if (true)
