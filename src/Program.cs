@@ -486,34 +486,16 @@ namespace AIDA
                     AnsiConsole.MarkupLine("Auth Type: (unknown)");
                 }
 
-                //Model name
+                //Model info
                 if (SettingsToModify.ModelName != null)
                 {
-                    AnsiConsole.MarkupLine("Model: " + SettingsToModify.ModelName);
+                    string verbosityText = SettingsToModify.VerbosityLevel != null ? SettingsToModify.VerbosityLevel.Value.ToString().ToLower() : "none";
+                    string reasoningText = SettingsToModify.ReasoningEffortLevel != null ? SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower() : "none";
+                    AnsiConsole.MarkupLine("Model: " + SettingsToModify.ModelName + " (verbosity: " + verbosityText + ", reasoning: " + reasoningText + ")");
                 }
                 else
                 {
                     AnsiConsole.MarkupLine("Model: (none)");
-                }
-
-                //Verbosity level
-                if (SettingsToModify.VerbosityLevel != null)
-                {
-                    AnsiConsole.MarkupLine("Verbosity: " + SettingsToModify.VerbosityLevel.Value.ToString());
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("Verbosity: (none)");
-                }
-
-                //Reasoning effort
-                if (SettingsToModify.ReasoningEffortLevel != null)
-                {
-                    AnsiConsole.MarkupLine("Reasoning Effort: " + SettingsToModify.ReasoningEffortLevel.Value.ToString());
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("Reasoning Effort: (none)");
                 }
 
                 //Assistant color
