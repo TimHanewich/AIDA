@@ -3,7 +3,6 @@ using TimHanewich.Foundry.OpenAI.Responses;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
 using System.Net;
-using HtmlAgilityPack;
 
 namespace AIDA
 {
