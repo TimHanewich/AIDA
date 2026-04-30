@@ -31,6 +31,7 @@ namespace AIDA
             agent.InferenceRequested += OnInferenceRequested;
             agent.InferenceReceived += OnInferenceReceived;
             agent.ExecutableFunctionInvoked += OnToolInvoked;
+            agent.WebSearchInvoked += OnWebSearch;
 
             return agent;
         }
@@ -39,6 +40,11 @@ namespace AIDA
         {
             //AnsiConsole.Markup("[gray][italic]calling '" + ef.Name + "'... [/][/]");
             AnsiConsole.Markup("[bold]" + ef.Name + "[/]... ");
+        }
+
+        private static void OnWebSearch(string query)
+        {
+            AnsiConsole.MarkupLine("[bold]Web Search[/] for '[italic]" + query+ "[/]'...");
         }
 
         private static void OnInferenceRequested()
