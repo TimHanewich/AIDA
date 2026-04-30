@@ -495,8 +495,8 @@ namespace AIDA
                 //Model info
                 if (SettingsToModify.ModelName != null)
                 {
-                    string verbosityText = SettingsToModify.VerbosityLevel != null ? SettingsToModify.VerbosityLevel.Value.ToString().ToLower() : "none";
-                    string reasoningText = SettingsToModify.ReasoningEffortLevel != null ? SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower() : "none";
+                    string verbosityText = SettingsToModify.VerbosityLevel != null ? SettingsToModify.VerbosityLevel.Value.ToString().ToLower() : "(unselected)";
+                    string reasoningText = SettingsToModify.ReasoningEffortLevel != null ? SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower() : "(unselected)";
                     AnsiConsole.MarkupLine("Model: " + SettingsToModify.ModelName + " (verbosity: " + verbosityText + ", reasoning: " + reasoningText + ")");
                 }
                 else
@@ -564,8 +564,8 @@ namespace AIDA
                     {
                         Console.WriteLine();
                         string currentModel = Markup.Escape(SettingsToModify.ModelName ?? "(none)");
-                        string currentVerbosity = SettingsToModify.VerbosityLevel != null ? Markup.Escape(SettingsToModify.VerbosityLevel.Value.ToString().ToLower()) : "none";
-                        string currentReasoning = SettingsToModify.ReasoningEffortLevel != null ? Markup.Escape(SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower()) : "none";
+                        string currentVerbosity = SettingsToModify.VerbosityLevel != null ? Markup.Escape(SettingsToModify.VerbosityLevel.Value.ToString().ToLower()) : "(unselected)";
+                        string currentReasoning = SettingsToModify.ReasoningEffortLevel != null ? Markup.Escape(SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower()) : "(unselected)";
                         AnsiConsole.MarkupLine("[underline]Model Settings[/]");
                         AnsiConsole.MarkupLine("Model: [bold]" + currentModel + "[/]");
                         AnsiConsole.MarkupLine("Verbosity: [bold]" + currentVerbosity + "[/]");
