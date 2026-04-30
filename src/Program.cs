@@ -44,7 +44,7 @@ namespace AIDA
 
         private static void OnWebSearch(string query)
         {
-            AnsiConsole.MarkupLine("[bold]Web Search[/] for '[italic]" + query+ "[/]'...");
+            AnsiConsole.MarkupLine("[bold]Web Search[/]: [gray]'" + query+ "'...[/] ");
         }
 
         private static void OnInferenceRequested()
