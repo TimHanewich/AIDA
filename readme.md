@@ -25,8 +25,8 @@ In addition to the above capabilities, you can run several commands to manage th
 
 ## How to run AIDA
 AIDA is super lightweight and easy to run on Windows and Linux!
-1. Install the [.NET 9.0 runtime](https://dotnet.microsoft.com/en-us/download/dotnet/9.0).
-2. Download AIDA from [the changelog](./changelog.md). Place it anywhere you want on your computer. Add it to your **path** variable so you can call AIDA easily!
+
+To install, download AIDA from [the changelog](./changelog.md). Place it anywhere you want on your computer. Add it to your **path** variable so you can call AIDA easily!
 
 ## Building the Project
 If you modify AIDA and want to build it for yourself, here are the dotnet SDK commands you can use!
