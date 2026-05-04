@@ -29,11 +29,10 @@ In addition to the above capabilities, you can run several commands to manage th
 AIDA can be used as a simple, lightweight but effective alternative to enterprise AI Agents like Claude Code, Codex, GitHub Copilot and others.
 
 - **Bring your own model** - connect AIDA to your own deployment through **Microsoft Foundry**.
+- **Transparent token costs** - you pay for model tokens directly. No need to familiarize yourself with, or work through, a separate AI coding assistant provider's billing model.
 - **Transparent tool access** - the tools AIDA has are explicit and inspectable, not hidden behind mystery abstractions.
 - **Local workflow friendly** - it can inspect folders, read and edit files, fetch webpages, and optionally use shell commands.
-- **Configurable behavior** - you can tune the model, reasoning, verbosity, enabled tools, and even inject your own custom prompt.
 - **Open source and easy to modify** - if you want to change how it behaves, you can just edit the code.
-- **Good fit for technical users** - especially if you like working in the terminal and want something closer to an AI operator than an IDE autocomplete feature.
 
 ## How to run AIDA
 AIDA is super lightweight and easy to run on Windows and Linux!
