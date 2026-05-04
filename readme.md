@@ -1,8 +1,6 @@
 # AIDA: AI Desktop Assistant
 ![AIDA banner](https://i.imgur.com/824qYfQ.png)
 
-**AIDA**, short for **AI** **D**esktop **A**ssistant: lightweight, console-based AI agent.
-
 Think of AIDA as an alternative to tools like **Claude Code**, **GitHub Copilot**, **OpenAI Codex**, and other coding agent experiences, but with a deliberately simple, local-first terminal interface and a toolset you can clearly see, control, and extend.
 
 AIDA has built-in tools (function-calling) that give it several capabilities:
