@@ -1,7 +1,7 @@
 # AIDA: AI Desktop Assistant
 ![AIDA banner](https://i.imgur.com/824qYfQ.png)
 
-> AIDA is a lightweight terminal-based AI coding agent that connects to your own model deployment and helps you 
+AIDA is a lightweight terminal-based AI coding agent that connects to your own model deployment and helps you 
 inspect files, edit code, and work locally with transparent token-based usage.
 
 Think of AIDA as an alternative to tools like **Claude Code**, **GitHub Copilot**, **OpenAI Codex**, and other coding agent experiences, but with a deliberately simple, local-first terminal interface and a toolset you can clearly see, control, and extend.
