@@ -56,7 +56,9 @@ namespace AIDA
         {
             if (System.IO.File.Exists(SavePath) == false)
             {
-                return new AIDASettings();
+                AIDASettings ToReturn = new AIDASettings();
+                ToReturn.Save();
+                return ToReturn;
             }
             else
             {
