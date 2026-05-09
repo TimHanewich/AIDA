@@ -71,6 +71,7 @@ namespace AIDA
             agent.Tools.Add(new DeleteDirectoryTool());
             agent.Tools.Add(new WebFetchTool());
             agent.Tools.Add(new ViewImageTool());
+            agent.Tools.Add(new GenerateImageTool());
 
             if (AIDASettings.Load().ShellEnabled)
             {
