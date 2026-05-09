@@ -234,7 +234,7 @@ Output Handling: Both success and error messages are returned. If a command fail
         /// <summary>
         /// Interactively collects Foundry connection info (URL and auth credentials) from the user via the console and returns a new ModelConnectionInfo.
         /// </summary>
-        public static ModelConnectionInfo CollectFoundryConnectionInfo()
+        public static ModelConnectionInfo CollectModelConnectionInfo()
         {
             ModelConnectionInfo mci = new ModelConnectionInfo();
 
