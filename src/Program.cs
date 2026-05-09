@@ -229,6 +229,14 @@ namespace AIDA
                     goto Input;
                 }
 
+                //If there isn't a model configured, print fail and go back
+                if (AIDASettings.Load().TextModel == null)
+                {
+                    AnsiConsole.MarkupLine("[red]You did not provide connection info for a text generation model (Responses API). Please run /settings to do so.[/]");
+                    Console.WriteLine();
+                    goto Input;
+                }
+
                 //Configure the agent's connection and tools before prompting
                 await ConfigureAgentConnectionAsync(AidaAgent);
                 RegisterTools(AidaAgent);
