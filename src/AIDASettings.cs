@@ -9,20 +9,10 @@ namespace AIDA
 {
     public class AIDASettings
     {
-        //Foundry URL
-        public string? FoundryUrl {get; set;}
+        public ModelConnectionInfo? TextModel {get; set;} //The model we have for text generation (i.e. GPT-5.4)
+        public ModelConnectionInfo? ImageModel {get; set;} //The model we have for image generation (i.e. gpt-image-2)
 
-        //Foundry credentials - API Key (if they choose to use this)
-        public string? ApiKey {get; set;}
-
-        //Foundry Credentials - Entra ID Auth (if they choose to use this)
-        public string? TenantID {get; set;}
-        public string? ClientID {get; set;}
-        public string? ClientSecret {get; set;}
-        public TokenCredential? AuthenticatedTokenCredentials {get; set;} //previous authentication info (may be expired)
-
-        //AI Model we are using within foundry
-        public string? ModelName {get; set;} //the name of the model or deployment to be used, i.e. "gpt-5.2"
+        //Text generation settings
         public Verbosity? VerbosityLevel {get; set;} //the amount of verbosity to use
         public ReasoningEffortLevel? ReasoningEffortLevel {get; set;} //the amount of reasoning effort to use
 
@@ -35,12 +25,11 @@ namespace AIDA
 
         public AIDASettings()
         {
-            FoundryUrl = null;
-            ApiKey = null;
-            TenantID = null;
-            ClientID = null;
-            ClientSecret = null;
-            ModelName = null;
+            //Default
+            TextModel = null;
+            ImageModel = null;
+            
+            //Default settings
             VerbosityLevel = null;
             ReasoningEffortLevel = null;
             AssistantMessageColor = "navyblue";
@@ -48,30 +37,7 @@ namespace AIDA
             ShellEnabled = false;
         }
 
-        public FoundryResource PrepareFoundryResource()
-        {
-            if (FoundryUrl == null)
-            {
-                throw new Exception("Unable to prepare foundry resource: the URL was null!");
-            }
-
-            FoundryResource ToReturn = new FoundryResource(FoundryUrl);
-            
-            //if they did API Key method
-            if (ApiKey != null)
-            {
-                ToReturn.ApiKey = ApiKey;
-            }
-            else //assume entra ID auth insteads
-            {
-                if (AuthenticatedTokenCredentials != null)
-                {
-                    ToReturn.AccessToken = AuthenticatedTokenCredentials.AccessToken;
-                }
-            }
-
-            return ToReturn;
-        }
+        
 
         private static string SavePath
         {

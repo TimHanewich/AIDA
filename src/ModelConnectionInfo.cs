@@ -29,5 +29,29 @@ namespace AIDA
             ModelName = model_name;
         }
 
+        public FoundryResource PrepareFoundryResource()
+        {
+            if (FoundryUrl == null)
+            {
+                throw new Exception("Unable to prepare foundry resource: the URL was null!");
+            }
+
+            FoundryResource ToReturn = new FoundryResource(FoundryUrl);
+            
+            //if they did API Key method
+            if (ApiKey != null)
+            {
+                ToReturn.ApiKey = ApiKey;
+            }
+            else //assume entra ID auth insteads
+            {
+                if (AuthenticatedTokenCredentials != null)
+                {
+                    ToReturn.AccessToken = AuthenticatedTokenCredentials.AccessToken;
+                }
+            }
+
+            return ToReturn;
+        }
     }
 }
