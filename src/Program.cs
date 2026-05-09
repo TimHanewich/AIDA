@@ -111,7 +111,8 @@ namespace AIDA
 
                     if (NeedNewToken)
                     {
-                        await Tools.FoundryAuthAsync(settings);
+                        await Tools.FoundryAuthAsync(settings.TextModel);
+                        settings.Save(); //save
                         if (settings.TextModel.AuthenticatedTokenCredentials != null)
                         {
                             agent.FoundryResource.AccessToken = settings.TextModel.AuthenticatedTokenCredentials.AccessToken;
@@ -224,7 +225,7 @@ namespace AIDA
                 else if (input.ToLower() == "/auth")
                 {
                     AnsiConsole.MarkupLine("Attempting Microsoft Foundry Authentication... ");
-                    await Tools.FoundryAuthAsync(AIDASettings.Load());
+                    await Tools.FoundryAuthAsync(AIDASettings.Load().TextModel);
                     goto Input;
                 }
                 else if (input.ToLower() == "/stats")
