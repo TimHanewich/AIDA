@@ -233,31 +233,72 @@ Output Handling: Both success and error messages are returned. If a command fail
 
         /// <summary>
         /// Interactively collects Foundry connection info (URL and auth credentials) from the user via the console and returns a new ModelConnectionInfo.
+        /// If 'defaults' is provided, existing values are used as defaults the user can accept by pressing Enter.
         /// </summary>
-        public static ModelConnectionInfo CollectModelConnectionInfo()
+        public static ModelConnectionInfo CollectModelConnectionInfo(ModelConnectionInfo? defaults = null)
         {
             ModelConnectionInfo mci = new ModelConnectionInfo();
 
             //Get foundry URL
-            mci.FoundryUrl = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
+            TextPrompt<string> urlPrompt = new TextPrompt<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
+            if (defaults?.FoundryUrl != null && defaults.FoundryUrl != string.Empty)
+            {
+                urlPrompt.DefaultValue(defaults.FoundryUrl);
+            }
+            mci.FoundryUrl = AnsiConsole.Prompt(urlPrompt);
 
             //Ask how they want to authenticate
             SelectionPrompt<string> FoundryAuthOptions = new SelectionPrompt<string>();
             FoundryAuthOptions.Title("How do you want to authenticate?");
-            FoundryAuthOptions.AddChoice("API Key");
-            FoundryAuthOptions.AddChoice("Entra ID");
+            if (defaults?.ApiKey != null) // default to API Key first if that's what they were using
+            {
+                FoundryAuthOptions.AddChoice("API Key");
+                FoundryAuthOptions.AddChoice("Entra ID");
+            }
+            else if (defaults?.TenantID != null) // default to Entra ID first if that's what they were using
+            {
+                FoundryAuthOptions.AddChoice("Entra ID");
+                FoundryAuthOptions.AddChoice("API Key");
+            }
+            else
+            {
+                FoundryAuthOptions.AddChoice("API Key");
+                FoundryAuthOptions.AddChoice("Entra ID");
+            }
             string FoundryAuthSelection = AnsiConsole.Prompt(FoundryAuthOptions);
 
             //Handle auth
             if (FoundryAuthSelection == "API Key")
             {
-                mci.ApiKey = AnsiConsole.Ask<string>("What is the API key?");
+                TextPrompt<string> apiKeyPrompt = new TextPrompt<string>("What is the API key?");
+                if (defaults?.ApiKey != null)
+                {
+                    apiKeyPrompt.DefaultValue(defaults.ApiKey);
+                }
+                mci.ApiKey = AnsiConsole.Prompt(apiKeyPrompt);
             }
             else if (FoundryAuthSelection == "Entra ID")
             {
-                mci.TenantID = AnsiConsole.Ask<string>("Tenant ID?");
-                mci.ClientID = AnsiConsole.Ask<string>("Client ID?");
-                mci.ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
+                TextPrompt<string> tenantPrompt = new TextPrompt<string>("Tenant ID?");
+                if (defaults?.TenantID != null)
+                {
+                    tenantPrompt.DefaultValue(defaults.TenantID);
+                }
+                mci.TenantID = AnsiConsole.Prompt(tenantPrompt);
+
+                TextPrompt<string> clientIdPrompt = new TextPrompt<string>("Client ID?");
+                if (defaults?.ClientID != null)
+                {
+                    clientIdPrompt.DefaultValue(defaults.ClientID);
+                }
+                mci.ClientID = AnsiConsole.Prompt(clientIdPrompt);
+
+                TextPrompt<string> clientSecretPrompt = new TextPrompt<string>("Client Secret?");
+                if (defaults?.ClientSecret != null)
+                {
+                    clientSecretPrompt.DefaultValue(defaults.ClientSecret);
+                }
+                mci.ClientSecret = AnsiConsole.Prompt(clientSecretPrompt);
             }
 
             return mci;

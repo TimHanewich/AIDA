@@ -530,7 +530,7 @@ namespace AIDA
                 //Handle what to do
                 if (SettingToDoAnswer == "Update Foundry Connection Info")
                 {
-                    SettingsToModify.TextModel = Tools.CollectModelConnectionInfo();
+                    SettingsToModify.TextModel = Tools.CollectModelConnectionInfo(SettingsToModify.TextModel);
                 }
                 else if (SettingToDoAnswer == "Update Model")
                 {
