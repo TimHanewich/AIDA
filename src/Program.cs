@@ -520,63 +520,21 @@ namespace AIDA
                 Console.WriteLine();
                 SelectionPrompt<string> SettingToDo = new SelectionPrompt<string>();
                 SettingToDo.Title("What do you want to do?");
-                SettingToDo.AddChoice("Update Foundry Connection Info");
-                SettingToDo.AddChoice("Update Model");
+                SettingToDo.AddChoice("Update Text Model");
+                SettingToDo.AddChoice("Update Image Model");
                 SettingToDo.AddChoice("Change Assistant Message Color");
                 SettingToDo.AddChoice("Enable/Disable Tools");
                 SettingToDo.AddChoice("Save & Continue");
                 string SettingToDoAnswer = AnsiConsole.Prompt(SettingToDo);
 
                 //Handle what to do
-                if (SettingToDoAnswer == "Update Foundry Connection Info")
+                if (SettingToDoAnswer == "Update Text Model")
                 {
                     SettingsToModify.TextModel = Tools.CollectModelConnectionInfo(SettingsToModify.TextModel);
                 }
-                else if (SettingToDoAnswer == "Update Model")
+                else if (SettingToDoAnswer == "Update Image Model")
                 {
-                    while (true)
-                    {
-                        Console.WriteLine();
-                        string currentModel = Markup.Escape(SettingsToModify.TextModel.ModelName ?? "(none)");
-                        string currentVerbosity = SettingsToModify.VerbosityLevel != null ? Markup.Escape(SettingsToModify.VerbosityLevel.Value.ToString().ToLower()) : "(unselected)";
-                        string currentReasoning = SettingsToModify.ReasoningEffortLevel != null ? Markup.Escape(SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower()) : "(unselected)";
-                        AnsiConsole.MarkupLine("[underline]Model Settings[/]");
-                        AnsiConsole.MarkupLine("Model: [bold]" + currentModel + "[/]");
-                        AnsiConsole.MarkupLine("Verbosity: [bold]" + currentVerbosity + "[/]");
-                        AnsiConsole.MarkupLine("Reasoning: [bold]" + currentReasoning + "[/]");
-                        Console.WriteLine();
-
-                        SelectionPrompt<string> modelSettingPrompt = new SelectionPrompt<string>();
-                        modelSettingPrompt.Title("What would you like to update?");
-                        modelSettingPrompt.AddChoice("Model Name");
-                        modelSettingPrompt.AddChoice("Verbosity Level");
-                        modelSettingPrompt.AddChoice("Reasoning Level");
-                        modelSettingPrompt.AddChoice("Done");
-                        string modelSettingSelection = AnsiConsole.Prompt(modelSettingPrompt);
-
-                        if (modelSettingSelection == "Model Name")
-                        {
-                            SettingsToModify.TextModel.ModelName = AnsiConsole.Ask<string>("Model name?");
-                        }
-                        else if (modelSettingSelection == "Verbosity Level")
-                        {
-                            SelectionPrompt<Verbosity> verbosityPrompt = new SelectionPrompt<Verbosity>();
-                            verbosityPrompt.Title("What verbosity level do you want?");
-                            verbosityPrompt.AddChoices(Enum.GetValues<Verbosity>());
-                            SettingsToModify.VerbosityLevel = AnsiConsole.Prompt(verbosityPrompt);
-                        }
-                        else if (modelSettingSelection == "Reasoning Level")
-                        {
-                            SelectionPrompt<ReasoningEffortLevel> reasoningPrompt = new SelectionPrompt<ReasoningEffortLevel>();
-                            reasoningPrompt.Title("What level of reasoning effort do you want?");
-                            reasoningPrompt.AddChoices(Enum.GetValues<ReasoningEffortLevel>());
-                            SettingsToModify.ReasoningEffortLevel = AnsiConsole.Prompt(reasoningPrompt);
-                        }
-                        else if (modelSettingSelection == "Done")
-                        {
-                            break;
-                        }
-                    }
+                    SettingsToModify.ImageModel = Tools.CollectModelConnectionInfo(SettingsToModify.ImageModel);
                 }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
                 {
