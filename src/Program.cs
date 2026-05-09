@@ -5,6 +5,7 @@ using System.Reflection;
 using TimHanewich.Foundry;
 using TimHanewich.AgentFramework;
 using TimHanewich.Foundry.OpenAI.Responses;
+using TimHanewich.Foundry.OpenAI.Images;
 
 namespace AIDA
 {
@@ -543,6 +544,28 @@ namespace AIDA
                 else if (SettingToDoAnswer == "Update Image Model")
                 {
                     SettingsToModify.ImageModel = Tools.CollectModelConnectionInfo(SettingsToModify.ImageModel);
+
+                    //Image quality
+                    SelectionPrompt<ImageQuality> qualityPrompt = new SelectionPrompt<ImageQuality>();
+                    qualityPrompt.Title("What image quality do you want?");
+                    qualityPrompt.AddChoices(Enum.GetValues<ImageQuality>());
+                    SettingsToModify.ImageQuality = AnsiConsole.Prompt(qualityPrompt);
+
+                    //Image width
+                    TextPrompt<int> widthPrompt = new TextPrompt<int>("Image width (px)?");
+                    if (SettingsToModify.ImageWidth > 0)
+                    {
+                        widthPrompt.DefaultValue(SettingsToModify.ImageWidth);
+                    }
+                    SettingsToModify.ImageWidth = AnsiConsole.Prompt(widthPrompt);
+
+                    //Image height
+                    TextPrompt<int> heightPrompt = new TextPrompt<int>("Image height (px)?");
+                    if (SettingsToModify.ImageHeight > 0)
+                    {
+                        heightPrompt.DefaultValue(SettingsToModify.ImageHeight);
+                    }
+                    SettingsToModify.ImageHeight = AnsiConsole.Prompt(heightPrompt);
                 }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
                 {
