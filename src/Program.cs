@@ -222,12 +222,6 @@ namespace AIDA
                     Console.WriteLine();
                     goto Input;
                 }
-                else if (input.ToLower() == "/auth")
-                {
-                    AnsiConsole.MarkupLine("Attempting Microsoft Foundry Authentication... ");
-                    await Tools.FoundryAuthAsync(AIDASettings.Load().TextModel);
-                    goto Input;
-                }
                 else if (input.ToLower() == "/stats")
                 {
                     Stats s = Stats.Load();
