@@ -478,40 +478,40 @@ namespace AIDA
                 AnsiConsole.MarkupLine("Custom prompt file: [bold]" + Tools.CustomPromptPath + "[/]");
 
                 //Foundry URL
-                if (SettingsToModify.TextModel.FoundryUrl != null)
+                if (SettingsToModify.TextModel != null)
                 {
                     AnsiConsole.MarkupLine("Foundry Resource: " + SettingsToModify.TextModel.FoundryUrl);
+
+                    //Foundry Auth method
+                    if (SettingsToModify.TextModel.ApiKey != null)
+                    {
+                        AnsiConsole.MarkupLine("Auth Type: API Key");
+                    }
+                    else if (SettingsToModify.TextModel.TenantID != null && SettingsToModify.TextModel.ClientID != null && SettingsToModify.TextModel.ClientSecret != null)
+                    {
+                        AnsiConsole.MarkupLine("Auth Type: Access Token");
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLine("Auth Type: (unknown)");
+                    }
+
+                    //Model info
+                    if (SettingsToModify.TextModel.ModelName != null)
+                    {
+                        string verbosityText = SettingsToModify.VerbosityLevel != null ? SettingsToModify.VerbosityLevel.Value.ToString().ToLower() : "(unselected)";
+                        string reasoningText = SettingsToModify.ReasoningEffortLevel != null ? SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower() : "(unselected)";
+                        AnsiConsole.MarkupLine("Model: " + SettingsToModify.TextModel.ModelName + " (verbosity: " + verbosityText + ", reasoning: " + reasoningText + ")");
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLine("Model: (none)");
+                    }
                 }
                 else
                 {
                     AnsiConsole.MarkupLine("Foundry Resource: [italic]none[/]");
-                }
-
-                //Foundry Auth
-                if (SettingsToModify.TextModel.ApiKey != null)
-                {
-                    AnsiConsole.MarkupLine("Auth Type: API Key");
-                }
-                else if (SettingsToModify.TextModel.TenantID != null && SettingsToModify.TextModel.ClientID != null && SettingsToModify.TextModel.ClientSecret != null)
-                {
-                    AnsiConsole.MarkupLine("Auth Type: Access Token");
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("Auth Type: (unknown)");
-                }
-
-                //Model info
-                if (SettingsToModify.TextModel.ModelName != null)
-                {
-                    string verbosityText = SettingsToModify.VerbosityLevel != null ? SettingsToModify.VerbosityLevel.Value.ToString().ToLower() : "(unselected)";
-                    string reasoningText = SettingsToModify.ReasoningEffortLevel != null ? SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower() : "(unselected)";
-                    AnsiConsole.MarkupLine("Model: " + SettingsToModify.TextModel.ModelName + " (verbosity: " + verbosityText + ", reasoning: " + reasoningText + ")");
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("Model: (none)");
-                }
+                }                
 
                 //Assistant color
                 AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + SettingsToModify.AssistantMessageColor + "[/] ([" + SettingsToModify.AssistantMessageColor + "]looks like this[/])");
