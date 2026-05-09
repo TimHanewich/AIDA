@@ -231,6 +231,38 @@ Output Handling: Both success and error messages are returned. If a command fail
 
 
 
+        /// <summary>
+        /// Interactively collects Foundry connection info (URL and auth credentials) from the user via the console and returns a new ModelConnectionInfo.
+        /// </summary>
+        public static ModelConnectionInfo CollectFoundryConnectionInfo()
+        {
+            ModelConnectionInfo mci = new ModelConnectionInfo();
+
+            //Get foundry URL
+            mci.FoundryUrl = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
+
+            //Ask how they want to authenticate
+            SelectionPrompt<string> FoundryAuthOptions = new SelectionPrompt<string>();
+            FoundryAuthOptions.Title("How do you want to authenticate?");
+            FoundryAuthOptions.AddChoice("API Key");
+            FoundryAuthOptions.AddChoice("Entra ID");
+            string FoundryAuthSelection = AnsiConsole.Prompt(FoundryAuthOptions);
+
+            //Handle auth
+            if (FoundryAuthSelection == "API Key")
+            {
+                mci.ApiKey = AnsiConsole.Ask<string>("What is the API key?");
+            }
+            else if (FoundryAuthSelection == "Entra ID")
+            {
+                mci.TenantID = AnsiConsole.Ask<string>("Tenant ID?");
+                mci.ClientID = AnsiConsole.Ask<string>("Client ID?");
+                mci.ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
+            }
+
+            return mci;
+        }
+
         //Are we on windows?
         public static bool OnWindows()
         {

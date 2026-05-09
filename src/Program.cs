@@ -530,42 +530,7 @@ namespace AIDA
                 //Handle what to do
                 if (SettingToDoAnswer == "Update Foundry Connection Info")
                 {
-
-                    //Get foundry URL
-                    SettingsToModify.TextModel.FoundryUrl = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
-    
-                    //Ask how they want to authenticate
-                    SelectionPrompt<string> FoundryAuthOptions = new SelectionPrompt<string>();
-                    FoundryAuthOptions.Title("How do you want to authenticate?");
-                    FoundryAuthOptions.AddChoice("API Key");
-                    FoundryAuthOptions.AddChoice("Entra ID");
-                    string FoundryAuthSelection = AnsiConsole.Prompt(FoundryAuthOptions);
-
-                    //Handle auth
-                    if (FoundryAuthSelection == "API Key")
-                    {
-                        SettingsToModify.TextModel.ApiKey = AnsiConsole.Ask<string>("What is the API key?");
-
-                        //Clear out any existing entra ID tokens
-                        SettingsToModify.TextModel.AuthenticatedTokenCredentials = null;
-
-                        //Clear out the Entra ID info becuase now we wil use API key
-                        SettingsToModify.TextModel.TenantID = null;
-                        SettingsToModify.TextModel.ClientID = null;
-                        SettingsToModify.TextModel.ClientSecret = null;
-                    }
-                    else if (FoundryAuthSelection == "Entra ID")
-                    {
-                        SettingsToModify.TextModel.TenantID = AnsiConsole.Ask<string>("Tenant ID?");
-                        SettingsToModify.TextModel.ClientID = AnsiConsole.Ask<string>("Client ID?");
-                        SettingsToModify.TextModel.ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
-                        
-                        //Clear out any existing entra ID tokens
-                        SettingsToModify.TextModel.AuthenticatedTokenCredentials = null;
-
-                        //Clear out any API key because now we will use Entra ID
-                        SettingsToModify.TextModel.ApiKey = null;
-                    }
+                    SettingsToModify.TextModel = Tools.CollectFoundryConnectionInfo();
                 }
                 else if (SettingToDoAnswer == "Update Model")
                 {
