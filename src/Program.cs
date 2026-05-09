@@ -531,6 +531,18 @@ namespace AIDA
                 if (SettingToDoAnswer == "Update Text Model")
                 {
                     SettingsToModify.TextModel = Tools.CollectModelConnectionInfo(SettingsToModify.TextModel);
+
+                    //Verbosity
+                    SelectionPrompt<Verbosity> verbosityPrompt = new SelectionPrompt<Verbosity>();
+                    verbosityPrompt.Title("What verbosity level do you want?");
+                    verbosityPrompt.AddChoices(Enum.GetValues<Verbosity>());
+                    SettingsToModify.VerbosityLevel = AnsiConsole.Prompt(verbosityPrompt);
+
+                    //Reasoning
+                    SelectionPrompt<ReasoningEffortLevel> reasoningPrompt = new SelectionPrompt<ReasoningEffortLevel>();
+                    reasoningPrompt.Title("What level of reasoning effort do you want?");
+                    reasoningPrompt.AddChoices(Enum.GetValues<ReasoningEffortLevel>());
+                    SettingsToModify.ReasoningEffortLevel = AnsiConsole.Prompt(reasoningPrompt);
                 }
                 else if (SettingToDoAnswer == "Update Image Model")
                 {
