@@ -83,22 +83,28 @@ namespace AIDA
         {
             AIDASettings settings = AIDASettings.Load();
 
-            if (settings.FoundryUrl != null)
+            //If not configured, throw exception
+            if (settings.TextModel == null)
             {
-                agent.FoundryResource = new FoundryResource(settings.FoundryUrl);
+                throw new Exception("Unable to configure agent: model for Text Generation (Responses API) not established.");
+            }
 
-                if (settings.ApiKey != null)
+            if (settings.TextModel.FoundryUrl != null)
+            {
+                agent.FoundryResource = new FoundryResource(settings.TextModel.FoundryUrl);
+
+                if (settings.TextModel.ApiKey != null)
                 {
-                    agent.FoundryResource.ApiKey = settings.ApiKey;
+                    agent.FoundryResource.ApiKey = settings.TextModel.ApiKey;
                 }
-                else if (settings.TenantID != null && settings.ClientID != null && settings.ClientSecret != null)
+                else if (settings.TextModel.TenantID != null && settings.TextModel.ClientID != null && settings.TextModel.ClientSecret != null)
                 {
                     bool NeedNewToken = true;
-                    if (settings.AuthenticatedTokenCredentials != null)
+                    if (settings.TextModel.AuthenticatedTokenCredentials != null)
                     {
-                        if (settings.AuthenticatedTokenCredentials.Expires >= DateTime.UtcNow)
+                        if (settings.TextModel.AuthenticatedTokenCredentials.Expires >= DateTime.UtcNow)
                         {
-                            agent.FoundryResource.AccessToken = settings.AuthenticatedTokenCredentials.AccessToken;
+                            agent.FoundryResource.AccessToken = settings.TextModel.AuthenticatedTokenCredentials.AccessToken;
                             NeedNewToken = false;
                         }
                     }
@@ -106,18 +112,18 @@ namespace AIDA
                     if (NeedNewToken)
                     {
                         await Tools.FoundryAuthAsync(settings);
-                        if (AIDASettings.Load().AuthenticatedTokenCredentials != null)
+                        if (settings.TextModel.AuthenticatedTokenCredentials != null)
                         {
-                            agent.FoundryResource.AccessToken = AIDASettings.Load().AuthenticatedTokenCredentials.AccessToken;
+                            agent.FoundryResource.AccessToken = settings.TextModel.AuthenticatedTokenCredentials.AccessToken;
                         }
                         Console.WriteLine();
                     }
                 }
             }
 
-            if (settings.ModelName != null)
+            if (settings.TextModel.ModelName != null)
             {
-                agent.Model = settings.ModelName;
+                agent.Model = settings.TextModel.ModelName;
             }
             if (settings.VerbosityLevel != null)
             {
@@ -469,9 +475,9 @@ namespace AIDA
                 AnsiConsole.MarkupLine("Custom prompt file: [bold]" + Tools.CustomPromptPath + "[/]");
 
                 //Foundry URL
-                if (SettingsToModify.FoundryUrl != null)
+                if (SettingsToModify.TextModel.FoundryUrl != null)
                 {
-                    AnsiConsole.MarkupLine("Foundry Resource: " + SettingsToModify.FoundryUrl);
+                    AnsiConsole.MarkupLine("Foundry Resource: " + SettingsToModify.TextModel.FoundryUrl);
                 }
                 else
                 {
@@ -479,11 +485,11 @@ namespace AIDA
                 }
 
                 //Foundry Auth
-                if (SettingsToModify.ApiKey != null)
+                if (SettingsToModify.TextModel.ApiKey != null)
                 {
                     AnsiConsole.MarkupLine("Auth Type: API Key");
                 }
-                else if (SettingsToModify.TenantID != null && SettingsToModify.ClientID != null && SettingsToModify.ClientSecret != null)
+                else if (SettingsToModify.TextModel.TenantID != null && SettingsToModify.TextModel.ClientID != null && SettingsToModify.TextModel.ClientSecret != null)
                 {
                     AnsiConsole.MarkupLine("Auth Type: Access Token");
                 }
@@ -493,11 +499,11 @@ namespace AIDA
                 }
 
                 //Model info
-                if (SettingsToModify.ModelName != null)
+                if (SettingsToModify.TextModel.ModelName != null)
                 {
                     string verbosityText = SettingsToModify.VerbosityLevel != null ? SettingsToModify.VerbosityLevel.Value.ToString().ToLower() : "(unselected)";
                     string reasoningText = SettingsToModify.ReasoningEffortLevel != null ? SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower() : "(unselected)";
-                    AnsiConsole.MarkupLine("Model: " + SettingsToModify.ModelName + " (verbosity: " + verbosityText + ", reasoning: " + reasoningText + ")");
+                    AnsiConsole.MarkupLine("Model: " + SettingsToModify.TextModel.ModelName + " (verbosity: " + verbosityText + ", reasoning: " + reasoningText + ")");
                 }
                 else
                 {
@@ -523,7 +529,7 @@ namespace AIDA
                 {
 
                     //Get foundry URL
-                    SettingsToModify.FoundryUrl = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
+                    SettingsToModify.TextModel.FoundryUrl = AnsiConsole.Ask<string>("Foundry URL (i.e. https://myfoundry-resource.services.ai.azure.com)?");
     
                     //Ask how they want to authenticate
                     SelectionPrompt<string> FoundryAuthOptions = new SelectionPrompt<string>();
@@ -535,27 +541,27 @@ namespace AIDA
                     //Handle auth
                     if (FoundryAuthSelection == "API Key")
                     {
-                        SettingsToModify.ApiKey = AnsiConsole.Ask<string>("What is the API key?");
+                        SettingsToModify.TextModel.ApiKey = AnsiConsole.Ask<string>("What is the API key?");
 
                         //Clear out any existing entra ID tokens
-                        SettingsToModify.AuthenticatedTokenCredentials = null;
+                        SettingsToModify.TextModel.AuthenticatedTokenCredentials = null;
 
                         //Clear out the Entra ID info becuase now we wil use API key
-                        SettingsToModify.TenantID = null;
-                        SettingsToModify.ClientID = null;
-                        SettingsToModify.ClientSecret = null;
+                        SettingsToModify.TextModel.TenantID = null;
+                        SettingsToModify.TextModel.ClientID = null;
+                        SettingsToModify.TextModel.ClientSecret = null;
                     }
                     else if (FoundryAuthSelection == "Entra ID")
                     {
-                        SettingsToModify.TenantID = AnsiConsole.Ask<string>("Tenant ID?");
-                        SettingsToModify.ClientID = AnsiConsole.Ask<string>("Client ID?");
-                        SettingsToModify.ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
+                        SettingsToModify.TextModel.TenantID = AnsiConsole.Ask<string>("Tenant ID?");
+                        SettingsToModify.TextModel.ClientID = AnsiConsole.Ask<string>("Client ID?");
+                        SettingsToModify.TextModel.ClientSecret = AnsiConsole.Ask<string>("Client Secret?");
                         
                         //Clear out any existing entra ID tokens
-                        SettingsToModify.AuthenticatedTokenCredentials = null;
+                        SettingsToModify.TextModel.AuthenticatedTokenCredentials = null;
 
                         //Clear out any API key because now we will use Entra ID
-                        SettingsToModify.ApiKey = null;
+                        SettingsToModify.TextModel.ApiKey = null;
                     }
                 }
                 else if (SettingToDoAnswer == "Update Model")
@@ -563,7 +569,7 @@ namespace AIDA
                     while (true)
                     {
                         Console.WriteLine();
-                        string currentModel = Markup.Escape(SettingsToModify.ModelName ?? "(none)");
+                        string currentModel = Markup.Escape(SettingsToModify.TextModel.ModelName ?? "(none)");
                         string currentVerbosity = SettingsToModify.VerbosityLevel != null ? Markup.Escape(SettingsToModify.VerbosityLevel.Value.ToString().ToLower()) : "(unselected)";
                         string currentReasoning = SettingsToModify.ReasoningEffortLevel != null ? Markup.Escape(SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower()) : "(unselected)";
                         AnsiConsole.MarkupLine("[underline]Model Settings[/]");
@@ -582,7 +588,7 @@ namespace AIDA
 
                         if (modelSettingSelection == "Model Name")
                         {
-                            SettingsToModify.ModelName = AnsiConsole.Ask<string>("Model name?");
+                            SettingsToModify.TextModel.ModelName = AnsiConsole.Ask<string>("Model name?");
                         }
                         else if (modelSettingSelection == "Verbosity Level")
                         {
