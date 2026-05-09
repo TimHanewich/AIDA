@@ -247,6 +247,14 @@ Output Handling: Both success and error messages are returned. If a command fail
             }
             mci.FoundryUrl = AnsiConsole.Prompt(urlPrompt);
 
+            //Get model name
+            TextPrompt<string> modelPrompt = new TextPrompt<string>("Model name?");
+            if (defaults?.ModelName != null && defaults.ModelName != string.Empty)
+            {
+                modelPrompt.DefaultValue(defaults.ModelName);
+            }
+            mci.ModelName = AnsiConsole.Prompt(modelPrompt);
+
             //Ask how they want to authenticate
             SelectionPrompt<string> FoundryAuthOptions = new SelectionPrompt<string>();
             FoundryAuthOptions.Title("How do you want to authenticate?");

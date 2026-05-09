@@ -477,45 +477,6 @@ namespace AIDA
                 //Custom prompt path
                 AnsiConsole.MarkupLine("Custom prompt file: [bold]" + Tools.CustomPromptPath + "[/]");
 
-                //Foundry URL
-                if (SettingsToModify.TextModel != null)
-                {
-                    AnsiConsole.MarkupLine("Foundry Resource: " + SettingsToModify.TextModel.FoundryUrl);
-
-                    //Foundry Auth method
-                    if (SettingsToModify.TextModel.ApiKey != null)
-                    {
-                        AnsiConsole.MarkupLine("Auth Type: API Key");
-                    }
-                    else if (SettingsToModify.TextModel.TenantID != null && SettingsToModify.TextModel.ClientID != null && SettingsToModify.TextModel.ClientSecret != null)
-                    {
-                        AnsiConsole.MarkupLine("Auth Type: Access Token");
-                    }
-                    else
-                    {
-                        AnsiConsole.MarkupLine("Auth Type: (unknown)");
-                    }
-
-                    //Model info
-                    if (SettingsToModify.TextModel.ModelName != null)
-                    {
-                        string verbosityText = SettingsToModify.VerbosityLevel != null ? SettingsToModify.VerbosityLevel.Value.ToString().ToLower() : "(unselected)";
-                        string reasoningText = SettingsToModify.ReasoningEffortLevel != null ? SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower() : "(unselected)";
-                        AnsiConsole.MarkupLine("Model: " + SettingsToModify.TextModel.ModelName + " (verbosity: " + verbosityText + ", reasoning: " + reasoningText + ")");
-                    }
-                    else
-                    {
-                        AnsiConsole.MarkupLine("Model: (none)");
-                    }
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("Foundry Resource: [italic]none[/]");
-                }                
-
-                //Assistant color
-                AnsiConsole.MarkupLine("AI Assistant Msg Color: [bold]" + SettingsToModify.AssistantMessageColor + "[/] ([" + SettingsToModify.AssistantMessageColor + "]looks like this[/])");
-
                 //Ask what to do
                 Console.WriteLine();
                 SelectionPrompt<string> SettingToDo = new SelectionPrompt<string>();
@@ -530,19 +491,54 @@ namespace AIDA
                 //Handle what to do
                 if (SettingToDoAnswer == "Update Text Model")
                 {
-                    SettingsToModify.TextModel = Tools.CollectModelConnectionInfo(SettingsToModify.TextModel);
+                    //Show current text model info
+                    Console.WriteLine();
+                    if (SettingsToModify.TextModel != null)
+                    {
+                        AnsiConsole.MarkupLine("[bold]Foundry Resource:[/] [blue]" + Markup.Escape(SettingsToModify.TextModel.FoundryUrl) + "[/]");
 
-                    //Verbosity
-                    SelectionPrompt<Verbosity> verbosityPrompt = new SelectionPrompt<Verbosity>();
-                    verbosityPrompt.Title("What verbosity level do you want?");
-                    verbosityPrompt.AddChoices(Enum.GetValues<Verbosity>());
-                    SettingsToModify.VerbosityLevel = AnsiConsole.Prompt(verbosityPrompt);
+                        if (SettingsToModify.TextModel.ApiKey != null)
+                        {
+                            AnsiConsole.MarkupLine("[bold]Auth Type:[/] [blue]API Key[/]");
+                        }
+                        else if (SettingsToModify.TextModel.TenantID != null && SettingsToModify.TextModel.ClientID != null && SettingsToModify.TextModel.ClientSecret != null)
+                        {
+                            AnsiConsole.MarkupLine("[bold]Auth Type:[/] [blue]Access Token[/]");
+                        }
+                        else
+                        {
+                            AnsiConsole.MarkupLine("[bold]Auth Type:[/] [blue](unknown)[/]");
+                        }
 
-                    //Reasoning
-                    SelectionPrompt<ReasoningEffortLevel> reasoningPrompt = new SelectionPrompt<ReasoningEffortLevel>();
-                    reasoningPrompt.Title("What level of reasoning effort do you want?");
-                    reasoningPrompt.AddChoices(Enum.GetValues<ReasoningEffortLevel>());
-                    SettingsToModify.ReasoningEffortLevel = AnsiConsole.Prompt(reasoningPrompt);
+                        string modelName = SettingsToModify.TextModel.ModelName != null ? Markup.Escape(SettingsToModify.TextModel.ModelName) : "(none)";
+                        string verbosityText = SettingsToModify.VerbosityLevel != null ? SettingsToModify.VerbosityLevel.Value.ToString().ToLower() : "(unselected)";
+                        string reasoningText = SettingsToModify.ReasoningEffortLevel != null ? SettingsToModify.ReasoningEffortLevel.Value.ToString().ToLower() : "(unselected)";
+                        AnsiConsole.MarkupLine("[bold]Model:[/] [blue]" + modelName + "[/]");
+                        AnsiConsole.MarkupLine("[bold]Verbosity:[/] [blue]" + verbosityText + "[/]");
+                        AnsiConsole.MarkupLine("[bold]Reasoning:[/] [blue]" + reasoningText + "[/]");
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLine("[bold]Text Model:[/] [blue]none[/]");
+                    }
+                    Console.WriteLine();
+
+                    if (AnsiConsole.Confirm("Do you want to update the text model?"))
+                    {
+                        SettingsToModify.TextModel = Tools.CollectModelConnectionInfo(SettingsToModify.TextModel);
+
+                        //Verbosity
+                        SelectionPrompt<Verbosity> verbosityPrompt = new SelectionPrompt<Verbosity>();
+                        verbosityPrompt.Title("What verbosity level do you want?");
+                        verbosityPrompt.AddChoices(Enum.GetValues<Verbosity>());
+                        SettingsToModify.VerbosityLevel = AnsiConsole.Prompt(verbosityPrompt);
+
+                        //Reasoning
+                        SelectionPrompt<ReasoningEffortLevel> reasoningPrompt = new SelectionPrompt<ReasoningEffortLevel>();
+                        reasoningPrompt.Title("What level of reasoning effort do you want?");
+                        reasoningPrompt.AddChoices(Enum.GetValues<ReasoningEffortLevel>());
+                        SettingsToModify.ReasoningEffortLevel = AnsiConsole.Prompt(reasoningPrompt);
+                    }
                 }
                 else if (SettingToDoAnswer == "Update Image Model")
                 {
