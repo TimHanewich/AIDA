@@ -4,17 +4,23 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using TimHanewich.Foundry;
 using TimHanewich.Foundry.OpenAI.Responses;
+using TimHanewich.Foundry.OpenAI.Images;
 
 namespace AIDA
 {
     public class AIDASettings
     {
-        public ModelConnectionInfo? TextModel {get; set;} //The model we have for text generation (i.e. GPT-5.4)
-        public ModelConnectionInfo? ImageModel {get; set;} //The model we have for image generation (i.e. gpt-image-2)
-
+        
         //Text generation settings
+        public ModelConnectionInfo? TextModel {get; set;} //The model we have for text generation (i.e. GPT-5.4)
         public Verbosity? VerbosityLevel {get; set;} //the amount of verbosity to use
         public ReasoningEffortLevel? ReasoningEffortLevel {get; set;} //the amount of reasoning effort to use
+
+        //Image generation settings
+        public ModelConnectionInfo? ImageModel {get; set;} //The model we have for image generation (i.e. gpt-image-2)
+        public ImageQuality ImageQuality {get; set;} //The output image quality
+        public int ImageWidth {get; set;}
+        public int ImageHeight {get; set;}
 
         //Formatting settings
         public string AssistantMessageColor { get; set; } //the spectre color all AI responses are in (https://spectreconsole.net/appendix/colors)
