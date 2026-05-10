@@ -70,6 +70,7 @@ namespace AIDA
             igr.Quality = settings.ImageQuality;
 
             //Prompt!
+            AnsiConsole.Markup("[gray][italic]prompting '" + Markup.Escape(description) + "' to save to '" + path + "'... [/][/]");
             ImageGeneration ig;
             try
             {
@@ -81,7 +82,7 @@ namespace AIDA
             }
 
             //if not one
-            if (ig.Images.Length == 1)
+            if (ig.Images.Length != 1)
             {
                 return "Server returned but image was not present in array.";
             }
@@ -95,7 +96,6 @@ namespace AIDA
             {
                 return "Image generated successfully but saving to '" + path + "' failed: " + ex.Message;
             }
-
             return "Image successfully saved to '" + path + "'.";
         }
     }
