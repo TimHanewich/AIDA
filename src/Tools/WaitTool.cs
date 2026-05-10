@@ -33,10 +33,25 @@ namespace AIDA
             }
             int seconds = Convert.ToInt32(prop_seconds.Value.ToString());
 
-            //Wait
-            AnsiConsole.Markup("[gray][italic]now waiting " + seconds.ToString("#,##0") + " seconds... [/][/]");
-            TimeSpan ToSleep = new TimeSpan(0, 0, seconds);
-            await Task.Delay(ToSleep);
+            //Wait v2
+            while (seconds > 0)
+            {
+                //Print
+                int StartingLeft = Console.CursorLeft;
+                string ToPrint = "waiting " + seconds.ToString("#,##0") + " seconds... ";
+                AnsiConsole.Markup("[italic][gray]" + ToPrint + "[/][/]");
+
+                //Wait
+                await Task.Delay(1_000); //wait 1 second
+
+                //Clear
+                Console.CursorLeft = StartingLeft;
+                Console.Write(new string(' ', ToPrint.Length));
+                Console.CursorLeft = StartingLeft;
+
+                //Decrement
+                seconds = seconds - 1;
+            }
 
             //Return
             AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
