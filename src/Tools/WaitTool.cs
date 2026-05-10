@@ -10,7 +10,7 @@ namespace AIDA
         public WaitTool()
         {
             Name = "wait";
-            Description = "Wait (idle) for a period of time.";
+            Description = "Wait (idle) for a period of time. Can be used reliably for both short and long term waits.";
             InputParameters.Add(new FunctionInputParameter("seconds", "The number of seconds to wait.", "integer"));
         }
 
