@@ -73,6 +73,7 @@ namespace AIDA
             agent.Tools.Add(new ViewImageTool());
             agent.Tools.Add(new GenerateImageTool());
             agent.Tools.Add(new EditImageTool());
+            agent.Tools.Add(new WaitTool());
 
             if (AIDASettings.Load().ShellEnabled)
             {
