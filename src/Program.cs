@@ -74,6 +74,7 @@ namespace AIDA
             agent.Tools.Add(new GenerateImageTool());
             agent.Tools.Add(new EditImageTool());
             agent.Tools.Add(new WaitTool());
+            agent.Tools.Add(new CalculateTool());
 
             if (AIDASettings.Load().ShellEnabled)
             {
