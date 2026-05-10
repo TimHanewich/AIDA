@@ -70,7 +70,7 @@ namespace AIDA
             igr.Quality = settings.ImageQuality;
 
             //Prompt!
-            AnsiConsole.Markup("[gray][italic]prompting '" + Markup.Escape(description) + "' to save to '" + path + "'... [/][/]");
+            AnsiConsole.Markup("[gray][italic]generating... [/][/]");
             ImageGeneration ig;
             try
             {

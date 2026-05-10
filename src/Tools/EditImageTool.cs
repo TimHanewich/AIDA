@@ -86,7 +86,7 @@ namespace AIDA
             }
 
             //Prompt!
-            AnsiConsole.Markup("[gray][italic]prompting '" + Markup.Escape(description) + "' to save to '" + output_path + "'... [/][/]");
+            AnsiConsole.Markup("[gray][italic]generating... [/][/]");
             ImageGeneration ig;
             try
             {
