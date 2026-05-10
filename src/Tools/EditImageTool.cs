@@ -86,7 +86,7 @@ namespace AIDA
             }
 
             //Prompt!
-            AnsiConsole.Markup("[gray][italic]generating... [/][/]");
+            AnsiConsole.Markup("[gray][italic]editing... [/][/]");
             ImageGeneration ig;
             try
             {
@@ -94,12 +94,14 @@ namespace AIDA
             }
             catch (Exception ex)
             {
+                AnsiConsole.MarkupLine("[italic][red]error while generating[/][/]");
                 return "Error while generating image: " + ex.Message;
             }
 
             //if not one
             if (ig.Images.Length != 1)
             {
+                AnsiConsole.MarkupLine("[italic][red]image not present in array.[/][/]");
                 return "Server returned but image was not present in array.";
             }
 
@@ -110,8 +112,10 @@ namespace AIDA
             }
             catch (Exception ex)
             {
+                AnsiConsole.MarkupLine("[italic][red]saving to path failed[/][/]");
                 return "Image generated successfully but saving to '" + output_path + "' failed: " + ex.Message;
             }
+            AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
             return "Image successfully saved to '" + output_path + "'.";
         }
     }

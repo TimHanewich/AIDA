@@ -70,7 +70,7 @@ namespace AIDA
             agent.Tools.Add(new CreateDirectoryTool());
             agent.Tools.Add(new DeleteDirectoryTool());
             agent.Tools.Add(new WebFetchTool());
-            agent.Tools.Add(new ViewImageTool());
+            //agent.Tools.Add(new ViewImageTool()); //Disable until supported in TimHanewich.AgentFramework
             agent.Tools.Add(new GenerateImageTool());
             agent.Tools.Add(new EditImageTool());
             agent.Tools.Add(new WaitTool());
