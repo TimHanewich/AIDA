@@ -39,6 +39,7 @@ namespace AIDA
             await Task.Delay(ToSleep);
 
             //Return
+            AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
             return "Successfully waited " + seconds.ToString("#,##0") + " seconds. It is now " + seconds.ToString("#,##0") + " seconds since waiting began.";
         }
     }
