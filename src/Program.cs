@@ -530,7 +530,7 @@ namespace AIDA
                     }
                     Console.WriteLine();
 
-                    if (AnsiConsole.Confirm("Do you want to update the text model?"))
+                    if (AnsiConsole.Confirm("Do you want to update the text model?", false))
                     {
                         SettingsToModify.TextModel = Tools.CollectModelConnectionInfo(SettingsToModify.TextModel);
 
@@ -583,7 +583,7 @@ namespace AIDA
                     }
                     Console.WriteLine();
 
-                    if (AnsiConsole.Confirm("Do you want to update the image model?"))
+                    if (AnsiConsole.Confirm("Do you want to update the image model?", false))
                     {
                         SettingsToModify.ImageModel = Tools.CollectModelConnectionInfo(SettingsToModify.ImageModel);
 
