@@ -137,7 +137,9 @@ namespace AIDA
                 if (selectedModel == "Back") break;
 
                 //Build a table of daily consumption for the selected model over the past 10 days
+                string titleText = selectedModel + " - Daily Token Consumption (Last 10 Days)";
                 Table table = new Table();
+                table.Width(titleText.Length + 6);
                 table.Title("[bold][underline]" + Markup.Escape(selectedModel) + " - Daily Token Consumption (Last 10 Days)[/][/]");
                 table.AddColumn("Date");
                 table.AddColumn("Input Tokens");
