@@ -284,11 +284,13 @@ namespace AIDA
                     SessionInputTokens += deltaInput;
                     SessionOutputTokens += deltaOutput;
 
+                    //Create consumption event
                     ConsumptionEvent ce = new ConsumptionEvent();
-                    ce.Model = AidaAgent.Model;
-                    ce.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                    ce.InputTokens = deltaInput;
-                    ce.OutputTokens = deltaOutput;
+                    ce.Model = AidaAgent.Model;                     //record model
+                    ce.InputTokens = deltaInput;                    //record input tokens
+                    ce.OutputTokens = deltaOutput;                  //record output tokens
+
+                    //Save
                     Stats s = Stats.Load();
                     s.AddConsumptionEvent(ce);
                     s.Save();
