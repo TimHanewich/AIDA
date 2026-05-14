@@ -93,23 +93,10 @@ namespace AIDA
             AddConsumptionEvent(ce);
         }
 
-        public void PrintReport(int sessionInputTokens = 0, int sessionOutputTokens = 0)
+        public void PrintReport()
         {
             //Header
             AnsiConsole.MarkupLine("[bold][underline][blue]AIDA STAT REPORT[/][/][/]");
-
-            //Cumulative
-            Console.WriteLine();
-            AnsiConsole.MarkupLine("[underline]CUMULATIVE CONSUMPTION[/]");
-            int CumInput = 0;
-            int CumOutput = 0;
-            foreach (ConsumptionEvent ce in ConsumptionEvents)
-            {
-                CumInput = CumInput + ce.InputTokens;
-                CumOutput = CumOutput + ce.OutputTokens;
-            }
-            AnsiConsole.MarkupLine("Input Tokens: " + CumInput.ToString("#,##0"));
-            AnsiConsole.MarkupLine("Output Tokens: " + CumOutput.ToString("#,##0"));
 
             //Per-model breakdown
             Dictionary<string, (int Input, int Output)> perModel = new Dictionary<string, (int, int)>();
@@ -165,12 +152,6 @@ namespace AIDA
                 //Print
                 AnsiConsole.MarkupLine("[bold]" + day.Month.ToString() + "/" + day.Day.ToString() + "/" + day.Year.ToString() + "[/]: " + InputThisDay.ToString("#,##0") + " input tokens, " + OutputThisDay.ToString("#,##0") + " output tokens");
             }
-
-            //Pull tokens in this session
-            Console.WriteLine();
-            AnsiConsole.MarkupLine("[underline]Tokens Consumed in This Sesssion so Far[/]");
-            AnsiConsole.MarkupLine("Prompt tokens: [bold]" + sessionInputTokens.ToString("#,##0") + "[/]");
-            AnsiConsole.MarkupLine("Completion tokens: [bold]" + sessionOutputTokens.ToString("#,##0") + "[/]");
 
             //Last break
             Console.WriteLine();

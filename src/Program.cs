@@ -230,7 +230,7 @@ namespace AIDA
                 else if (input.ToLower() == "/stats")
                 {
                     Stats s = Stats.Load();
-                    s.PrintReport(SessionInputTokens, SessionOutputTokens);
+                    s.PrintReport();
                     goto Input;
                 }
 
