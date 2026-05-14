@@ -123,34 +123,40 @@ namespace AIDA
                 }
             }
 
-            //Prepare a list of last 7 days
-            List<DateTime> Last7Days = new List<DateTime>();
-            for (int i = 0; i < 7; i++)
+            //Ask which model to see daily breakdown for
+            List<string> modelChoices = perModel.Keys.Where(k => k != "unknown").ToList();
+            if (modelChoices.Count > 0)
             {
-                Last7Days.Add(DateTime.UtcNow.AddDays(i * -1));
-            }
+                Console.WriteLine();
+                SelectionPrompt<string> modelPrompt = new SelectionPrompt<string>();
+                modelPrompt.Title("Which model would you like to see further consumption details on?");
+                modelPrompt.AddChoices(modelChoices);
+                string selectedModel = AnsiConsole.Prompt(modelPrompt);
 
-            //pull data per day
-            Console.WriteLine();
-            AnsiConsole.MarkupLine("[underline]Consumption Breakdown, Last 7 Days (UTC time)[/]");
-            foreach (DateTime day in Last7Days)
-            {
+                //Tally daily consumption for the selected model over the past 10 days
+                BarChart chart = new BarChart();
+                chart.Label("[bold][underline]" + Markup.Escape(selectedModel) + " - Daily Token Consumption (Last 10 Days)[/][/]");
+                chart.Width(Console.WindowWidth);
+                chart.UseValueFormatter(v => v.ToString("#,##0"));
 
-                //Tally up tokens
-                int InputThisDay = 0;
-                int OutputThisDay = 0;
-                foreach (ConsumptionEvent ce in ConsumptionEvents)
+                for (int i = 9; i >= 0; i--)
                 {
-                    DateTimeOffset consumptionTS = DateTimeOffset.FromUnixTimeSeconds(ce.Timestamp);
-                    if (consumptionTS.Year == day.Year && consumptionTS.Month == day.Month && consumptionTS.Day == day.Day)
+                    DateTime day = DateTime.UtcNow.AddDays(i * -1);
+                    int totalTokens = 0;
+                    foreach (ConsumptionEvent ce in ConsumptionEvents)
                     {
-                        InputThisDay = InputThisDay + ce.InputTokens;
-                        OutputThisDay = OutputThisDay + ce.OutputTokens;
+                        if ((ce.Model ?? "unknown") != selectedModel) continue;
+                        DateTimeOffset consumptionTS = DateTimeOffset.FromUnixTimeSeconds(ce.Timestamp);
+                        if (consumptionTS.Year == day.Year && consumptionTS.Month == day.Month && consumptionTS.Day == day.Day)
+                        {
+                            totalTokens += ce.InputTokens + ce.OutputTokens;
+                        }
                     }
+                    chart.AddItem(day.Month + "/" + day.Day, totalTokens, Color.Blue);
                 }
 
-                //Print
-                AnsiConsole.MarkupLine("[bold]" + day.Month.ToString() + "/" + day.Day.ToString() + "/" + day.Year.ToString() + "[/]: " + InputThisDay.ToString("#,##0") + " input tokens, " + OutputThisDay.ToString("#,##0") + " output tokens");
+                Console.WriteLine();
+                AnsiConsole.Write(chart);
             }
 
             //Last break
