@@ -136,30 +136,33 @@ namespace AIDA
 
                 if (selectedModel == "Back") break;
 
-                //Tally daily consumption for the selected model over the past 10 days
-                BarChart chart = new BarChart();
-                chart.Label("[bold][underline]" + Markup.Escape(selectedModel) + " - Daily Token Consumption (Last 10 Days)[/][/]");
-                chart.Width(Console.WindowWidth);
-                chart.UseValueFormatter(v => v.ToString("#,##0"));
+                //Build a table of daily consumption for the selected model over the past 10 days
+                Table table = new Table();
+                table.Title("[bold][underline]" + Markup.Escape(selectedModel) + " - Daily Token Consumption (Last 10 Days)[/][/]");
+                table.AddColumn("Date");
+                table.AddColumn("Input Tokens");
+                table.AddColumn("Output Tokens");
 
                 for (int i = 9; i >= 0; i--)
                 {
                     DateTime day = DateTime.UtcNow.AddDays(i * -1);
-                    int totalTokens = 0;
+                    int inputTokens = 0;
+                    int outputTokens = 0;
                     foreach (ConsumptionEvent ce in ConsumptionEvents)
                     {
                         if ((ce.Model ?? "unknown") != selectedModel) continue;
                         DateTimeOffset consumptionTS = DateTimeOffset.FromUnixTimeSeconds(ce.Timestamp);
                         if (consumptionTS.Year == day.Year && consumptionTS.Month == day.Month && consumptionTS.Day == day.Day)
                         {
-                            totalTokens += ce.InputTokens + ce.OutputTokens;
+                            inputTokens += ce.InputTokens;
+                            outputTokens += ce.OutputTokens;
                         }
                     }
-                    chart.AddItem(day.Month + "/" + day.Day, totalTokens, Color.Blue);
+                    table.AddRow(day.ToString("MMMM d, yyyy"), inputTokens.ToString("#,##0"), outputTokens.ToString("#,##0"));
                 }
 
                 Console.WriteLine();
-                AnsiConsole.Write(chart);
+                AnsiConsole.Write(table);
             }
 
             //Last break
