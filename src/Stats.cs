@@ -14,6 +14,19 @@ namespace AIDA
         public string? Model {get; set;}           //the name of the model that served it
         public int InputTokens {get; set;}         //Input tokens consumed in this 1 response request
         public int OutputTokens {get; set;}        //Output tokens consumed in this 1 response request
+
+        public ConsumptionEvent()
+        {
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        }
+
+        public ConsumptionEvent(string model, int input_tokens, int output_tokens)
+        {
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            Model = model;
+            InputTokens = input_tokens;
+            OutputTokens = output_tokens;
+        }
     }
 
     public class Stats
