@@ -14,10 +14,6 @@ namespace AIDA
         //The agent (from TimHanewich.AgentFramework)
         public static TimHanewich.AgentFramework.Agent AidaAgent = null!;
 
-        //Session-level token tracking (survives /clear)
-        public static int SessionInputTokens = 0;
-        public static int SessionOutputTokens = 0;
-
         public static void Main(string[] args)
         {
             RunAsync().Wait();
@@ -281,9 +277,6 @@ namespace AIDA
                 int deltaOutput = AidaAgent.OutputTokensConsumed - prevOutput;
                 if (deltaInput > 0 || deltaOutput > 0)
                 {
-                    SessionInputTokens += deltaInput;
-                    SessionOutputTokens += deltaOutput;
-
                     //Create consumption event
                     ConsumptionEvent ce = new ConsumptionEvent();
                     ce.Model = AidaAgent.Model;                     //record model

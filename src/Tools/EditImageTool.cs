@@ -112,10 +112,6 @@ namespace AIDA
             stats.AddConsumptionEvent(new ConsumptionEvent(settings.ImageModel.ModelName, ig.InputTokens, ig.OutputTokens));
             stats.Save();
 
-            //Increment session tokens consumption
-            Program.SessionInputTokens += ig.InputTokens;
-            Program.SessionOutputTokens += ig.OutputTokens;
-
             //if not one
             if (ig.Images.Length != 1)
             {
