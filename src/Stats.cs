@@ -123,15 +123,18 @@ namespace AIDA
                 }
             }
 
-            //Ask which model to see daily breakdown for
+            //Ask which model to see daily breakdown for (loop until they choose to go back)
             List<string> modelChoices = perModel.Keys.Where(k => k != "unknown").ToList();
-            if (modelChoices.Count > 0)
+            while (modelChoices.Count > 0)
             {
                 Console.WriteLine();
                 SelectionPrompt<string> modelPrompt = new SelectionPrompt<string>();
                 modelPrompt.Title("Which model would you like to see further consumption details on?");
                 modelPrompt.AddChoices(modelChoices);
+                modelPrompt.AddChoice("Back");
                 string selectedModel = AnsiConsole.Prompt(modelPrompt);
+
+                if (selectedModel == "Back") break;
 
                 //Tally daily consumption for the selected model over the past 10 days
                 BarChart chart = new BarChart();
