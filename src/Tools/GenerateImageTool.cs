@@ -82,6 +82,11 @@ namespace AIDA
                 return "Error while generating image: " + ex.Message;
             }
 
+            //Track token consumption
+            Stats stats = Stats.Load();
+            stats.AddConsumptionEvent(new ConsumptionEvent(settings.ImageModel.ModelName, ig.InputTokens, ig.OutputTokens));
+            stats.Save();
+
             //if not one
             if (ig.Images.Length != 1)
             {
