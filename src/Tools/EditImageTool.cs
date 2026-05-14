@@ -41,6 +41,15 @@ namespace AIDA
             string input_paths_str = prop_input_paths.Value.ToString();
             string[] input_paths = input_paths_str.Split(new string[]{","}, StringSplitOptions.TrimEntries);
 
+            //Ensure legit file in each of those
+            foreach (string path in input_paths)
+            {
+                if (System.IO.File.Exists(path) == false)
+                {
+                    return "File does not exist at '" + path + "'.";
+                }
+            }
+
             //Get description
             JProperty? prop_description = arguments.Property("description");
             if (prop_description == null)
