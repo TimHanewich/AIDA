@@ -549,29 +549,66 @@ namespace AIDA
                 }
                 else if (SettingToDoAnswer == "Update Image Model")
                 {
-                    SettingsToModify.ImageModel = Tools.CollectModelConnectionInfo(SettingsToModify.ImageModel);
-
-                    //Image quality
-                    SelectionPrompt<ImageQuality> qualityPrompt = new SelectionPrompt<ImageQuality>();
-                    qualityPrompt.Title("What image quality do you want?");
-                    qualityPrompt.AddChoices(Enum.GetValues<ImageQuality>());
-                    SettingsToModify.ImageQuality = AnsiConsole.Prompt(qualityPrompt);
-
-                    //Image width
-                    TextPrompt<int> widthPrompt = new TextPrompt<int>("Image width (px)?");
-                    if (SettingsToModify.ImageWidth > 0)
+                    //Show current image model info
+                    Console.WriteLine();
+                    if (SettingsToModify.ImageModel != null)
                     {
-                        widthPrompt.DefaultValue(SettingsToModify.ImageWidth);
-                    }
-                    SettingsToModify.ImageWidth = AnsiConsole.Prompt(widthPrompt);
+                        AnsiConsole.MarkupLine("[bold]Foundry Resource:[/] [blue]" + Markup.Escape(SettingsToModify.ImageModel.FoundryUrl) + "[/]");
 
-                    //Image height
-                    TextPrompt<int> heightPrompt = new TextPrompt<int>("Image height (px)?");
-                    if (SettingsToModify.ImageHeight > 0)
-                    {
-                        heightPrompt.DefaultValue(SettingsToModify.ImageHeight);
+                        if (SettingsToModify.ImageModel.ApiKey != null)
+                        {
+                            AnsiConsole.MarkupLine("[bold]Auth Type:[/] [blue]API Key[/]");
+                        }
+                        else if (SettingsToModify.ImageModel.TenantID != null && SettingsToModify.ImageModel.ClientID != null && SettingsToModify.ImageModel.ClientSecret != null)
+                        {
+                            AnsiConsole.MarkupLine("[bold]Auth Type:[/] [blue]Access Token[/]");
+                        }
+                        else
+                        {
+                            AnsiConsole.MarkupLine("[bold]Auth Type:[/] [blue](unknown)[/]");
+                        }
+
+                        string modelName = SettingsToModify.ImageModel.ModelName != null ? Markup.Escape(SettingsToModify.ImageModel.ModelName) : "(none)";
+                        string qualityText = SettingsToModify.ImageQuality.ToString().ToLower();
+                        string widthText = SettingsToModify.ImageWidth > 0 ? SettingsToModify.ImageWidth.ToString() + "px" : "(unselected)";
+                        string heightText = SettingsToModify.ImageHeight > 0 ? SettingsToModify.ImageHeight.ToString() + "px" : "(unselected)";
+                        AnsiConsole.MarkupLine("[bold]Model:[/] [blue]" + modelName + "[/]");
+                        AnsiConsole.MarkupLine("[bold]Quality:[/] [blue]" + qualityText + "[/]");
+                        AnsiConsole.MarkupLine("[bold]Width:[/] [blue]" + widthText + "[/]");
+                        AnsiConsole.MarkupLine("[bold]Height:[/] [blue]" + heightText + "[/]");
                     }
-                    SettingsToModify.ImageHeight = AnsiConsole.Prompt(heightPrompt);
+                    else
+                    {
+                        AnsiConsole.MarkupLine("[bold]Image Model:[/] [blue]none[/]");
+                    }
+                    Console.WriteLine();
+
+                    if (AnsiConsole.Confirm("Do you want to update the image model?"))
+                    {
+                        SettingsToModify.ImageModel = Tools.CollectModelConnectionInfo(SettingsToModify.ImageModel);
+
+                        //Image quality
+                        SelectionPrompt<ImageQuality> qualityPrompt = new SelectionPrompt<ImageQuality>();
+                        qualityPrompt.Title("What image quality do you want?");
+                        qualityPrompt.AddChoices(Enum.GetValues<ImageQuality>());
+                        SettingsToModify.ImageQuality = AnsiConsole.Prompt(qualityPrompt);
+
+                        //Image width
+                        TextPrompt<int> widthPrompt = new TextPrompt<int>("Image width (px)?");
+                        if (SettingsToModify.ImageWidth > 0)
+                        {
+                            widthPrompt.DefaultValue(SettingsToModify.ImageWidth);
+                        }
+                        SettingsToModify.ImageWidth = AnsiConsole.Prompt(widthPrompt);
+
+                        //Image height
+                        TextPrompt<int> heightPrompt = new TextPrompt<int>("Image height (px)?");
+                        if (SettingsToModify.ImageHeight > 0)
+                        {
+                            heightPrompt.DefaultValue(SettingsToModify.ImageHeight);
+                        }
+                        SettingsToModify.ImageHeight = AnsiConsole.Prompt(heightPrompt);
+                    }
                 }
                 else if (SettingToDoAnswer == "Change Assistant Message Color")
                 {
