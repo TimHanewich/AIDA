@@ -2,8 +2,6 @@ using TimHanewich.AgentFramework;
 using TimHanewich.Foundry.OpenAI.Responses;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
-using UglyToad.PdfPig;
-using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 using System.IO.Compression;
 
 namespace AIDA
