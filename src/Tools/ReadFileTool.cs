@@ -27,50 +27,41 @@ namespace AIDA
             }
 
             AnsiConsole.Markup("[gray][italic]reading '" + Markup.Escape(file_path) + "'... [/][/]");
-            string result = ReadFile(file_path);
+            string result = await ReadFileAsync(file_path);
             AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
             return result;
         }
 
-        private static string ReadFile(string path)
+        private static async Task<string> ReadFileAsync(string path)
         {
             if (System.IO.File.Exists(path) == false)
             {
                 return "File with path '" + path + "' does not exist!";
             }
 
-            if (path.ToLower().EndsWith(".pdf"))
+            string[] markitdown_extensions = new string[]{".docx", ".pptx", ".xlsx", ".pdf"};
+
+            //Get file type extensions
+            string ext = Path.GetExtension(path); //returns like ".txt" for example (with the dot)
+
+            //Do it by markitdown? If not, plain text
+            if (markitdown_extensions.Contains(ext))
             {
-                string FullTxt = "";
-                PdfDocument doc = PdfDocument.Open(path);
-                foreach (UglyToad.PdfPig.Content.Page p in doc.GetPages())
+                //Check if python is installed AND if markitdown is installed with simple test to import!
+                string response = await Tools.ExecuteShellAsync("python -c \"import markitdown\"");
+
+                //If it worked, it will return absolutley nothing
+                if (response != "")
                 {
-                    string txt = ContentOrderTextExtractor.GetText(p);
-                    FullTxt = FullTxt + txt + "\n\n";
+                    return "Unable to read the file: python and markitdown must be installed for the ability to read files of that extension type. Please instruct the user to install these.";
                 }
-                if (FullTxt.Length > 0)
-                {
-                    FullTxt = FullTxt.Substring(0, FullTxt.Length - 2);
-                }
-                return FullTxt;
+
+                //Use markitdown to read it
+                string markitdown_output = await Tools.ExecuteShellAsync("python -m markitdown \"" + path + "\"");
+                System.IO.File.WriteAllText(@"C:\Users\timh\Downloads\tah\AIDA\OUTPUT.md", markitdown_output);
+                return markitdown_output;
             }
-            else if (path.ToLower().EndsWith(".zip"))
-            {
-                return "Cannot read the raw content of a .zip folder!";
-            }
-            else if (path.ToLower().EndsWith(".docx") || path.ToLower().EndsWith(".doc"))
-            {
-                return ReadWordDocument(path);
-            }
-            else if (path.ToLower().EndsWith(".xlsx") || path.ToLower().EndsWith(".xls"))
-            {
-                return "Cannot read an excel document";
-            }
-            else if (path.ToLower().EndsWith(".pptx") || path.ToLower().EndsWith(".ppt"))
-            {
-                return "Cannot read a PowerPoint deck.";
-            }
-            else
+            else //assume it is plain text related (like .txt or .md for example)
             {
                 return System.IO.File.ReadAllText(path);
             }
