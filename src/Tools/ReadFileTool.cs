@@ -58,7 +58,6 @@ namespace AIDA
 
                 //Use markitdown to read it
                 string markitdown_output = await Tools.ExecuteShellAsync("python -m markitdown \"" + path + "\"");
-                System.IO.File.WriteAllText(@"C:\Users\timh\Downloads\tah\AIDA\OUTPUT.md", markitdown_output);
                 return markitdown_output;
             }
             else //assume it is plain text related (like .txt or .md for example)
