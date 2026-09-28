@@ -54,9 +54,42 @@ namespace AIDA
                     return "Unable to read the file: python and markitdown must be installed for the ability to read files of that extension type. Please instruct the user to install these.";
                 }
 
-                //Use markitdown to read it
-                string markitdown_output = await Tools.ExecuteShellAsync("python -m markitdown \"" + path + "\"");
-                return markitdown_output;
+                //Prepare a temp file to read into
+                string file_name = Path.GetFileNameWithoutExtension(path); //Get the file name
+                string file_name_temp = file_name + "_temp_" + Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5) + ".md"; //Create a temp file name for reading into.
+                string dir_path = Path.GetDirectoryName(path)!;
+                string full_temp_path = Path.Combine(dir_path, file_name_temp);
+
+                //Run command and use markitdown to convert and save in that temporary file
+                string COMMAND = "python -m markitdown \"" + path + "\" -o \"" + full_temp_path + "\"";
+                string RESPONSE = await Tools.ExecuteShellAsync(COMMAND);
+
+                //Handle if it worked as expected...
+                if (File.Exists(full_temp_path))
+                {
+                    string content = System.IO.File.ReadAllText(full_temp_path);
+                    if (content != null && content != "")
+                    {
+                        //It worked!
+
+                        //First delete the temp file
+                        System.IO.File.Delete(full_temp_path);
+
+                        //Return it
+                        return content;
+                    }
+                }
+
+                //If we got down to here, that means it didn't go as planned. This is the fallback!
+
+                //If the temp file exists, still delete it (clean up)
+                if (File.Exists(full_temp_path))
+                {
+                    File.Delete(full_temp_path);
+                }
+
+                //Return command results
+                return "Reading of file '" + path + "' was unsuccessfull. Here was the direct output of the attempt to use markitdown to convert it: '" + RESPONSE + "'.";
             }
             else //assume it is plain text related (like .txt or .md for example)
             {
