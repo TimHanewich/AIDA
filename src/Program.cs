@@ -6,6 +6,7 @@ using TimHanewich.Foundry;
 using TimHanewich.AgentFramework;
 using TimHanewich.Foundry.OpenAI.Responses;
 using TimHanewich.Foundry.OpenAI.Images;
+using Newtonsoft.Json;
 
 namespace AIDA
 {
@@ -242,6 +243,35 @@ namespace AIDA
                 await ConfigureAgentConnectionAsync(AidaAgent);
                 RegisterTools(AidaAgent);
 
+                //Recognize any paths to images in the message?
+                List<string> ImagePathsToInclude = new List<string>(); //Resulting list of images we will pass in
+                string[] image_extensions = new string[]{".png", ".jpg", ".jpeg"};
+                foreach (string image_extension in image_extensions)
+                {
+                    string[] splits = input.ToLower().Split(image_extension + "\"", StringSplitOptions.None);
+                    for (int i = 0; i < splits.Length-1; i++)
+                    {
+                        int last_quote_index = splits[i].LastIndexOf("\"");
+                        if (last_quote_index != -1)
+                        {
+                            string path = splits[i].Substring(last_quote_index + 1) + image_extension;
+
+                            //Ok, so now we have the path
+                            //But there is a problem: it is all lowercase!
+                            //Want to restore it to whatever case it was in
+                            //So we will find the positioning in the original input and then "restore" it to that
+
+                            int OriginalStart = input.ToLower().IndexOf(path);
+                            if (OriginalStart != -1)
+                            {
+                                path = input.Substring(OriginalStart, path.Length); //Get the path from the original (not lowercase) message
+                                ImagePathsToInclude.Add(path); //Ok, now we have the RAW path of the file!!! Great! Now add it as an image path
+                                AnsiConsole.MarkupLine("[gray][italic]Image '" + path + "' added[/][/]"); //indicate the adding of the photo.
+                            }
+                        }
+                    }
+                }
+
                 //Track tokens before calling for stats later
                 int prevInput = AidaAgent.InputTokensConsumed;
                 int prevOutput = AidaAgent.OutputTokensConsumed;
@@ -250,7 +280,7 @@ namespace AIDA
                 string response = null!;
                 try
                 {
-                    response = await AidaAgent.PromptAsync(input);
+                    response = await AidaAgent.PromptAsync(input, ImagePathsToInclude.ToArray());
                 }
                 catch (Exception ex)
                 {
