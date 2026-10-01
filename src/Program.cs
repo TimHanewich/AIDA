@@ -26,12 +26,18 @@ namespace AIDA
             RegisterTools(agent);
 
             //Event handlers
+            agent.TextResponseReceived += OnTextResponseReceived;
             agent.InferenceRequested += OnInferenceRequested;
             agent.InferenceReceived += OnInferenceReceived;
             agent.ExecutableFunctionInvoked += OnToolInvoked;
             agent.WebSearchInvoked += OnWebSearch;
 
             return agent;
+        }
+
+        private static void OnTextResponseReceived(string text)
+        {
+            PrintAIMessage(text, AIDASettings.Load().AssistantMessageColor);
         }
 
         private static void OnToolInvoked(ExecutableFunction ef, JObject arguments)
@@ -276,11 +282,11 @@ namespace AIDA
                 int prevInput = AidaAgent.InputTokensConsumed;
                 int prevOutput = AidaAgent.OutputTokensConsumed;
 
-                //Prompt the model, get response
-                string response = null!;
+                //Prompt (trigger loop)
                 try
                 {
-                    response = await AidaAgent.PromptAsync(input, ImagePathsToInclude.ToArray());
+                    await AidaAgent.PromptAsync(input, ImagePathsToInclude.ToArray());
+                    Console.WriteLine(); //new line after to break from everything
                 }
                 catch (Exception ex)
                 {
@@ -290,16 +296,6 @@ namespace AIDA
                     Console.WriteLine();
                     AnsiConsole.Markup("[italic][gray]Press enter to try another input... [/][/]");
                     Console.ReadLine();
-                }
-
-                //If successfull, print
-                if (response != null)
-                {
-                    //Print
-                    PrintAIMessage(response, AIDASettings.Load().AssistantMessageColor);
-
-                    //new line
-                    Console.WriteLine();
                 }
                 
                 //Log consumption (even on failure, tokens may have been consumed)
