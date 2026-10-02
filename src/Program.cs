@@ -22,7 +22,12 @@ namespace AIDA
 
         public static TimHanewich.AgentFramework.Agent CreateAgent()
         {
-            var agent = new TimHanewich.AgentFramework.Agent(Tools.GetSystemPrompt());
+            Agent agent = new TimHanewich.AgentFramework.Agent(Tools.GetSystemPrompt());
+
+            //Timeout settings
+            agent.RateLimitCooloff = TimeSpan.FromSeconds(60);
+
+            //Register tools
             RegisterTools(agent);
 
             //Event handlers
@@ -31,6 +36,8 @@ namespace AIDA
             agent.InferenceReceived += OnInferenceReceived;
             agent.ExecutableFunctionInvoked += OnToolInvoked;
             agent.WebSearchInvoked += OnWebSearch;
+            agent.RateLimitExceeded += OnRateLimited;
+            agent.RateLimitCoolingOff += OnRateLimitCoolingDown;
 
             return agent;
         }
@@ -59,6 +66,16 @@ namespace AIDA
         private static void OnInferenceReceived(int input_tokens_consumed, int output_tokens_consumed)
         {
             AnsiConsole.MarkupLine("[gray][italic]complete[/][/]");
+        }
+
+        private static void OnRateLimited()
+        {
+            AnsiConsole.MarkupLine("[DarkOrange][italic]Rate Limited by Foundry[/][/]");
+        }
+
+        private static void OnRateLimitCoolingDown(TimeSpan cooldown_time)
+        {
+            AnsiConsole.MarkupLine("[gray][italic]Cooling down for " + cooldown_time.TotalSeconds.ToString("#,##0") + " seconds... [/][/]");
         }
 
         public static void RegisterTools(TimHanewich.AgentFramework.Agent agent)
