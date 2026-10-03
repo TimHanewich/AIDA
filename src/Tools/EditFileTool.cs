@@ -67,7 +67,7 @@ namespace AIDA
                 return "There was an issue opening the file: " + ex.Message;
             }
 
-            string[] split = old_string.Split(old_string);
+            string[] split = content.Split(old_string);
             int occurences = split.Length - 1;
             if (occurences == 0)
             {
