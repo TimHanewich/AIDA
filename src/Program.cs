@@ -301,6 +301,9 @@ namespace AIDA
                         ImagePathsToIncludeOnNextMessage.Add(ConfirmedImage);
                         AnsiConsole.MarkupLine("[gray][italic]Image '" + ConfirmedImage + "' added[/][/]");
                     }
+
+                    //Go back to input
+                    goto Input;
                 }
 
                 //If there isn't a model configured, print fail and go back
