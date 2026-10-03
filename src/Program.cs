@@ -296,7 +296,11 @@ namespace AIDA
                     }
 
                     //Add them to include on next message
-                    ImagePathsToIncludeOnNextMessage.AddRange(ConfirmedImages);
+                    foreach (string ConfirmedImage in ConfirmedImages)
+                    {
+                        ImagePathsToIncludeOnNextMessage.Add(ConfirmedImage);
+                        AnsiConsole.MarkupLine("[gray][italic]Image '" + ConfirmedImage + "' added[/][/]");
+                    }
                 }
 
                 //If there isn't a model configured, print fail and go back
