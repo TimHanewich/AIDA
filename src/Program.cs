@@ -197,6 +197,7 @@ namespace AIDA
 
             //Infinite chat
             Console.WriteLine();
+            List<string> ImagePathsToIncludeOnNextMessage = new List<string>();
             while (true)
             {
             //Collect input
@@ -253,6 +254,50 @@ namespace AIDA
                     s.PrintReport();
                     goto Input;
                 }
+                else if (input.ToLower() == "/image") //e.g. /image C:\Users\timh\Downloads\house.jpg
+                {
+                    string path = input.Replace("/image ", ""); //take out the /image part
+
+                    List<string> ImagePathsToAnalyze = new List<string>();
+
+                    //Get list of images to examine
+                    if (Directory.Exists(path)) //if a folder
+                    {
+                        string[] files = Directory.GetFiles(path);
+                        ImagePathsToAnalyze.AddRange(files);
+                    }
+                    else if (File.Exists(path)) //if a single image
+                    {
+                        ImagePathsToAnalyze.Add(path);
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLine("[red]No file at path '" + path + "'.[/]");
+                        goto Input;
+                    }
+
+                    //Filter to only ones that are acceptable images
+                    List<string> ConfirmedImages = new List<string>();
+                    string[] image_extensions = new string[]{".png", ".jpg", ".jpeg"};
+                    foreach (string PathToAnalyze in ImagePathsToAnalyze)
+                    {
+                        string extension = Path.GetExtension(PathToAnalyze).ToLower();
+                        if (image_extensions.Contains(extension))
+                        {
+                            ConfirmedImages.Add(PathToAnalyze);
+                        }
+                    }
+
+                    //If there aren't any legit images, say that and fail
+                    if (ConfirmedImages.Count == 0)
+                    {
+                        AnsiConsole.MarkupLine("[red]No acceptable image types in the provided path.[/]");
+                        goto Input;
+                    }
+
+                    //Add them to include on next message
+                    ImagePathsToIncludeOnNextMessage.AddRange(ConfirmedImages);
+                }
 
                 //If there isn't a model configured, print fail and go back
                 if (AIDASettings.Load().TextModel == null)
@@ -266,35 +311,6 @@ namespace AIDA
                 await ConfigureAgentConnectionAsync(AidaAgent);
                 RegisterTools(AidaAgent);
 
-                //Recognize any paths to images in the message?
-                List<string> ImagePathsToInclude = new List<string>(); //Resulting list of images we will pass in
-                string[] image_extensions = new string[]{".png", ".jpg", ".jpeg"};
-                foreach (string image_extension in image_extensions)
-                {
-                    string[] splits = input.ToLower().Split(image_extension + "\"", StringSplitOptions.None);
-                    for (int i = 0; i < splits.Length-1; i++)
-                    {
-                        int last_quote_index = splits[i].LastIndexOf("\"");
-                        if (last_quote_index != -1)
-                        {
-                            string path = splits[i].Substring(last_quote_index + 1) + image_extension;
-
-                            //Ok, so now we have the path
-                            //But there is a problem: it is all lowercase!
-                            //Want to restore it to whatever case it was in
-                            //So we will find the positioning in the original input and then "restore" it to that
-
-                            int OriginalStart = input.ToLower().IndexOf(path);
-                            if (OriginalStart != -1)
-                            {
-                                path = input.Substring(OriginalStart, path.Length); //Get the path from the original (not lowercase) message
-                                ImagePathsToInclude.Add(path); //Ok, now we have the RAW path of the file!!! Great! Now add it as an image path
-                                AnsiConsole.MarkupLine("[gray][italic]Image '" + path + "' added[/][/]"); //indicate the adding of the photo.
-                            }
-                        }
-                    }
-                }
-
                 //Track tokens before calling for stats later
                 int prevInput = AidaAgent.InputTokensConsumed;
                 int prevOutput = AidaAgent.OutputTokensConsumed;
@@ -302,7 +318,8 @@ namespace AIDA
                 //Prompt (trigger loop)
                 try
                 {
-                    await AidaAgent.PromptAsync(input, ImagePathsToInclude.ToArray());
+                    await AidaAgent.PromptAsync(input, ImagePathsToIncludeOnNextMessage.ToArray());
+                    ImagePathsToIncludeOnNextMessage.Clear(); //Important: immediately clear this out as they were just provided and done with now! Wouldn't want these to be provided over and over again the next messages.
                     Console.WriteLine(); //new line after to break from everything
                 }
                 catch (Exception ex)
