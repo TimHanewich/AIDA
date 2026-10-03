@@ -254,9 +254,19 @@ namespace AIDA
                     s.PrintReport();
                     goto Input;
                 }
-                else if (input.ToLower() == "/image") //e.g. /image C:\Users\timh\Downloads\house.jpg
+                else if (input.ToLower().StartsWith("/image")) //e.g. /image C:\Users\timh\Downloads\house.jpg
                 {
                     string path = input.Replace("/image ", ""); //take out the /image part
+
+                    //Strip out the leading and trailing quotes if necessary
+                    if (path.StartsWith("\""))
+                    {
+                        path = path.Substring(1);
+                    }
+                    if (path.EndsWith("\""))
+                    {
+                        path = path.Substring(0, path.Length-1);
+                    }
 
                     List<string> ImagePathsToAnalyze = new List<string>();
 
@@ -273,6 +283,11 @@ namespace AIDA
                     else
                     {
                         AnsiConsole.MarkupLine("[red]No file at path '" + path + "'.[/]");
+                        Console.WriteLine();
+                        AnsiConsole.MarkupLine("[red]Example usage:[/]");
+                        AnsiConsole.MarkupLine("[red]\t/image C:\\Users\\timh\\Downloads\\my_image.jpg    //provide a single image[/]");
+                        AnsiConsole.MarkupLine("[red]\t/image C:\\Users\\timh\\Downloads\\my_images\\      //provide multiple images in a folder[/]");
+                        Console.WriteLine();
                         goto Input;
                     }
 
@@ -292,6 +307,7 @@ namespace AIDA
                     if (ConfirmedImages.Count == 0)
                     {
                         AnsiConsole.MarkupLine("[red]No acceptable image types in the provided path.[/]");
+                        Console.WriteLine();
                         goto Input;
                     }
 
@@ -303,6 +319,7 @@ namespace AIDA
                     }
 
                     //Go back to input
+                    Console.WriteLine();
                     goto Input;
                 }
 
