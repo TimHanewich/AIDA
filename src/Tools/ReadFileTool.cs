@@ -39,6 +39,9 @@ namespace AIDA
 
             string[] markitdown_extensions = new string[]{".docx", ".pptx", ".xlsx", ".pdf"};
 
+            //DECLARE TO RETURN
+            string TORETURN = "";
+
             //Get file type extensions
             string ext = Path.GetExtension(path); //returns like ".txt" for example (with the dot)
 
@@ -76,7 +79,7 @@ namespace AIDA
                         System.IO.File.Delete(full_temp_path);
 
                         //Return it
-                        return content;
+                        TORETURN = content;
                     }
                 }
 
@@ -93,8 +96,18 @@ namespace AIDA
             }
             else //assume it is plain text related (like .txt or .md for example)
             {
-                return System.IO.File.ReadAllText(path);
+                TORETURN = System.IO.File.ReadAllText(path);
             }
+
+            //Before returning, check maximum
+            //max chars = 10,485,760
+            //See this error: https://i.imgur.com/8jHB247.png
+            if (TORETURN.Length > 10_000_000)
+            {
+                return "Content of file '" + path + "' was " + TORETURN.Length.ToString("#,##0") + " characters and that is too long to provide back.";
+            }
+            return TORETURN;
+
         }
 
         private static string ReadWordDocument(string path)
