@@ -81,18 +81,20 @@ namespace AIDA
                         //Return it
                         TORETURN = content;
                     }
+                    else //didn't work. content was null or blank
+                    {
+                        //If we got down to here, that means it didn't go as planned. This is the fallback!
+
+                        //If the temp file exists, still delete it (clean up)
+                        if (File.Exists(full_temp_path))
+                        {
+                            File.Delete(full_temp_path);
+                        }
+
+                        //Return command results
+                        return "Reading of file '" + path + "' was unsuccessfull. Here was the direct output of the attempt to use markitdown to convert it: '" + RESPONSE + "'.";
+                    }
                 }
-
-                //If we got down to here, that means it didn't go as planned. This is the fallback!
-
-                //If the temp file exists, still delete it (clean up)
-                if (File.Exists(full_temp_path))
-                {
-                    File.Delete(full_temp_path);
-                }
-
-                //Return command results
-                return "Reading of file '" + path + "' was unsuccessfull. Here was the direct output of the attempt to use markitdown to convert it: '" + RESPONSE + "'.";
             }
             else //assume it is plain text related (like .txt or .md for example)
             {
