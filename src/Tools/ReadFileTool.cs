@@ -99,7 +99,7 @@ namespace AIDA
             }
             else if (image_extensions.Contains(ext)) //an image?
             {
-                TORETURN = "The file read tool can not be used on an image file.";                
+                TORETURN = "The read_file tool can not be used on an image file.";                
             }
             else //assume it is plain text related (like .txt or .md for example)
             {
