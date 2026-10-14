@@ -38,6 +38,7 @@ namespace AIDA
             }
 
             string[] markitdown_extensions = new string[]{".docx", ".pptx", ".xlsx", ".pdf"};
+            string[] image_extensions = new string[]{".jpg", ".jpeg", ".jpe", ".jfif", ".png", ".apng", ".gif", ".bmp", ".dib", ".webp", ".avif", ".heic", ".heif", ".tif", ".tiff", ".ico", ".cur", ".jp2", ".j2k", ".jpf", ".jpx", ".jxl", ".tga", ".pcx", ".ppm", ".pgm", ".pbm", ".pnm", ".psd", ".xcf", ".exr", ".hdr", ".dds", ".svg", ".svgz", ".eps", ".ai", ".wmf", ".emf", ".raw", ".cr2", ".cr3", ".crw", ".nef", ".nrw", ".arw", ".srf", ".sr2", ".orf", ".rw2", ".raf", ".dng", ".pef", ".x3f", ".3fr", ".mrw", ".dcr", ".kdc"};
 
             //DECLARE TO RETURN
             string TORETURN = "";
@@ -95,6 +96,10 @@ namespace AIDA
                         return "Reading of file '" + path + "' was unsuccessfull. Here was the direct output of the attempt to use markitdown to convert it: '" + RESPONSE + "'.";
                     }
                 }
+            }
+            else if (image_extensions.Contains(ext)) //an image?
+            {
+                TORETURN = "The file read tool can not be used on an image file.";                
             }
             else //assume it is plain text related (like .txt or .md for example)
             {
