@@ -244,7 +244,8 @@ namespace AIDA
                 else if (input.ToLower() == "/clear")
                 {
                     AidaAgent = CreateAgent();
-                    AnsiConsole.MarkupLine("[blue][bold]Chat history cleared. Latest prompt.md injected.[/][/]");
+                    ImagePathsToIncludeOnNextMessage.Clear(); //clear out all images that were added and awaiting to be sent in
+                    AnsiConsole.MarkupLine("[blue][bold]Chat history cleared. Images in waiting cleared. Latest prompt.md injected.[/][/]");
                     Console.WriteLine();
                     goto Input;
                 }
