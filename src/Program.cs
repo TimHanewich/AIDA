@@ -12,8 +12,14 @@ namespace AIDA
 {
     public class Program
     {
-        //The agent (from TimHanewich.AgentFramework)
-        public static TimHanewich.AgentFramework.Agent AidaAgent = null!;
+        
+        
+        //VARIABLES THAT MUST EXIST OUTSIDE OF ONE FUNCTION AND BE ACCESSIBLE BY MULTIPLE FUNCTIONS
+        public static TimHanewich.AgentFramework.Agent AidaAgent = null!;                                 //The agent (from TimHanewich.AgentFramework)
+        public static List<ConversationTurn> ConversationHistory = new List<ConversationTurn>();          //Full history log of the conversation
+
+
+
 
         public static void Main(string[] args)
         {
@@ -44,7 +50,8 @@ namespace AIDA
 
         private static void OnTextResponseReceived(string text)
         {
-            PrintAIMessage(text, AIDASettings.Load().AssistantMessageColor);
+            ConversationHistory.Add(new ConversationTurn(true, text));            //Add the AI's response to the ConversationHistory
+            PrintAIMessage(text, AIDASettings.Load().AssistantMessageColor);      //Print the AI's response
         }
 
         private static void OnToolInvoked(ExecutableFunction ef, JObject arguments)
@@ -197,7 +204,7 @@ namespace AIDA
 
             //Infinite chat
             Console.WriteLine();
-            List<string> ImagePathsToIncludeOnNextMessage = new List<string>();
+            List<string> ImagePathsToIncludeOnNextMessage = new List<string>();            //List of images loaded "in the chamber" and ready to go into next prompt
             while (true)
             {
             //Collect input
@@ -340,12 +347,21 @@ namespace AIDA
                 int prevInput = AidaAgent.InputTokensConsumed;
                 int prevOutput = AidaAgent.OutputTokensConsumed;
 
+                //Add the prompt that will be sent in to the conversation history just to track it for potential later export.
+                ConversationTurn UserInput = new ConversationTurn(false, input);
+                ConversationHistory.Add(UserInput);
+
                 //Prompt (trigger loop)
                 try
                 {
+                    //Send in the prompt to the responses API!
                     await AidaAgent.PromptAsync(input, ImagePathsToIncludeOnNextMessage.ToArray());
-                    ImagePathsToIncludeOnNextMessage.Clear(); //Important: immediately clear this out as they were just provided and done with now! Wouldn't want these to be provided over and over again the next messages.
-                    Console.WriteLine(); //new line after to break from everything
+                    
+                    //Important: immediately clear this out as they were just provided and done with now! Wouldn't want these to be provided over and over again the next messages.
+                    ImagePathsToIncludeOnNextMessage.Clear(); 
+                    
+                    //new line after to break from everything
+                    Console.WriteLine(); 
                 }
                 catch (Exception ex)
                 {

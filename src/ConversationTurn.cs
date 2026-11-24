@@ -18,6 +18,13 @@ namespace AIDA
             Content = string.Empty;
         }
 
+        public ConversationTurn(bool from, string content)
+        {
+            From = from;
+            At = DateTimeOffset.Now;
+            Content = content;
+        }
+
         public JObject Pack()
         {
             JObject ToReturn = new JObject();
