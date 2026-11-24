@@ -342,6 +342,12 @@ namespace AIDA
                         name = export_command[1]; //the second is the path
                     }
 
+                    //Ensure the name has a ".md" at the end, just in case the user did not provide it
+                    if (name.ToLower().EndsWith(".md") == false)
+                    {
+                        name = name + ".md";
+                    }
+
                     //Turn the name into a full path in the downloads folder.
                     string DownloadsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
                     string path = Path.Combine(DownloadsDir, name);
