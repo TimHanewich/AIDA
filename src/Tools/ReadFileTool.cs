@@ -25,9 +25,17 @@ namespace AIDA
             }
 
             AnsiConsole.Markup("[gray][italic]reading '" + Markup.Escape(file_path) + "'... [/][/]");
-            string result = await ReadFileAsync(file_path);
-            AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
-            return result;
+            try
+            {
+                string result = await ReadFileAsync(file_path);
+                AnsiConsole.MarkupLine("[gray][italic]done[/][/]");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine("[red][italic]failed[/][/]");
+                return "Read attempt failed. Exception message: " + ex.Message;
+            }
         }
 
         private static async Task<string> ReadFileAsync(string path)
