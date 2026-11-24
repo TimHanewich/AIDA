@@ -347,14 +347,14 @@ namespace AIDA
                     string path = Path.Combine(DownloadsDir, name);
 
                     //Pack it all
-                    JArray FULL = new JArray();
+                    string FULL = "# Export of AIDA Conversation at " + DateTimeOffset.Now.ToString() + "\n\n";
                     foreach (ConversationTurn ct in ConversationHistory)
                     {
-                        FULL.Add(ct.Pack());
+                        FULL = FULL + ct.AsMarkdown() + "\n\n";
                     }
 
                     //Export it
-                    System.IO.File.WriteAllText(path, FULL.ToString(Formatting.Indented));
+                    System.IO.File.WriteAllText(path, FULL.Trim());
 
                     //Confirm!
                     AnsiConsole.MarkupLine("[green]Exported to '" + path + "'![/]");

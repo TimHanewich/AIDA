@@ -47,5 +47,29 @@ namespace AIDA
 
             return ToReturn;
         }
+
+        public string AsMarkdown()
+        {
+            string ToReturn = "";
+
+            //Set up name
+            string FromName = "";
+            if (From == false)
+            {
+                FromName = "User";
+            }
+            else
+            {
+                FromName = "AIDA";
+            }
+
+            //Set up friendly date/time at
+            string FriendlyAt = At.ToString();
+
+            //Fill it in
+            ToReturn = ToReturn + "## " + FromName + " at " + FriendlyAt + "\n" + Content; 
+
+            return ToReturn;
+        }
     }
 }
