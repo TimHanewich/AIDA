@@ -229,6 +229,8 @@ namespace AIDA
                     AnsiConsole.MarkupLine("[bold]/tools[/] - list all tools AIDA has available to it.");
                     AnsiConsole.MarkupLine("[bold]/auth[/] - authenticate into Foundry if using Service Principal.");
                     AnsiConsole.MarkupLine("[bold]/stats[/] - view usage statistics.");
+                    AnsiConsole.MarkupLine("[bold]/export[/] - export the conversation as Markdown to Downloads with an automatically generated filename.");
+                    AnsiConsole.MarkupLine("[bold]/export filename.md[/] - export with a custom filename (no spaces); .md is added if omitted. Example: /export my_chat");
                     Console.WriteLine();
                     goto Input;
                 }
