@@ -13,7 +13,7 @@ namespace AIDA
     public class Program
     {
         
-        
+
         //VARIABLES THAT MUST EXIST OUTSIDE OF ONE FUNCTION AND BE ACCESSIBLE BY MULTIPLE FUNCTIONS
         public static TimHanewich.AgentFramework.Agent AidaAgent = null!;                                 //The agent (from TimHanewich.AgentFramework)
         public static List<ConversationTurn> ConversationHistory = new List<ConversationTurn>();          //Full history log of the conversation
@@ -325,6 +325,39 @@ namespace AIDA
                         ImagePathsToIncludeOnNextMessage.Add(ConfirmedImage);
                         AnsiConsole.MarkupLine("[gray][italic]Image '" + ConfirmedImage + "' added[/][/]");
                     }
+
+                    //Go back to input
+                    Console.WriteLine();
+                    goto Input;
+                }
+                else if (input.StartsWith("/export"))
+                {
+                    //Set up default name: DEFAULT is Downloads folder
+                    string name = "aida_export_" + Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5) + ".md";
+                    
+                    //Did they specify a specific name?
+                    string[] export_command = input.Trim().Split(" ", StringSplitOptions.TrimEntries);
+                    if (export_command.Length == 2)
+                    {
+                        name = export_command[1]; //the second is the path
+                    }
+
+                    //Turn the name into a full path in the downloads folder.
+                    string DownloadsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+                    string path = Path.Combine(DownloadsDir, name);
+
+                    //Pack it all
+                    JArray FULL = new JArray();
+                    foreach (ConversationTurn ct in ConversationHistory)
+                    {
+                        FULL.Add(ct.Pack());
+                    }
+
+                    //Export it
+                    System.IO.File.WriteAllText(path, FULL.ToString(Formatting.Indented));
+
+                    //Confirm!
+                    AnsiConsole.MarkupLine("[green]Exported to '" + path + "'![/]");
 
                     //Go back to input
                     Console.WriteLine();
